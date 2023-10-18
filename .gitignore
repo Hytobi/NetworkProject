@@ -1,0 +1,12 @@
+######################
+# Project Specific
+######################
+/target/classes/static/**
+/src/test/javascript/coverage/
+
+######################
+# Directories
+######################
+/bin/
+/doc/
+/obj/
