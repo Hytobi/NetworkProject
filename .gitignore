@@ -10,9 +10,7 @@
 serveur/bin/
 serveur/doc/
 serveur/obj/
-serveur/obj/src/
 
 client/bin/
 client/doc/
 client/obj/
-client/obj/src/
