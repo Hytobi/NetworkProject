@@ -14,7 +14,7 @@
 #include "rage.h"
 #include "api.h"
 
-char* post(char* ip, char* path, char* data) {
+char* post(char* ip, char* data) {
     // Client UDP
     // Création du socket
     int sockfd;
@@ -31,10 +31,16 @@ char* post(char* ip, char* path, char* data) {
     // on envoie a l'addresse de
     addr.sin_addr.s_addr = inet_addr(ip);
 
+    // bind sert a lier le socket a une adresse
     EXIT_IF_FAIL(bind(sockfd, (struct sockaddr*)&addr, sizeof(addr)), "Probleme bind");
+    // fcntl sert a configurer le socket
     EXIT_IF_FAIL(fcntl(sockfd, F_SETFL, MSG_WAITALL), "Probleme fcntl");
 
-    printf("[POST] %s\n", path);
+    // on envoie le message
+    int n;
+    n = sendto(sockfd, data, strlen(data), MSG_CONFIRM, (struct sockaddr*)&addr, sizeof(addr));
+    EXIT_IF_FAIL(n, "Probleme send");
+
     return "post ok";
 }
 
@@ -57,6 +63,10 @@ char* get(char* ip, char* path) {
 
     EXIT_IF_FAIL(bind(sockfd, (struct sockaddr*)&addr, sizeof(addr)), "Probleme bind");
     EXIT_IF_FAIL(fcntl(sockfd, F_SETFL, MSG_WAITALL), "Probleme fcntl");
+
+    int n;
+    n = sendto(sockfd, path, 1020, MSG_CONFIRM, (struct sockaddr*)&addr, sizeof(addr));
+    EXIT_IF_FAIL(n, "Probleme send");
 
     printf("[GET] %s\n", path);
     return "get ok";

@@ -16,7 +16,6 @@ void connectToServer();
 // path /map : le client demande la liste des maps
 void askExistingMap(char* ip);
 
-
 // path /map/{id} : le client demande les jeux en cours sur la map {id}
 void askGameForMap(char* ip, int mapId);
 

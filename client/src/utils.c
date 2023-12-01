@@ -14,6 +14,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include "utils.h"
+
+
 #include "rage.h"
 
 void getIPAddressAndMask(char *ipAddress, char *networkMask) {

@@ -41,7 +41,7 @@ char* searchServer() {
     printf("Recherche de serveur...\n");
     char* msgScan = getJsonScan();
     char* broadcastAddress = getBroadcastAddress();
-    char* postResponse = post(broadcastAddress, "/scan", msgScan);
+    char* postResponse = post(broadcastAddress, msgScan);
     sleep(2);
 
     // on recupere la liste des serveurs dans le terminal et on les met dans une liste
@@ -55,53 +55,41 @@ char* searchServer() {
     }
     free(serverList);
     return serverList;
-
 }
 
 void connectToServer(char* ip) {
     printf("\033[H\033[2J");
     printf("Connexion au serveur...\n");
     char* msgConnect = getJsonConnect();
-    char* postResponse = post(ip, "/connect", msgConnect);
+    char* postResponse = post(ip, msgConnect);
     sleep(2);
 }
 
 void askExistingMap(char* ip) {
     printf("\033[H\033[2J");
     printf("Demande de la liste des maps...\n");
-    char* getResponse = get(ip, "/map");
+    char* getResponse = get(ip, getMap());
     sleep(2);
 }
 
 void askGameForMap(char* ip, int mapId) {
     printf("\033[H\033[2J");
     printf("Demande de la map %d...\n", mapId);
-    char* pathMap = malloc(64 * sizeof(char));
-    strcpy(pathMap, "/map/");
-    strcat(pathMap, mapId);
-    char* getResponse = get(ip, pathMap);
+    char* getResponse = get(ip, getJsonPathMap(mapId));
     sleep(2);
 }
 
-void enterInGame(char* ip, int mapId) {
+void enterInGame(char* ip, int mapId, int gameId) {
     printf("\033[H\033[2J");
     printf("Entrez dans la partie...\n");
-    char* msgEnterGame = getJsonEnterGame();
-    char* pathMap = malloc(64 * sizeof(char));
-    strcpy(pathMap, "/map/enter/");
-    strcat(pathMap, mapId);
-    char* postResponse = post(ip, pathMap, msgEnterGame);
+    char* postResponse = post(ip, getJsonEnterGame(mapId, gameId));
     sleep(2);
 }
 
 void createGame(char* ip, int mapId) {
     printf("\033[H\033[2J");
     printf("Creation de la partie...\n");
-    char* msgCreateGame = getJsonCreateGame();
-    char* pathMap = malloc(64 * sizeof(char));
-    strcpy(pathMap, "/map/create/");
-    strcat(pathMap, mapId);
-    char* postResponse = post(ip, pathMap, msgCreateGame);
+    char* postResponse = post(ip,  getJsonCreateGame(mapId));
     sleep(2);
 }
 

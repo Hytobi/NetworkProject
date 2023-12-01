@@ -4,7 +4,7 @@
 
 #define PORT 42069
 
-char* post(char* ip, char* path, char* data);
+char* post(char* ip, char* data);
 char* get(char* ip, char* path);
 
 #endif
