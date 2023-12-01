@@ -9,8 +9,8 @@
 ######################
 serveur/bin/*
 serveur/doc/*
-serveur/obj/*
+serveur/obj/*.o
 
 client/bin/*
 client/doc/*
-client/obj/*
+client/obj/*.o
