@@ -7,6 +7,6 @@
 ######################
 # Directories
 ######################
-/bin/
-/doc/
-/obj/
+serveur/bin/
+serveur/doc/
+serveur/obj/
