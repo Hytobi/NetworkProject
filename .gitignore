@@ -7,13 +7,10 @@
 ######################
 # Directories
 ######################
-../serveur/bin/
-../serveur/doc/
-../serveur/obj/
+serveur/bin/
+serveur/doc/
+serveur/obj/
 
-../client/bin/
-../client/doc/
-../client/obj/
-/bin/
-/doc/
-/obj/
+client/bin/
+client/doc/
+client/obj/
