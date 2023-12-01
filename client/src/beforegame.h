@@ -13,7 +13,7 @@ void connectToServer();
 void askExistingMap();
 void askGameForMap(char* ip, int mapId);
 void enterInGame(char* ip, int mapId, int gameId);
-void createGame();
+void createGame(char* ip, int mapId);
 
 
 #endif

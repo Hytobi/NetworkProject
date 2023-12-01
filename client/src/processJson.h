@@ -7,7 +7,7 @@ char* getJsonScan();
 char* getJsonConnect();
 char* getMap();
 char* getJsonPathMap(int mapId);
-char* getJsonEnter(int mapId, int gameId);
+char* getJsonEnterGame(int mapId, int gameId);
 char* getJsonCreateGame(int mapId);
 
 
