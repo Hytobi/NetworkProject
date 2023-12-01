@@ -9,44 +9,38 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include <fcntl.h>
 #include <arpa/inet.h>
+#include <string.h>
 
 #include "cJSON/cJSON.h"
 #include "err.h"
+#include "utils.h"
 
 int main(int arvc, char** argv) {
     printf("\033[H\033[2J");
     // Client UDP
-    // Création du socket
+
+    printf("Création du socket...\n");
     int sockfd;
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     EXIT_IF_FAIL(sockfd, "Probleme creation socket");
-    
-    // Configurer le socket pour qu'il puisse être réutilisé
-    EXIT_IF_FAIL(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)), "problem setsockopt");
 
-    //  il faut attacher le socket à un port Internet et une adresse IP
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(atoi("42069"));
-    // on envoie a l'addresse de 127.0.0.1
-    addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    printf("Paramétrage du Broadcast...\n");
+    struct sockaddr_in broadcast_addr;
+    broadcast_addr.sin_family = AF_INET;
+    broadcast_addr.sin_port = htons(42069);
+    broadcast_addr.sin_addr.s_addr=INADDR_BROADCAST;
 
-    EXIT_IF_FAIL(bind(sockfd, (struct sockaddr*)&addr, sizeof(addr)), "Probleme bind");
-    EXIT_IF_FAIL(fcntl(sockfd, F_SETFL, MSG_WAITALL), "Probleme fcntl");
+    printf("Autorisation du broadcast...\n");
+    int enable=1;
+    int socketOpt=setsockopt(sockfd,SOL_SOCKET,SO_BROADCAST,&enable,sizeof(enable));
+    EXIT_IF_FAIL(socketOpt,"Erreur set socket");
 
-    printf("Client up\n");
-
-    char buffer[1020];
-    int n;
-    // lit le terminal
-    fgets(buffer, 1020, stdin);
-
-    n = sendto(sockfd, buffer, 1020, MSG_CONFIRM, (struct sockaddr*)&addr, sizeof(addr));
-    //n = send(sockfd, buffer, 1020, MSG_CONFIRM);
-    EXIT_IF_FAIL(n, "Probleme send");
-
+    printf("Envoi du message en broadcast...\n");
+    char* message = malloc(sizeof(char)*1020);
+    strcpy(message,"looking for bomberstudent servers");
+    int sendRtr=sendto(sockfd, message, strlen(message), 0, (struct sockaddr*)&broadcast_addr, sizeof(broadcast_addr));
+    EXIT_IF_FAIL(sendRtr,"Send message");
 
     return EXIT_SUCCESS;
 }
