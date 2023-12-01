@@ -5,7 +5,25 @@
  */
 #include "beforegame.h"
 
+#include "processJson.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <ifaddrs.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+#include "utils.h"
+#include "rage.h"
+#include "api.h"
 
 
 void enterName() {
@@ -17,11 +35,74 @@ void enterName() {
     sleep(2);
     printf("\033[H\033[2J");
 }
-void searchServer();
-void connectToServer();
-void askExistingMap();
-void askGameForMap(char*);
-void enterInGame();
-void createGame();
+
+char* searchServer() {
+    printf("\033[H\033[2J");
+    printf("Recherche de serveur...\n");
+    char* msgScan = getJsonScan();
+    char* broadcastAddress = getBroadcastAddress();
+    char* postResponse = post(broadcastAddress, "/scan", msgScan);
+    sleep(2);
+
+    // on recupere la liste des serveurs dans le terminal et on les met dans une liste
+    // Lit le terminal 
+
+    char* serverList = malloc(1024 * sizeof(char));
+    char* serverListToken = strtok(serverList, ",");
+    while (serverListToken != NULL) {
+        printf("%s\n", serverListToken);
+        serverListToken = strtok(NULL, ",");
+    }
+    free(serverList);
+    return serverList;
+
+}
+
+void connectToServer(char* ip) {
+    printf("\033[H\033[2J");
+    printf("Connexion au serveur...\n");
+    char* msgConnect = getJsonConnect();
+    char* postResponse = post(ip, "/connect", msgConnect);
+    sleep(2);
+}
+
+void askExistingMap(char* ip) {
+    printf("\033[H\033[2J");
+    printf("Demande de la liste des maps...\n");
+    char* getResponse = get(ip, "/map");
+    sleep(2);
+}
+
+void askGameForMap(char* ip, int mapId) {
+    printf("\033[H\033[2J");
+    printf("Demande de la map %d...\n", mapId);
+    char* pathMap = malloc(64 * sizeof(char));
+    strcpy(pathMap, "/map/");
+    strcat(pathMap, mapId);
+    char* getResponse = get(ip, pathMap);
+    sleep(2);
+}
+
+void enterInGame(char* ip, int mapId) {
+    printf("\033[H\033[2J");
+    printf("Entrez dans la partie...\n");
+    char* msgEnterGame = getJsonEnterGame();
+    char* pathMap = malloc(64 * sizeof(char));
+    strcpy(pathMap, "/map/enter/");
+    strcat(pathMap, mapId);
+    char* postResponse = post(ip, pathMap, msgEnterGame);
+    sleep(2);
+}
+
+void createGame(char* ip, int mapId) {
+    printf("\033[H\033[2J");
+    printf("Creation de la partie...\n");
+    char* msgCreateGame = getJsonCreateGame();
+    char* pathMap = malloc(64 * sizeof(char));
+    strcpy(pathMap, "/map/create/");
+    strcat(pathMap, mapId);
+    char* postResponse = post(ip, pathMap, msgCreateGame);
+    sleep(2);
+}
 
 
