@@ -9,4 +9,6 @@
 
 #define PERROR(msg,value) perror(msg), exit(value)
 
+#define EXIT_IF_FAIL(x,msg) if (x == -1) { perror(msg); exit(EXIT_FAILURE); }
+
 #endif //PROJECT_ERR_H
