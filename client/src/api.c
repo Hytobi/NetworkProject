@@ -14,7 +14,7 @@
 #include "rage.h"
 #include "api.h"
 
-char* post(char* ip, char* data) {
+void post(char* ip, char* data) {
     // Client UDP
     // Création du socket
     int sockfd;
@@ -27,7 +27,7 @@ char* post(char* ip, char* data) {
     //  il faut attacher le socket à un port Internet et une adresse IP
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(atoi(PORT));
+    addr.sin_port = htons(PORT);
     // on envoie a l'addresse de
     addr.sin_addr.s_addr = inet_addr(ip);
 
@@ -41,10 +41,9 @@ char* post(char* ip, char* data) {
     n = sendto(sockfd, data, strlen(data), MSG_CONFIRM, (struct sockaddr*)&addr, sizeof(addr));
     EXIT_IF_FAIL(n, "Probleme send");
 
-    return "post ok";
 }
 
-char* get(char* ip, char* path) {
+void get(char* ip, char* path) {
     // Client UDP
     // Création du socket
     int sockfd;
@@ -57,7 +56,7 @@ char* get(char* ip, char* path) {
     //  il faut attacher le socket à un port Internet et une adresse IP
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(atoi(PORT));
+    addr.sin_port = htons(PORT);
     // on envoie a l'addresse de
     addr.sin_addr.s_addr = inet_addr(ip);
 
@@ -68,6 +67,4 @@ char* get(char* ip, char* path) {
     n = sendto(sockfd, path, 1020, MSG_CONFIRM, (struct sockaddr*)&addr, sizeof(addr));
     EXIT_IF_FAIL(n, "Probleme send");
 
-    printf("[GET] %s\n", path);
-    return "get ok";
 }

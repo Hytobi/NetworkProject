@@ -59,7 +59,7 @@ char* getJsonPathMap(int mapId){
     return jsonFormatted;
 }
 
-char* getJsonEnter(int mapId, int gameId){
+char* getJsonEnterGame(int mapId, int gameId){
     char* jsonString = "{\"path\":\"enter\", \"mapId\":\"%d\", \"gameId\":\"%d\"}";
     cJSON *json = cJSON_Parse(jsonString);
     if (json == NULL) {
@@ -73,7 +73,7 @@ char* getJsonEnter(int mapId, int gameId){
     return jsonFormatted;
 }
 
-char* getJsonCreate(int mapId){
+char* getJsonCreateGame(int mapId){
     char* jsonString = "{\"path\":\"create\", \"mapId\":\"%d\"}";
     cJSON *json = cJSON_Parse(jsonString);
     if (json == NULL) {

@@ -12,8 +12,8 @@ char* searchServer();
 void connectToServer();
 void askExistingMap();
 void askGameForMap(char* ip, int mapId);
-void enterInGame(char* ip, int mapId);
-void createGame();
+void enterInGame(char* ip, int mapId, int gameId);
+void createGame(char* ip, int mapId);
 
 
 #endif
