@@ -7,19 +7,6 @@
 #ifndef RAGE_H
 #define RAGE_H
 
-
-/**
- * @brief Ferme correctement le programme s'il y a une erreur dans la SDL
- */
-#define RAGE_QUIT(ui, msg)                                         \
-    {                                                              \
-        fprintf(stderr, "Erreur %s : %s\n", msg, SDL_GetError());  \
-        if (NULL != ui.renderer) SDL_DestroyRenderer(ui.renderer); \
-        if (NULL != ui.window) SDL_DestroyWindow(ui.window);       \
-        if (NULL != ui.buttons) free(ui.buttons);                  \
-        if (!strcmp(ui.path, "")) free(ui.path);                   \
-        SDL_Quit();                                                \
-        exit(EXIT_FAILURE);                                        \
-    }
+#define EXIT_IF_FAIL(x,msg) if (x == -1) { perror(msg); exit(EXIT_FAILURE); }
 
 #endif

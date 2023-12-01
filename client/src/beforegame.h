@@ -8,11 +8,11 @@
 #define BEFOREGAME_H
 
 void enterName();
-void searchServer();
+char* searchServer();
 void connectToServer();
 void askExistingMap();
-void askGameForMap(char*);
-void enterInGame();
+void askGameForMap(char* ip, int mapId);
+void enterInGame(char* ip, int mapId);
 void createGame();
 
 
