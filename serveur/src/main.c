@@ -28,7 +28,7 @@ int main(int arvc, char** argv) {
     //  il faut attacher le socket à un port Internet et une adresse IP
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(atoi("12345"));
+    addr.sin_port = htons(atoi("42069"));
     addr.sin_addr.s_addr = INADDR_ANY;
 
     EXIT_IF_FAIL(bind(sockfd, (struct sockaddr*)&addr, sizeof(addr)), "Probleme bind");
