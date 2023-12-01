@@ -82,7 +82,7 @@ void askGameForMap(char* ip, int mapId) {
 void enterInGame(char* ip, int mapId, int gameId) {
     printf("\033[H\033[2J");
     printf("Entrez dans la partie...\n");
-    char* postResponse = post(ip, getJsonEnterGame(mapId, gameId));
+    char* postResponse = post(ip, getJsonEnter(mapId, gameId));
     sleep(2);
 }
 
