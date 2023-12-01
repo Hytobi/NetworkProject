@@ -6,26 +6,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "cJSON/cJSON.h"
-
-
-/** @author: PLOUVIN Patrice
- * @date: 24/11/2022
- * @brief: Fonction principale du programme
- * @file: src/main.c
- */
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <fcntl.h>
 
-#define EXIT_IF_FAIL(x,msg) if (x == -1) { perror(msg); exit(EXIT_FAILURE); }
-
-
+#include "cJSON/cJSON.h"
 
 int main(int arvc, char** argv) {
     printf("\033[H\033[2J");
