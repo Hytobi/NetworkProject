@@ -28,7 +28,7 @@ OBJS_TEST := $(addprefix $(OBJ_DIR)/, $(SRC_TEST:.c=.o))
 DEPS := $(OBJS:.o=.d)
 DEPS_TEST := $(OBJS_TEST:.o=.d)
 
-TARGET ?= bin/exec
+TARGET ?= bin/serveur
 TARGET_TEST ?= bin/execTest
 
 .PHONY: clean mrproper
