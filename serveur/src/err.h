@@ -7,4 +7,6 @@
 
 #define ERR -1
 
+#define PERROR(msg,value) perror(msg), exit(value)
+
 #endif //PROJECT_ERR_H
