@@ -39,7 +39,7 @@ void enterName() {
 char* searchServer() {
     printf("\033[H\033[2J");
     printf("Recherche de serveur...\n");
-    char* msgScan = getJsonScan();
+    char* msgScan = "looking for bomberstudent servers"; //getJsonScan();
     char* broadcastAddress = getBroadcastAddress();
     post(broadcastAddress, msgScan);
     sleep(2);

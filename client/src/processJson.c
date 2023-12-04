@@ -32,7 +32,7 @@ char* getJsonConnect() {
 }
 
 char* getMap() {
-    char* jsonString = "{\"path\":\"map\"}";
+    char* jsonString = "{\"path\":\"maps/list\"}";
     cJSON *json = cJSON_Parse(jsonString);
     if (json == NULL) {
         const char *error_ptr = cJSON_GetErrorPtr();
@@ -75,6 +75,20 @@ char* getJsonEnterGame(int mapId, int gameId){
 
 char* getJsonCreateGame(int mapId){
     char* jsonString = "{\"path\":\"create\", \"mapId\":\"%d\"}";
+    cJSON *json = cJSON_Parse(jsonString);
+    if (json == NULL) {
+        const char *error_ptr = cJSON_GetErrorPtr();
+        if (error_ptr != NULL) {
+            fprintf(stderr, "Error before: %s\n", error_ptr);
+        }
+        exit(EXIT_FAILURE);
+    }
+    char* jsonFormatted = cJSON_Print(json);
+    return jsonFormatted;
+}
+
+char* move(int x, int y){
+    char* jsonString = "{\"path\":\"move\", \"x\":\"%d\", \"y\":\"%d\"}";
     cJSON *json = cJSON_Parse(jsonString);
     if (json == NULL) {
         const char *error_ptr = cJSON_GetErrorPtr();
