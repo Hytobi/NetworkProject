@@ -1,1 +1,1 @@
-Main-Class: vueTexte/SokobanTexte
+Main-Class: UdpBroadcastClient
