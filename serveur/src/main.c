@@ -50,8 +50,6 @@ int main(int arvc, char** argv) {
 
         printf("Message reçu de %s : %s", inet_ntoa(clientAddr.sin_addr),buffer);
 
-        printf("%s\n",buffer);
-
         char buffer2[1024];
         //sprintf(buffer2,"yes");
         n = sendto(sockfd, buffer2, 1024, MSG_CONFIRM, (struct sockaddr*)&clientAddr, clientAddrLen);
