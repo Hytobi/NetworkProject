@@ -1,4 +1,6 @@
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UdpBroadcastClient {
     public static void main(String[] args) {
@@ -25,22 +27,32 @@ public class UdpBroadcastClient {
             // Envoi du paquet
             socket.send(sendPacket);
 
-            // Attente de la réponse
-            byte[] receiveData = new byte[1024];
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-
             // Attente de la réponse du serveur pendant 5 secondes
             socket.setSoTimeout(5000);
 
-            try {
-                socket.receive(receivePacket);
+            // Liste pour stocker les adresses IP des serveurs qui ont répondu
+            List<String> respondingServers = new ArrayList<>();
+            byte[] receiveData = new byte[1024];
 
-                // Traitement de la réponse
-                String serverResponse = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                System.out.println("Réponse du serveur : " + serverResponse);
+            try {
+                while (true) {
+                    DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+                    socket.receive(receivePacket);
+
+                    // Traitement de la réponse
+                    String serverResponse = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                    System.out.println("Réponse du serveur : " + serverResponse);
+
+                    // Ajout de l'adresse IP à la liste
+                    respondingServers.add(receivePacket.getAddress().getHostAddress());
+                }
             } catch (SocketTimeoutException e) {
-                System.out.println("Aucune réponse du serveur dans le délai spécifié.");
+                System.out.println("Fin de la recherche de serveurs.");
             }
+
+            // Affichage des adresses IP des serveurs qui ont répondu
+            System.out.println("Serveurs qui ont répondu : " + respondingServers);
+
 
             // Fermeture du socket
             socket.close();
