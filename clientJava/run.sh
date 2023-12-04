@@ -1,6 +1,6 @@
 #!/bin/bash
 
-name="vueTexte/SokobanTexte"
+name="UdpBroadcastClient"
 
 # On compile 
 javac -d bin -cp bin:src src/$name.java && echo "Compilation terminée"
