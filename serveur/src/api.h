@@ -8,7 +8,7 @@
 #define API_H
 
 // path /scan : le client envoie un message broadcast pour trouver les serveurs
-char* searchServer();
+char* customerAskForBomber();
 
 // path /connect : le client se connecte au serveur
 void connectToServer();
