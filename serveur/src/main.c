@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <fcntl.h>
+#include <arpa/inet.h>
 
 #include "err.h"
 #include "cJSON/cJSON.h"
@@ -29,51 +30,35 @@ int main(int arvc, char** argv) {
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(atoi("42069"));
+    //addr.sin_port = htons(atoi("12345"));
     addr.sin_addr.s_addr = INADDR_ANY;
 
     EXIT_IF_FAIL(bind(sockfd, (struct sockaddr*)&addr, sizeof(addr)), "Probleme bind");
     EXIT_IF_FAIL(fcntl(sockfd, F_SETFL, MSG_WAITALL), "Probleme fcntl");
-    
+
     printf("Serveur up\n");
 
     char buffer[1020];
-    int n;
+    int n=0;
     for(;;){
-        n = recv(sockfd, buffer, 1020, MSG_WAITALL);
-        EXIT_IF_FAIL(n, "Probleme recv");
+        buffer[n]='\0';
+        struct sockaddr_in clientAddr;
+        socklen_t clientAddrLen = sizeof(clientAddr);
 
-        // Ajout du prefix IMT avant l'envoie
+        n = recvfrom(sockfd, buffer, 1020, MSG_WAITALL,(struct sockaddr *) &clientAddr,&clientAddrLen);
+        EXIT_IF_FAIL(n, "Msg not recv");
+
+        printf("Message reçu de %s : %s", inet_ntoa(clientAddr.sin_addr),buffer);
+
+        printf("%s\n",buffer);
+
         char buffer2[1024];
-        sprintf(buffer2, "IMT %s", buffer);
-        printf("Message a envoyer: %s\n", buffer2);
-        n = sendto(sockfd, buffer2, 1024, MSG_CONFIRM, (struct sockaddr*)&addr, sizeof(addr));
+        //sprintf(buffer2,"yes");
+        n = sendto(sockfd, buffer2, 1024, MSG_CONFIRM, (struct sockaddr*)&clientAddr, clientAddrLen);
 
         //n = send(sockfd, buffer2, 1024, MSG_CONFIRM);
         EXIT_IF_FAIL(n, "Probleme send");
     }
 
-    // Ouvrir le netcat pour tester le serveur
-    // il doit etre ouvert en UDP et permetre la reception du send
-    // nc -ul 12345
-    // nc -u localhost 12345
-    
-
-
-    /*
-    int clientfd;
-    struct sockaddr_in client_addr;
-    socklen_t client_addr_len = sizeof(client_addr);
-    clientfd = accept(sockfd, (struct sockaddr*)&client_addr, &client_addr_len);
-    EXIT_IF_FAIL(clientfd, "Probleme accept");
-    char buffer[1024];
-
-    int n;
-    n = read(clientfd, buffer, 1024);
-    EXIT_IF_FAIL(n, "Probleme read");
-    printf("Message recu: %s\n", buffer);
-
-    n = write(clientfd, "Bonjour", 7);
-    EXIT_IF_FAIL(n, "Probleme write");*/
-
-    return EXIT_SUCCESS;
+    EXIT_FAILURE;
 }
