@@ -6,7 +6,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class UdpBroadcastClient {
-    public static void main(String[] args) {
+    private final int port = 42069;
+    public UdpBroadcastClient() {
+    }
+
+    public List<String> scanConnection(){
         // Port sur lequel le serveur écoute
         int serverPort = 42069;
 
@@ -56,12 +60,15 @@ public class UdpBroadcastClient {
             for (String server:respondingServers){
                 System.out.println(server);
             }
-
-
             // Fermeture du socket
             socket.close();
+
+            return respondingServers;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return null;
     }
 }
