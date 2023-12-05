@@ -42,5 +42,14 @@ int main(int arvc, char** argv) {
     int sendRtr=sendto(sockfd, message, strlen(message), 0, (struct sockaddr*)&broadcast_addr, sizeof(broadcast_addr));
     EXIT_IF_FAIL(sendRtr,"Send message");
 
+
+    struct sockaddr_in clientAddr;
+    socklen_t clientAddrLen = sizeof(clientAddr);
+    char buffer[1024];
+    int n = recvfrom(sockfd, buffer, 1020, MSG_WAITALL,(struct sockaddr *) &clientAddr,&clientAddrLen);
+    EXIT_IF_FAIL(n, "Msg not recv");
+
+    printf("Message reçu de %s : %s\n", inet_ntoa(clientAddr.sin_addr),buffer);
+
     return EXIT_SUCCESS;
 }

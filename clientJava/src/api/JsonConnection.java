@@ -4,23 +4,23 @@ import dto.Game;
 
 public class JsonConnection {
 
-    public String msgSearch(){
+    public static String msgSearch(){
         return "looking for bomberstudent servers";
     }
 
-    public String getterMapList(){
+    public static String getterMapList(){
         return "GET maps/list";
     }
 
-    public String getterGameList(){
+    public static String getterGameList(){
         return "GET game/list";
     }
 
-    public String postGameCreate(Game game){
+    public static String postGameCreate(Game game){
         return "POST game/create\n" + game.toString();
     }
 
-    public String postGameJoin(Game game){
+    public static String postGameJoin(Game game){
         return "POST game/join\n" + game.toString();
     }
     

@@ -1,5 +1,8 @@
+import api.JsonConnection;
+
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class UdpBroadcastClient {
@@ -15,10 +18,8 @@ public class UdpBroadcastClient {
             socket.setBroadcast(true);
 
             // Message à envoyer (vous pouvez personnaliser cela selon vos besoins)
-            String message = "Hello, any servers out there?";
-            byte[] sendData = message.getBytes();
+            byte[] sendData = JsonConnection.msgSearch().getBytes();
 
-            // Adresse de diffusion spécifique à votre réseau local (ex : 192.168.1.255)
             InetAddress localBroadcastAddress = InetAddress.getByName("255.255.255.255");
 
             // Création du paquet à envoyer
@@ -41,7 +42,7 @@ public class UdpBroadcastClient {
 
                     // Traitement de la réponse
                     String serverResponse = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                    System.out.println("Réponse du serveur : " + serverResponse);
+                    System.out.println("Réponse du serveur : " + serverResponse.split("\0")[0]);
 
                     // Ajout de l'adresse IP à la liste
                     respondingServers.add(receivePacket.getAddress().getHostAddress());
@@ -51,7 +52,10 @@ public class UdpBroadcastClient {
             }
 
             // Affichage des adresses IP des serveurs qui ont répondu
-            System.out.println("Serveurs qui ont répondu : " + respondingServers);
+            System.out.println("Serveurs qui ont répondu : ");
+            for (String server:respondingServers){
+                System.out.println(server);
+            }
 
 
             // Fermeture du socket

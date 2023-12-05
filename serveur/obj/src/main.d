@@ -1,1 +1,1 @@
-obj/src/main.o: src/main.c src/err.h src/cJSON/cJSON.h
+obj/src/main.o: src/main.c src/api.h src/cJSON/cJSON.h src/err.h
