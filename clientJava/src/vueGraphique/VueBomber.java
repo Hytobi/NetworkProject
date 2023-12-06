@@ -11,17 +11,17 @@ import javax.swing.*;
  * Classe qui s'occupe de la vue du Sokoban
  * @author PLOUVIN Patrice
  */
-public class VueSokoban extends JFrame implements ActionListener,KeyListener{
+public class VueBomber extends JFrame implements ActionListener,KeyListener{
     //Les images necessaires
-    public static final ImageIcon DESTINATION = new ImageIcon("img/but.gif");
-    public static final ImageIcon CAISSE = new ImageIcon("img/caisse1.gif");
-    public static final ImageIcon CAISSE_SUR_DESTINATION = new ImageIcon("img/caisse2.gif");
-    public static final ImageIcon MUR = new ImageIcon("img/mur.gif");
-    public static final ImageIcon SOL = new ImageIcon("img/sol.gif");
-    public static final ImageIcon[] PERSO = new ImageIcon[] { new ImageIcon("img/Haut.gif"),
-                                                              new ImageIcon("img/Gauche.gif"),
-                                                              new ImageIcon("img/Bas.gif"),
-                                                              new ImageIcon("img/Droite.gif")};
+    public static final ImageIcon DESTINATION = new ImageIcon("src/main/resources/img/but.gif");
+    public static final ImageIcon CAISSE = new ImageIcon("src/main/resources/img/caisse1.gif");
+    public static final ImageIcon CAISSE_SUR_DESTINATION = new ImageIcon("src/main/resources/img/caisse2.gif");
+    public static final ImageIcon MUR = new ImageIcon("src/main/resources/img/mur.gif");
+    public static final ImageIcon SOL = new ImageIcon("src/main/resources/img/sol.gif");
+    public static final ImageIcon[] PERSO = new ImageIcon[] { new ImageIcon("src/main/resources/img/Haut.gif"),
+                                                              new ImageIcon("src/main/resources/img/Gauche.gif"),
+                                                              new ImageIcon("src/main/resources/img/Bas.gif"),
+                                                              new ImageIcon("src/main/resources/img/Droite.gif")};
 
     private Carte jeu;
 
@@ -32,7 +32,7 @@ public class VueSokoban extends JFrame implements ActionListener,KeyListener{
     private boolean stop = false;
 
     /**Constructeur de la classe vue*/
-    public VueSokoban(Carte jeu){
+    public VueBomber(Carte jeu){
         //Donne le titre via JFrame
         super("Sokoban");
         this.jeu = jeu;
@@ -83,6 +83,7 @@ public class VueSokoban extends JFrame implements ActionListener,KeyListener{
 
     /**Méthode qui initialise les actions des boutons */
     private void initActions() {
+        /*
         retourAction = new AbstractAction("Retour") {
             public void actionPerformed(ActionEvent e) {
                 if ((jeu.getNbMouvement()>0)); {
@@ -99,7 +100,7 @@ public class VueSokoban extends JFrame implements ActionListener,KeyListener{
                 initGameInfos();
                 cartePanel.updateUI();
             }
-        };
+        };*/
     }
 
     /**Méthode qui desactive les boutons lorsque le dernier niveau est fini
@@ -155,7 +156,7 @@ public class VueSokoban extends JFrame implements ActionListener,KeyListener{
     /**Méthode qui met à jour l'affichage du nombre de mouvements du robot
      */
     private void updateGameInfos() {
-        int nbMouvement = jeu.getNbMouvement();
+        int nbMouvement = 8; //jeu.getNbMouvement();
         if (nbMouvement < 2)
             nbMouvementLabel.setText(nbMouvement + " Mouvement");
         else

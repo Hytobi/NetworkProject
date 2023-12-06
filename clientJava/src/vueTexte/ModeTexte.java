@@ -7,13 +7,7 @@ import modele.*;
  * @author PLOUVIN Patrice
  */
 public class ModeTexte{
-    private Carte jeu;
     private char direc;
-
-    /** Constructeur de la classe ModeTexte */
-    public ModeTexte(Carte jeu) throws Exception{
-        this.jeu = jeu;
-    }
 
     /**Méthode qui lit l'entrée du clavier tant que l'entré n'est pas valide
      * @return la direction z,q,s ou d

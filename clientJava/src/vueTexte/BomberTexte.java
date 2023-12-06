@@ -6,11 +6,11 @@ import modele.*;
  * Classe Main qui lance le Sokoban.
  * @author PLOUVIN Patrice
  */
-public class SokobanTexte{
+public class BomberTexte{
     public static void main(String[] args) throws Exception {
         Carte jeu = new Carte(0);
         System.out.println(jeu.toString());
-        ModeTexte mode = new ModeTexte(jeu);
+        ModeTexte mode = new ModeTexte();
         while (!jeu.finDePartie()){
             System.out.println("Entrer une direction : ");
             char c = mode.dialogue();
