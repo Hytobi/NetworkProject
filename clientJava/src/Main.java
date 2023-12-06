@@ -6,8 +6,9 @@ public class Main {
     public static void main(String[] args) {
         UdpBroadcastClient udp = new UdpBroadcastClient();
         List<String> servers = udp.scanConnection();
-        if (servers==null){
+        if (servers.isEmpty()){
             System.err.println("Aucuns servers trouvé");
+            return;
         }
 
         System.out.println("Choisissez un serveur : ");
@@ -19,8 +20,12 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         int choix = sc.nextInt();
 
-        TcpClient tcp = new TcpClient();
-        tcp.tcpConnect(servers.get(choix));
+        TcpClient tcp = new TcpClient(servers.get(choix));
+        tcp.tcpConnect();
+        for (;;){
+            tcp.post("Bonjour !");
+            System.out.println("Message reçu : "+tcp.get());
+        }
 
     }
 }

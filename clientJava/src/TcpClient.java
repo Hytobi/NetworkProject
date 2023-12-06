@@ -8,27 +8,52 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TcpClient {
+    private BufferedReader reader;
+    private PrintWriter writer;
     private final int port = 42069;
+    private String server;
 
-    public TcpClient() {
+    public TcpClient(String server) {
+        this.server = server;
     }
 
-    public void tcpConnect(String server) {
+    public void tcpConnect() {
 
         // Boucle pour se connecter à chaque serveur
+        System.out.println("Tentative de connexion au serveur : "+server);
         try (Socket socket = new Socket(InetAddress.getByName(server), port)) {
             // Flux de lecture et écriture pour la communication avec le serveur
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            writer = new PrintWriter(socket.getOutputStream(), true);
 
-            // Envoi d'une requête au serveur
-            writer.println("Hello from TCP client!");
+            System.out.println("Connexion Réussie !");
 
-            // Lecture de la réponse du serveur
-            String response = reader.readLine();
-            System.out.println("Réponse du serveur TCP (" + server + "): " + response);
+
         } catch (IOException e) {
             System.err.println("Erreur lors de la connexion au serveur TCP (" + server + "): " + e.getMessage());
         }
+    }
+
+    /**
+     * Envoi un message sur le socket tcp
+     * @param str
+     */
+    public void post(String str){
+        // Envoi d'une requête au serveur
+        writer.println(str);
+    }
+
+    /**
+     * lis un message sur le socket tcp
+     */
+    public String get(){
+        // Lecture de la réponse du serveur
+        String response = null;
+        try {
+            response = reader.readLine();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return response;
     }
 }
