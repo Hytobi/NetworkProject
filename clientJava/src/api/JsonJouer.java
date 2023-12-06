@@ -2,15 +2,15 @@ package api;
 
 public class JsonJouer {
     
-    public String postPlayerMove(String move){
+    public static String postPlayerMove(String move){
         return "POST player/move\n {\"move\":\"" + move + "\"}";
     }
 
-    public String postAttackBomb(String pos, String type){
+    public static String postAttackBomb(String pos, String type){
         return "POST player/attack\n {\"pos\":\"" + pos + "\",\"type\":\"" + type + "\"}";
     }
 
-    public String postAttackRemoteGo(){
+    public static String postAttackRemoteGo(){
         return "POST attack/remote/go\n";
     }
 
@@ -19,7 +19,7 @@ public class JsonJouer {
 impactUp, impactDown, speedUp, speedDown, lifeMax et invincible
      * @return
      */
-    public String postObjectNew(String type){
+    public static String postObjectNew(String type){
         return "POST object/new\n {\"type\":\"" + type + "\"}";
     }
 }

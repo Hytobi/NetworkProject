@@ -3,6 +3,7 @@ package dto;
 public class Game {
     private String name;
     private String mapId;
+    private int nbPlayer;
 
     public Game(String name) {
         this.name = name;
@@ -27,6 +28,14 @@ public class Game {
 
     public void setMapId(String mapId) {
         this.mapId = mapId;
+    }
+
+    public int getNbPlayer() {
+        return nbPlayer;
+    }
+
+    public void setNbPlayer(int nbPlayer) {
+        this.nbPlayer = nbPlayer;
     }
 
     public String toString(){

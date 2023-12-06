@@ -6,7 +6,7 @@ import modele.Carte;
  * Classe qui modélise la Carte de jeu (la map)
  * @author PLOUVIN Patrice
  */
-public class Sokoban {
+public class Bomber {
     public static void main(String[] args) throws Exception {
 
         //j'ai 5 map de niveau
@@ -22,13 +22,10 @@ public class Sokoban {
                 intro.dispose();
             } else {
                 Carte jeu = new Carte(i);
-                VueSokoban vs = new VueSokoban(jeu);
+                VueBomber vs = new VueBomber(jeu);
                 //Bug du restart, du coup j'ai mis un nombre maximum de restart autorisé
-                while ((!jeu.finDePartie()) && (!(jeu.getNbRestart() == 1500))) {
+                while ((!jeu.finDePartie())) {
                 }
-                //Si on a fait 1500 restart on recommence a 0
-                if (jeu.getNbRestart() == 1500) i = -1;
-                nbMouvTotal += jeu.getNbMouvement();
                 //Si on est pas au dernier niveau on ferme juste la fenetre
                 if (i < nbNiveau - 1) {
                     vs.dispose();

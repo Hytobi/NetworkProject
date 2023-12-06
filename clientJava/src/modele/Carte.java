@@ -1,7 +1,14 @@
 package modele;
 
 import java.util.*;
+
+import api.Api;
+import api.JsonJouer;
+import api.MapperRes;
+import dto.Update;
+
 import java.awt.Point;
+import java.awt.Robot;
 
 /**
  * Classe qui modélise la Carte de jeu (la map)
@@ -9,40 +16,33 @@ import java.awt.Point;
  */
 public class Carte{
     //Argument de construction de la classe
-    private int niveau;
+    private String myName;
+    private ResGameJoin resGameJoin;
 
     //Construction du tableau de jeu
     private Indeplacable[][] plateau;
     private int maxi;
     private int maxj;
     private List<String> maListe;
-    private Robot robot;
-    private List<Point> mesDestinations = new ArrayList<Point>();
+    private List<Player> robots;
     private List<Point> mesMAJ = new ArrayList<Point>();
-
-    //Pour les actions retour et recommencer pour le Sokoban Graphique
-    private int nbMouvement;
-    private Character dernierMouvement;
-    private boolean aDeplacerCaisse;
-    private Point derniereCaisseBouge;
-    private boolean isRetour=false;
-    private int nbRestart;
 
     /**Constructeur de la Classe
      * @param niveau : le niveau à charger
      */
-    public Carte(int niveau) throws Exception{
+    public Carte(String myName, ResGameJoin resGameJoin) throws Exception{
+        this.myName = myName;
+        this.resGameJoin = resGameJoin;
         //Charger une map
-        Lecture map = new Lecture("map" + niveau);
+        Lecture map = new Lecture("map" + resGameJoin.getMap());
         maListe = map.getMaListe();
         maxi = map.getNbLigne();
         maxj = map.getTailleLigne();
-        nbRestart=-1;
-        restart();
+        initMap();
     }
 
     /**Toute les methodes pour acceder aux arguments private */
-    public Robot getRobot(){
+    public Player getRobot(){
         return robot;
     }
     public int getMaxi(){
@@ -54,18 +54,6 @@ public class Carte{
     public List<Point> getMesMAJ(){
         return mesMAJ;
     }
-    public int getNbMouvement(){
-        return nbMouvement;
-    }
-    public Character getDernierMouvement(){
-        return dernierMouvement;
-    }
-    public List<Point> getMesDestinations() {
-        return mesDestinations;
-    }
-    public int getNbRestart(){
-        return nbRestart;
-    }
     public Indeplacable[][] getPlateau(){
         return plateau;
     }
@@ -75,46 +63,12 @@ public class Carte{
         mesMAJ.clear();
     }
 
-    /**Méthode qui permet dans le Sokoban graphique de faire le mouvement inverse
-     * du dernier mouvement effectuer
-     * */
-    public void faireDernierMouvement(){
-        if (dernierMouvement != null){
-            isRetour=true;
-            //On les garde dans un autre repère, car ils vont changer avec les nouvelles actions
-            boolean b = aDeplacerCaisse;
-            char d = dernierMouvement;
-            Point p = derniereCaisseBouge;
-            //Direction inverse et on garde la meme direction du robot
-            robotSeDeplace(counteur(d));
-            robot.setDirection((robot.getDirection()+2)%4);
-            //Si le robot avait déplacé une caisse on la remet ou elle était
-            if (b) {
-                String c = plateau[(int)derniereCaisseBouge.getX()][(int)derniereCaisseBouge.getY()].getCarac();
-                //Si c'était une caisse sur une destination on remet une destination
-                if (c=="*")plateau[(int)derniereCaisseBouge.getX()][(int)derniereCaisseBouge.getY()].setCarac(".");
-                //Sinon c'est simplement une caisse et on met un sol
-                else if (c=="$") plateau[(int)derniereCaisseBouge.getX()][(int)derniereCaisseBouge.getY()].setCarac(" ");
-                //Dans tout les cas la caisse n'est pu à cette position du plateau
-                plateau[(int)derniereCaisseBouge.getX()][(int)derniereCaisseBouge.getY()].setACaisse(false);
-                //Maintenant on la déplace
-                deplaceCaisse(d);
-                //Et on la met a jour
-                mesMAJ.add(p);
-            }
-            dernierMouvement=null;
-            isRetour=false;
-        }
-    }
-
-
     /**
      * Méthode qui met a jour le X ou le Y du robot
      * @param c : la direction du robot
      */
     public void direction(char c){
         //On incrémente le nombre de mouvements
-        nbMouvement++;
         //Aller vers le haut
         if (c == 'z'){
             robot.setX(-1);
@@ -137,6 +91,19 @@ public class Carte{
         }
     }
 
+    private void askForMove(char c){
+        String move;
+        if (c == 'z'){
+            move = "up";
+        } else if (c == 'q'){
+            move = "left";
+        } else if (c == 's'){
+            move = "down";
+        } else if (c == 'd'){
+            move = "right";
+        Api.post("ip", JsonJouer.postPlayerMove(move));
+    }
+
     /**
      * Méthode qui fait le mouvement inverse que celui entré par le joueur
      * @param c : la direction du robot
@@ -144,42 +111,19 @@ public class Carte{
      */
     public char counteur(char c){
         //Le counteur utilise direction pour faire le mouvement inverse, donc on décrémente de 2
-        nbMouvement-=2;
         if (c=='z') return 's';
         if (c=='q') return 'd';
         if (c=='s') return 'z';
         return 'q';
     }
 
-    /**Méthode qui deplace la caisse pour éviter la duplication de code
-     * @param x : action sur la ligne
-     * @param y : action sur la colonne
-     * @return faux si ce n'est pas possible, vrai sinon
-     */
-    public boolean bougerLaCaisseEn(int x,int y){
-        String carac = plateau[robot.getX()+x][robot.getY()+y].getCarac();
-        if (!((carac !="$") && (carac !="#") && (carac !="*"))) return false ;
-        //Si on la pousse sur une destination
-        if (carac == ".") plateau[robot.getX()+x][robot.getY()+y].setCarac("*");
-        //Sinon elle est sur un sol
-        else plateau[robot.getX()+x][robot.getY()+y].setCarac("$");
-        //La caisse a été bougée et on met à jour
-        plateau[robot.getX()+x][robot.getY()+y].setACaisse(true);
-        mesMAJ.add(new Point(robot.getX()+x,robot.getY()+y));
-        derniereCaisseBouge = new Point(robot.getX()+x,robot.getY()+y);
-        return true;
-    }
-
-    /**Méthode qui déplace la caisse si le robot la pousse
-     * @param c: un character associé à une direction
-     * @retourn vrai si le mouvement a été effectué, faux sinon
-     * */
-    public boolean deplaceCaisse(char c){
-        if (c=='z') return bougerLaCaisseEn(-1,0);
-        if (c=='q') return bougerLaCaisseEn(0,-1);
-        if (c=='s') return bougerLaCaisseEn(1,0);
-        if (c=='d') return bougerLaCaisseEn(0,1);
-        return false;
+    private Player getPlayerByName(String name){
+        for (Player p : robots){
+            if (p.getName().equals(name)){
+                return p;
+            }
+        }
+        return null;
     }
 
     /**
@@ -187,82 +131,22 @@ public class Carte{
      * @param c : La direction du robot
      * @return : vrai si le robot a pu se deplacer, faux sinon
      */
-    public boolean robotSeDeplace(char c){
-        //Avant de déplacer le robot
-        aDeplacerCaisse=false;
-        boolean estSurDestination = false;
-        //Action sur là où est le robot avant le déplacement
-        plateau[robot.getX()][robot.getY()].setAJoueur(false);
-        String inter = plateau[robot.getX()][robot.getY()].getCarac();
-        //Si le robot est sur un sol
-        if (inter =="@") plateau[robot.getX()][robot.getY()].setCarac(" ");
-        //Sinon il est sur une destination
-        else if (inter == "+") {
-            plateau[robot.getX()][robot.getY()].setCarac(".");
-            estSurDestination = true;
+    public void robotSeDeplace(char c){
+        askForMove(c);
+        // reception de la réponse todo
+        String resServeur = "POST player/position/update {\"player\":\"player2\",\"dir\":\"up\" }";
+        Update ppu = MapperRes.fromJson(resServeur.substring(resServeur.indexOf("{")), Update.class);
+        Player p = getPlayerByName(ppu.getPlayer());
+        if (ppu.getDir().equals("up")){
+            p.setX(-1);
+        } else if (ppu.getDir().equals("down")){
+            p.setX(1);
+        } else if (ppu.getDir().equals("left")){
+            p.setY(-1);
+        } else if (ppu.getDir().equals("right")){
+            p.setY(1);
         }
-        //On met a jour
-        mesMAJ.add(new Point(robot.getX(),robot.getY()));
-
-        //On déplace le robot et mise à jour
-        direction(c);
-        mesMAJ.add(new Point(robot.getX(),robot.getY()));
-
-        //On regarde ce qu'il y a au meme endroit que le robot
-        inter = plateau[robot.getX()][robot.getY()].getCarac();
-        //Si c'est un mur ou un vide (jamais trop prudent)
-        if (inter == "#" || inter=="/" ){
-            //Alors on remet le joueur à sa place en faisant attention à si c'était une destination
-            direction(counteur(c));
-            plateau[robot.getX()][robot.getY()].setAJoueur(true);
-            if (estSurDestination) plateau[robot.getX()][robot.getY()].setCarac("+");
-            else plateau[robot.getX()][robot.getY()].setCarac("@");
-            //Rien se s'est passé alors on ne met rien à jour
-            mesMAJ.clear();
-            return false;
-        }
-        //Si c'est une destination @ devient +
-        else if ( inter == "."){
-            plateau[robot.getX()][robot.getY()].setAJoueur(true);
-            plateau[robot.getX()][robot.getY()].setCarac("+");
-        }
-        //Sinon on est sur une caisse
-        else {
-            if (inter == "$" || inter=="*"){
-                //On deplace la caisse dans la meme direction que le robot
-                aDeplacerCaisse = deplaceCaisse(c);
-                //Si la caisse a pu être déplacé
-                if (aDeplacerCaisse){
-                    //La ou il y a le robot il ne peut y avoir de caisse
-                    plateau[robot.getX()][robot.getY()].setACaisse(false);
-                    //Suite à une action retour la caisse est sur une destination
-                    //Action similaire à tirer la caisse
-                    if ((inter =="*")&&(isRetour)){
-                        plateau[robot.getX()][robot.getY()].setAJoueur(false);
-                        plateau[robot.getX()][robot.getY()].setCarac(".");
-                        return true;
-                    } else if ((inter =="*")){
-                        //Sinon le robot arrive sur la destination
-                        plateau[robot.getX()][robot.getY()].setAJoueur(true);
-                        plateau[robot.getX()][robot.getY()].setCarac("+");
-                        return true;
-                    }//Si on n'a pas pu la déplacer
-                } else {
-                    //On remet tout en place
-                    direction(counteur(c));
-                    plateau[robot.getX()][robot.getY()].setAJoueur(true);
-                    if (estSurDestination) plateau[robot.getX()][robot.getY()].setCarac("+");
-                    else plateau[robot.getX()][robot.getY()].setCarac("@");
-                    //Et pas de mises à jour à faire
-                    mesMAJ.clear();
-                    return false;
-                }
-            }
-            plateau[robot.getX()][robot.getY()].setCarac("@");
-            plateau[robot.getX()][robot.getY()].setAJoueur(true);
-        }
-        dernierMouvement = c ;
-        return true;
+        mesMAJ.add(new Point(p.getX(),p.getY()));
     }
 
     /**
@@ -270,6 +154,7 @@ public class Carte{
      * @return : vrai si c'est le cas, faux sinon
      */
     public boolean finDePartie(){
+        /*
         //À voir si je laisse, mais pas tres utile (ajouté pour le bug de passage de niveau)
         if (mesDestinations.isEmpty()) return false;
 
@@ -280,18 +165,14 @@ public class Carte{
                 return false;
             }
         }
-        //Si on sort, c'est que toutes les caisses sont sur des destinations
-        return true;
+        //Si on sort, c'est que toutes les caisses sont sur des destinations*/
+        return false;
     }
 
     /**Méthode qui relance une partie*/
-    public void restart(){
+    public void initMap(){
         //On met tout à 0
-        mesDestinations.clear();
-        dernierMouvement = null;
-        nbMouvement =0;
         plateau = new Indeplacable[maxi][maxj];
-        nbRestart++;
 
         int i,j;
         String temp;
@@ -304,34 +185,45 @@ public class Carte{
                 carac = temp.charAt(j);
                 if (carac == '#') plateau[i][j] = new Mur();
                 else if (carac == '/') plateau[i][j] = new Vide();
-                else if (carac == '.') {
-                    plateau[i][j] = new Destination();
-                    mesDestinations.add(new Point(i,j));
-                }
                 //Sinon tout le reste est un sol avec des choses posées dessus
-                else if (carac == '@'){
-                    plateau[i][j] = new Sol("@");
-                    plateau[i][j].setAJoueur(true);
-                    robot = new Robot(i,j);
-                }
-                else if (carac == '$'){
-                    plateau[i][j] = new Sol("$");
-                    plateau[i][j].setACaisse(true);
-                }
-                else if (carac == '*'){
-                    plateau[i][j] = new Sol("*");
-                    plateau[i][j].setACaisse(true);
-                    mesDestinations.add(new Point(i,j));
-                }
-                else if (carac == '+'){
-                    plateau[i][j] = new Sol("+");
-                    plateau[i][j].setAJoueur(true);
-                    robot = new Robot(i,j);
-                    mesDestinations.add(new Point(i,j));
-                }
-                else plateau[i][j] = new Sol(" ");
+                else if (carac == 'S'){
+                    plateau[i][j] = new Sol("S"); // speed +
+                } else if (carac == 's'){
+                    plateau[i][j] = new Sol("s"); // speed -
+                } else if (carac == 'R'){
+                    plateau[i][j] = new Sol("R"); // remote bomb +
+                } else if (carac == 'M'){
+                    plateau[i][j] = new Sol("M"); // mine + 
+                } else if (carac == 'I'){
+                    plateau[i][j] = new Sol("I"); // impact +
+                } else if (carac == 'i'){
+                    plateau[i][j] = new Sol("i"); // impact -
+                } else if (carac == 'B'){
+                    plateau[i][j] = new Sol("B"); // classic bomb +
+                } else if (carac == '*'){
+                    plateau[i][j] = new Sol("*"); // mur cassable
+                } else plateau[i][j] = new Sol(" "); // sol
             }
         }
+
+        if (resGameJoin.getNbPlayer() > 1){
+            robots = new ArrayList<>();
+            for (Player player : resGameJoin.getPlayers()){
+                robots.add(new Player(player));
+                // player.getPos() = "x,y", on recupere x et y en on les transforment en integer
+                int x = player.getPos().substring(',')[0];
+                int y = player.getPos().substring(',')[1];
+                plateau[x][y] = new Sol('$');
+            }
+        }
+        int x = resGameJoin.getStartPos().substring(',')[0];
+        int y = resGameJoin.getStartPos().substring(',')[1];
+        plateau[x][y] = new Sol("@");
+        plateau[x][y].setAJoueur(true);
+        resGameJoin.getPlayer().setX(x);
+        resGameJoin.getPlayer().setY(y);
+        resGameJoin.getPlayer().setName(this.myName);
+        robots.add(resGameJoin.getPlayer());
     }
 
     /**
