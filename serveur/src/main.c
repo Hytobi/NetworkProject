@@ -23,14 +23,14 @@
 #define BUFFER_SIZE 1024
 #define PORT 42069
 
-typedef struct game_Server {
+typedef struct client {
     int socket;
     struct sockaddr_in addr;
-} game_Server;
+    int connecter; /** 0: pas connecte, 1: connecte, 2: en cours de connection */
+} client;
 
 typedef struct thread_Info {
-    game_Server clients[MAX_CLIENTS];
-    int clientCount;
+    client clients[MAX_CLIENTS];
     pthread_mutex_t mutex;
 } thread_Info;
 
@@ -56,12 +56,25 @@ void *serveurUdp(void *args) {
     EXIT_IF_FAIL(bind(sockfd, (struct sockaddr *) &addr, sizeof(addr)), "Probleme bind");
     EXIT_IF_FAIL(fcntl(sockfd, F_SETFL, MSG_WAITALL), "Probleme fcntl");
 
+    // Création du socket TCP pour écouter les connexions
+    int tcpListenFd = socket(AF_INET, SOCK_STREAM, 0);
+    EXIT_IF_FAIL(tcpListenFd, "Erreur création du socket TCP");
+
+    // Configuration pour l'écoute
+    struct sockaddr_in tcpListenAddr;
+    memset(&tcpListenAddr, 0, sizeof(tcpListenAddr));
+    tcpListenAddr.sin_family = AF_INET;
+    tcpListenAddr.sin_port = htons(PORT);
+    tcpListenAddr.sin_addr.s_addr = INADDR_ANY;
+
+    EXIT_IF_FAIL(bind(tcpListenFd, (struct sockaddr *) &tcpListenAddr, sizeof(tcpListenAddr)), "Probleme bind TCP");
+    EXIT_IF_FAIL(listen(tcpListenFd, 5), "Probleme listen");
+
     printf("Serveur up\n");
 
     char buffer[BUFFER_SIZE];
     int n = 0;
     for (;;) {
-        buffer[n] = '\0';
         struct sockaddr_in clientAddr;
         socklen_t clientAddrLen = sizeof(clientAddr);
 
@@ -70,61 +83,56 @@ void *serveurUdp(void *args) {
             perror("Erreur reception du message");
             continue;
         }
+        buffer[n] = '\0';
 
         printf("Tentative de connexion de %s\n", inet_ntoa(clientAddr.sin_addr));
 
         if (strcmp(buffer, messageClientAttendue)) {
-            printf("Refusé !\n", inet_ntoa(clientAddr.sin_addr));
+            printf("Refusé !\n");
             printf("Message non reconnue : %s\n", buffer);
             continue;
         }
 
-        printf("Message reçu de %s : %s\nConnexion accepté !\n", inet_ntoa(clientAddr.sin_addr), buffer);
+        printf("Message reçu de %s : %s\nMessage accepté !\n", inet_ntoa(clientAddr.sin_addr), buffer);
 
         char buffer2[1024];
-        sprintf(buffer2, "%s\n", notifClientServeurUp);
+        sprintf(buffer2, "%s", notifClientServeurUp);
         //sprintf(buffer2,"yes");
         n = sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &clientAddr, clientAddrLen);
 
         // Block le mutex
         pthread_mutex_lock(&(threadInfo->mutex));
 
+        // Préparation de la connection tcp
+        for (int i = 0; i < MAX_CLIENTS; i++) {
+            if (threadInfo->clients[i].connecter) {
+                continue;
+            }
+            // Ajouter le nouveau client à la structure
+            // memcpy(&(threadInfo->clients[i].addr), &clientAddr, sizeof(clientAddr));
+            threadInfo->clients[i].addr = clientAddr;
+            threadInfo->clients[i].connecter = 2;
+            threadInfo->clients[i].socket = tcpListenFd;
+            break;
+        }
+
+        /*
         // Vérifier que le client n'est pas déjà connecté
-        int clientIndex = -1;
         for (int i = 0; i < threadInfo->clientCount; i++) {
+            if (!&threadInfo->clients[i]) {
+                //TODO a retirer si ca marche sans
+                printf("Client non alloue\n");
+            }
             if (memcmp(&(threadInfo->clients[i].addr), &clientAddr, sizeof(clientAddr)) == 0) {
-                clientIndex = i;
+                // Ajouter le nouveau client à la structure
+                threadInfo->clients[i].connecter = 2;
+                memcpy(&(threadInfo->clients[threadInfo->clientCount].addr), &clientAddr,
+                       sizeof(clientAddr));
+                threadInfo->clientCount++;
                 break;
             }
         }
-
-        // Premiere connection du client
-        if (clientIndex == -1) {
-            // socket TCP
-            int tcpFd = socket(AF_INET, SOCK_STREAM, 0);
-            EXIT_IF_FAIL(tcpFd, "Erreur création du socket TCP");
-
-            // adresse TCP du client
-            struct sockaddr_in tcpClientAddr;
-            memset(&tcpClientAddr, 0, sizeof(tcpClientAddr));
-            tcpClientAddr.sin_family = AF_INET;
-            tcpClientAddr.sin_port = htons(PORT);
-            tcpClientAddr.sin_addr = clientAddr.sin_addr;
-
-            // Tente de se connecter au client (s'il le souhaite)
-            if (connect(tcpFd, (struct sockaddr *) &tcpClientAddr, sizeof(tcpClientAddr)) < 0) {
-                perror("Erreur lors de la connexion TCP");
-                close(tcpFd);
-            } else {
-                // Ajouter le nouveau client à la structure
-                threadInfo->clients[threadInfo->clientCount].socket = tcpFd;
-                memcpy(&(threadInfo->clients[threadInfo->clientCount].addr), &tcpClientAddr,
-                       sizeof(tcpClientAddr));
-                threadInfo->clientCount++;
-
-                printf("Nouveau client connecté via TCP depuis %s\n", inet_ntoa(clientAddr.sin_addr));
-            }
-        }
+         */
 
         pthread_mutex_unlock(&threadInfo->mutex);
 
@@ -138,27 +146,56 @@ void *tcp(void *args) {
     thread_Info *threadInfo = (thread_Info *) args;
     char buffer[BUFFER_SIZE];
     for (;;) {
-        for (int i = 0; i < MAX_SERVERS; i++) {
+        pthread_mutex_lock(&threadInfo->mutex);
+        for (int i = 0; i < MAX_CLIENTS; i++) {
+            // Premiere connection du client
+            if (threadInfo->clients[i].connecter == 2) {
+                // adresse TCP du client
+                socklen_t tcpClientAddrLen = sizeof(threadInfo->clients[i].addr);
 
+                // socket TCP
+                printf("Écoute sur le socket TCP...\n");
+                int tcpFd = accept(threadInfo->clients[i].socket, (struct sockaddr *) &threadInfo->clients[i].addr,
+                                   &tcpClientAddrLen);
+                if (tcpFd == ERR) {
+                    perror("Erreur écoute du socket TCP");
+                    pthread_mutex_unlock(&threadInfo->mutex);
+                    //TODO le retirer de la liste
+                    continue;
+                }
+
+                /*
+                // Tente de se connecter au client (s'il le souhaite)
+                printf("Connection au client...\n");
+                if (connect(tcpFd, (struct sockaddr *) &tcpClientAddr, sizeof(tcpClientAddr)) < 0) {
+                    perror("Erreur lors de la connexion TCP");
+                    close(tcpFd);
+                } else {
+                 */
+
+                printf("Nouveau client connecté via TCP depuis %s\n", inet_ntoa(threadInfo->clients[i].addr.sin_addr));
+                threadInfo->clients[i].connecter=1;
+            }
         }
+        pthread_mutex_unlock(&threadInfo->mutex);
     }
     pthread_exit(NULL);
 }
 
 
 int main(int arvc, char **argv) {
-    game_Server gameServer;
-    thread_Info threadInfo;
-    memset(&gameServer.socket, -1, sizeof(gameServer.socket));
-    pthread_mutex_init(&threadInfo.mutex, NULL);
-
+    thread_Info *threadInfo = malloc(sizeof(thread_Info));
+    if (pthread_mutex_init(&(threadInfo->mutex), NULL) != 0) {
+        perror("Erreur initialisation du mutex");
+        exit(2);
+    }
     pthread_t daemon, tcpThread;
 
-    pthread_create(&tcpThread, NULL, tcp, (void *) &threadInfo);
-    pthread_create(&daemon, NULL, serveurUdp, (void *) &threadInfo);
+    pthread_create(&daemon, NULL, serveurUdp, threadInfo);
+    pthread_create(&tcpThread, NULL, tcp, threadInfo);
 
     pthread_join(daemon, NULL);
-    pthread_join(tcpThread, NULL);
+    pthread_join(tcpThread,NULL);
 
     EXIT_FAILURE;
 }

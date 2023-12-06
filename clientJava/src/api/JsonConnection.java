@@ -5,7 +5,7 @@ import dto.Game;
 public class JsonConnection {
 
     public static String msgSearch(){
-        return "looking for bomberstudent servers";
+        return "looking for bomberstudent servers\0";
     }
 
     public static String getterMapList(){

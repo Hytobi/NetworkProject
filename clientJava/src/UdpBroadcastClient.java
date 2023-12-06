@@ -33,7 +33,7 @@ public class UdpBroadcastClient {
             socket.send(sendPacket);
 
             // Attente de la réponse du serveur pendant 5 secondes
-            socket.setSoTimeout(5000);
+            socket.setSoTimeout(1000);
 
             // Liste pour stocker les adresses IP des serveurs qui ont répondu
             List<String> respondingServers = new ArrayList<>();
@@ -55,11 +55,6 @@ public class UdpBroadcastClient {
                 System.out.println("Fin de la recherche de serveurs.");
             }
 
-            // Affichage des adresses IP des serveurs qui ont répondu
-            System.out.println("Serveurs qui ont répondu : ");
-            for (String server:respondingServers){
-                System.out.println(server);
-            }
             // Fermeture du socket
             socket.close();
 

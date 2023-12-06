@@ -10,9 +10,9 @@ DEBUG ?= 1
 INCLU ?= -I./lib/include
 
 ifeq '$(DEBUG)' '1'
-CFLAGS ?= -Wall -MMD -g $(INCLU)
+CFLAGS ?= -Wall -Wextra -MMD -ggdb $(INCLU)
 else
-CFLAGS ?= -Wall -MMD -O3 -DNDEBUG $(INCLU)
+CFLAGS ?= -Wall -Wextra -MMD -O3 -DNDEBUG $(INCLU)
 endif
 
 LDFLAGS = -lcunit $(LIB)
@@ -43,7 +43,7 @@ createRep:
 	@mkdir -p $(DOC_DIR)
 
 $(TARGET): createRep $(OBJS)
-	$(CC) -o $(TARGET) $(OBJS) $(LDFLAGS) 
+	$(CC) -fsanitize=address -o $(TARGET) $(OBJS) $(LDFLAGS)
 	@echo ""
 
 $(TARGET_TEST):  $(OBJS) $(OBJS_TEST)
