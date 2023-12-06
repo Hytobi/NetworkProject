@@ -10,4 +10,6 @@
 #define messageClientAttendue "looking for bomberstudent servers"
 #define notifClientServeurUp "hello i’m a bomberstudent server"
 
+void *clientCommunication(void *args);
+
 #endif //PROJECT_API_H

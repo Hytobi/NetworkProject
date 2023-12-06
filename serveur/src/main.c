@@ -17,22 +17,7 @@
 #include "api.h"
 #include "err.h"
 #include "cJSON/cJSON.h"
-
-#define MAX_SERVERS 8
-#define MAX_CLIENTS 2048
-#define BUFFER_SIZE 1024
-#define PORT 42069
-
-typedef struct client {
-    int socket;
-    struct sockaddr_in addr;
-    int connecter; /** 0: pas connecte, 1: connecte, 2: en cours de connection */
-} client;
-
-typedef struct thread_Info {
-    client clients[MAX_CLIENTS];
-    pthread_mutex_t mutex;
-} thread_Info;
+#include "struct.h"
 
 void *serveurUdp(void *args) {
     thread_Info *threadInfo = (thread_Info *) args;
@@ -99,11 +84,12 @@ void *serveurUdp(void *args) {
         sprintf(buffer2, "%s", notifClientServeurUp);
         //sprintf(buffer2,"yes");
         n = sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &clientAddr, clientAddrLen);
+        //TODO si ca se passe mal
 
         // Block le mutex
         pthread_mutex_lock(&(threadInfo->mutex));
 
-        // Préparation de la connection tcp
+        // Préparation de la connection tcpConnect
         for (int i = 0; i < MAX_CLIENTS; i++) {
             if (threadInfo->clients[i].connecter) {
                 continue;
@@ -142,9 +128,8 @@ void *serveurUdp(void *args) {
     }
 }
 
-void *tcp(void *args) {
+void *tcpConnect(void *args) {
     thread_Info *threadInfo = (thread_Info *) args;
-    char buffer[BUFFER_SIZE];
     for (;;) {
         pthread_mutex_lock(&threadInfo->mutex);
         for (int i = 0; i < MAX_CLIENTS; i++) {
@@ -164,24 +149,19 @@ void *tcp(void *args) {
                     continue;
                 }
 
-                /*
-                // Tente de se connecter au client (s'il le souhaite)
-                printf("Connection au client...\n");
-                if (connect(tcpFd, (struct sockaddr *) &tcpClientAddr, sizeof(tcpClientAddr)) < 0) {
-                    perror("Erreur lors de la connexion TCP");
-                    close(tcpFd);
-                } else {
-                 */
-
                 printf("Nouveau client connecté via TCP depuis %s\n", inet_ntoa(threadInfo->clients[i].addr.sin_addr));
-                threadInfo->clients[i].connecter=1;
+                threadInfo->clients[i].connecter = 1;
+                threadInfo->clients[i].socket=tcpFd;
+
+                pthread_t clientThread;
+                pthread_create(&clientThread, NULL,clientCommunication, &threadInfo->clients[i]);
+                pthread_join(clientThread,NULL);
             }
         }
         pthread_mutex_unlock(&threadInfo->mutex);
     }
     pthread_exit(NULL);
 }
-
 
 int main(int arvc, char **argv) {
     thread_Info *threadInfo = malloc(sizeof(thread_Info));
@@ -192,10 +172,10 @@ int main(int arvc, char **argv) {
     pthread_t daemon, tcpThread;
 
     pthread_create(&daemon, NULL, serveurUdp, threadInfo);
-    pthread_create(&tcpThread, NULL, tcp, threadInfo);
+    pthread_create(&tcpThread, NULL, tcpConnect, threadInfo);
 
     pthread_join(daemon, NULL);
-    pthread_join(tcpThread,NULL);
+    pthread_join(tcpThread, NULL);
 
     EXIT_FAILURE;
 }

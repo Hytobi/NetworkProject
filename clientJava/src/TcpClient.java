@@ -44,7 +44,7 @@ public class TcpClient {
     }
 
     /**
-     * lis un message sur le socket tcp
+     * lis un message sur le socket tcpConnect
      */
     public String get(){
         // Lecture de la réponse du serveur
