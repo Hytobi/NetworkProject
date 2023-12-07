@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 #include "api.h"
 #include "struct.h"
 #include "err.h"
@@ -16,14 +17,15 @@ void *clientCommunication(void *args) {
 
     for (;;) {
         socklen_t clientAddrLen = sizeof(cl->addr);
-        n = recvfrom(cl->socket, buffer, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *) &cl->addr, &clientAddrLen);
+        //n = recvfrom(cl->socket, buffer, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *) &cl->addr, &clientAddrLen);
+        n= read(cl->socket,buffer,BUFFER_SIZE);
         if (n == ERR) {
             perror("Erreur reception du message");
             continue;
         }
         buffer[n] = '\0';
 
-        printf("Message reçu de %s : %s\n", inet_ntoa(cl->addr.sin_addr), buffer);
+        printf("%s : %s", inet_ntoa(cl->addr.sin_addr), buffer);
 
         char buffer2[1024];
         sprintf(buffer2, "%s", notifClientServeurUp);
@@ -34,4 +36,5 @@ void *clientCommunication(void *args) {
             continue;
         }
     }
+    close(cl->socket);
 }

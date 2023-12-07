@@ -130,6 +130,9 @@ void *serveurUdp(void *args) {
 
 void *tcpConnect(void *args) {
     thread_Info *threadInfo = (thread_Info *) args;
+
+    pthread_t clientThreads[MAX_CLIENTS];
+    int threadCount = 0;
     for (;;) {
         pthread_mutex_lock(&threadInfo->mutex);
         for (int i = 0; i < MAX_CLIENTS; i++) {
@@ -140,6 +143,7 @@ void *tcpConnect(void *args) {
 
                 // socket TCP
                 printf("Écoute sur le socket TCP...\n");
+                listen(threadInfo->clients[i].socket,1);
                 int tcpFd = accept(threadInfo->clients[i].socket, (struct sockaddr *) &threadInfo->clients[i].addr,
                                    &tcpClientAddrLen);
                 if (tcpFd == ERR) {
@@ -153,12 +157,15 @@ void *tcpConnect(void *args) {
                 threadInfo->clients[i].connecter = 1;
                 threadInfo->clients[i].socket=tcpFd;
 
-                pthread_t clientThread;
-                pthread_create(&clientThread, NULL,clientCommunication, &threadInfo->clients[i]);
-                pthread_join(clientThread,NULL);
+                pthread_create(&clientThreads[threadCount], NULL, clientCommunication, &threadInfo->clients[i]);
+                threadCount++;
             }
         }
         pthread_mutex_unlock(&threadInfo->mutex);
+
+        for (int i = 0; i < threadCount; i++) {
+            pthread_join(clientThreads[i], NULL);
+        }
     }
     pthread_exit(NULL);
 }

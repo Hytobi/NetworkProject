@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.List;
 import java.util.Scanner;
@@ -21,7 +22,11 @@ public class Main {
         int choix = sc.nextInt();
 
         TcpClient tcp = new TcpClient(servers.get(choix));
-        tcp.tcpConnect();
+        try {
+            tcp.tcpConnect();
+        } catch (IOException e) {
+            System.err.println("Erreur lors de la connexion au serveur TCP " + e.getMessage());
+        }
         for (;;){
             tcp.post("Bonjour !");
             System.out.println("Message reçu : "+tcp.get());

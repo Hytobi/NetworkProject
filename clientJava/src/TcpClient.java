@@ -12,26 +12,29 @@ public class TcpClient {
     private PrintWriter writer;
     private final int port = 42069;
     private String server;
+    Socket socket;
 
     public TcpClient(String server) {
         this.server = server;
     }
 
-    public void tcpConnect() {
+    public void closeSocket(){
+
+    }
+
+    public void tcpConnect() throws IOException {
 
         // Boucle pour se connecter à chaque serveur
         System.out.println("Tentative de connexion au serveur : "+server);
-        try (Socket socket = new Socket(InetAddress.getByName(server), port)) {
+        socket = new Socket(InetAddress.getByName(server), port);
             // Flux de lecture et écriture pour la communication avec le serveur
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream(), true);
 
             System.out.println("Connexion Réussie !");
 
+            writer.println("Bonjour !");
 
-        } catch (IOException e) {
-            System.err.println("Erreur lors de la connexion au serveur TCP (" + server + "): " + e.getMessage());
-        }
     }
 
     /**
