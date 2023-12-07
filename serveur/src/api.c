@@ -18,10 +18,13 @@ void *clientCommunication(void *args) {
     for (;;) {
         socklen_t clientAddrLen = sizeof(cl->addr);
         //n = recvfrom(cl->socket, buffer, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *) &cl->addr, &clientAddrLen);
-        n= read(cl->socket,buffer,BUFFER_SIZE);
+        n=read(cl->socket,buffer,BUFFER_SIZE);
         if (n == ERR) {
             perror("Erreur reception du message");
             continue;
+        } else if (n == 0){
+            printf("Connexion à %s perdu !\n",inet_ntoa(cl->addr.sin_addr));
+            break;
         }
         buffer[n] = '\0';
 
@@ -31,6 +34,7 @@ void *clientCommunication(void *args) {
         sprintf(buffer2, "%s", notifClientServeurUp);
         //sprintf(buffer2,"yes");
         n = sendto(cl->socket, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &cl->addr, clientAddrLen);
+        //n = send(cl->socket,buffer2,BUFFER_SIZE,0);
         if (n==ERR){
             perror("Erreur envoie du message");
             continue;

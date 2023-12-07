@@ -18,8 +18,10 @@ public class TcpClient {
         this.server = server;
     }
 
-    public void closeSocket(){
-
+    public void closeSocket() throws IOException {
+        reader.close();
+        writer.close();
+        socket.close();
     }
 
     public void tcpConnect() throws IOException {
@@ -30,11 +32,6 @@ public class TcpClient {
             // Flux de lecture et écriture pour la communication avec le serveur
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream(), true);
-
-            System.out.println("Connexion Réussie !");
-
-            writer.println("Bonjour !");
-
     }
 
     /**
@@ -51,12 +48,12 @@ public class TcpClient {
      */
     public String get(){
         // Lecture de la réponse du serveur
-        String response = null;
+        char[] response = new char[1024];
         try {
-            response = reader.readLine();
+            reader.read(response,0,1024);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return response;
+        return new String(response).split("\0")[0];
     }
 }

@@ -27,7 +27,9 @@ public class Main {
         } catch (IOException e) {
             System.err.println("Erreur lors de la connexion au serveur TCP " + e.getMessage());
         }
+        System.out.println("Connexion Réussie !");
         for (;;){
+            //TODO Gerer quand le serveur s'arrete
             tcp.post("Bonjour !");
             System.out.println("Message reçu : "+tcp.get());
         }
