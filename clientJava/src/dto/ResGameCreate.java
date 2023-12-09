@@ -4,7 +4,7 @@ import modele.Player;
 
 public class ResGameCreate extends ResponseApi {
     private int nbPlayer;
-    private String gameId;
+    private String mapId;
     private String startPos;
     private Player player;
 
@@ -12,8 +12,8 @@ public class ResGameCreate extends ResponseApi {
         return nbPlayer;
     }
 
-    public String getGameId() {
-        return gameId;
+    public String getMapId() {
+        return mapId;
     }
 
     public String getStartPos() {
@@ -28,8 +28,8 @@ public class ResGameCreate extends ResponseApi {
         this.nbPlayer = nbPlayer;
     }
 
-    public void setGameId(String gameId) {
-        this.gameId = gameId;
+    public void setMapId(String mapId) {
+        this.mapId = mapId;
     }
 
     public void setStartPos(String startPos) {
@@ -45,7 +45,7 @@ public class ResGameCreate extends ResponseApi {
         sb.append("{\"nbPlayer\":\"");
         sb.append(nbPlayer);
         sb.append("\",\"gameId\":\"");
-        sb.append(gameId);
+        sb.append(mapId);
         sb.append("\",\"startPos\":\"");
         sb.append(startPos);
         sb.append("\",\"player\":");

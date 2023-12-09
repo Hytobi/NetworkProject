@@ -1,13 +1,13 @@
 package modele;
-
 /**
  * Classe mère de Mur,Sol,Vide et Destination qui reste fixe le long du programme
  * @author PLOUVIN Patrice
  */
 public class Indeplacable{
     private String carac;
+    private Item item;
     private boolean aJoueur = false;
-    private boolean aCaisse = false;
+    private boolean aItem = false;
 
     /**Constructeur de la classe indéplaçable */
     public Indeplacable(String carac){
@@ -32,8 +32,8 @@ public class Indeplacable{
     /**Méthode qui return vrai si la caisse est sur cette casse, faux sinon
      * @return aCaisse
      */
-    public boolean aCaisse(){
-        return aCaisse;
+    public boolean getAItem(){
+        return aItem;
     }
 
     /**Méthode qui permet de changer la valeur du carac
@@ -53,14 +53,22 @@ public class Indeplacable{
     /**Méthode qui permet de changer la valeur de aCaisse
      * @param b : boolean
      */
-    public void setACaisse(boolean b){
-        aCaisse = b;
+    public void setAItem(boolean b){
+        aItem = b;
+    }
+
+    public Item getItem(){
+        return item;
+    }
+
+    public void setItem(Item i){
+        item = i;
     }
 
     /**Méthode qui affiche le carac selon aCaisse et aJoueur
      */
     public String toString(){
-        if ((carac == ".") && aCaisse) return "*";
+        if ((carac == ".") && aItem) return "*";
         if ((carac == ".") && aJoueur) return "+";
         return carac;
     }

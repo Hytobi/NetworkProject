@@ -1,5 +1,4 @@
-import api.JsonConnection;
-
+package api;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;

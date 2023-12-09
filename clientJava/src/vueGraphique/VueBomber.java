@@ -34,7 +34,7 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
     /**Constructeur de la classe vue*/
     public VueBomber(Carte jeu){
         //Donne le titre via JFrame
-        super("Sokoban");
+        super("Bomberstudent");
         this.jeu = jeu;
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
