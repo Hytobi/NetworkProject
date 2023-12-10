@@ -58,6 +58,7 @@ void *serveurUdp(void *args) {
     printf("Serveur up\n");
 
     char buffer[BUFFER_SIZE];
+    char buffer2[BUFFER_SIZE];
     int n = 0;
     for (;;) {
         struct sockaddr_in clientAddr;
@@ -75,16 +76,18 @@ void *serveurUdp(void *args) {
         if (strcmp(buffer, messageClientAttendue)) {
             printf("Refusé !\n");
             printf("Message non reconnue : %s\n", buffer);
+            sprintf(buffer2, "%s", cJSON_Print(badRequest()));
+            n = sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &clientAddr, clientAddrLen);
+            CONTINUE_IF_FAIL(n, "Erreur envoie du message");
             continue;
         }
 
         printf("Message reçu de %s : %s\nMessage accepté !\n", inet_ntoa(clientAddr.sin_addr), buffer);
 
-        char buffer2[1024];
         sprintf(buffer2, "%s", notifClientServeurUp);
         //sprintf(buffer2,"yes");
         n = sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &clientAddr, clientAddrLen);
-        //TODO si ca se passe mal
+        CONTINUE_IF_FAIL(n, "Erreur envoie du message");
 
         // Block le mutex
         pthread_mutex_lock(&(threadInfo->mutex));
@@ -143,7 +146,7 @@ void *tcpConnect(void *args) {
 
                 // socket TCP
                 printf("Écoute sur le socket TCP...\n");
-                listen(threadInfo->clients[i].socket,1);
+                listen(threadInfo->clients[i].socket, 1);
                 int tcpFd = accept(threadInfo->clients[i].socket, (struct sockaddr *) &threadInfo->clients[i].addr,
                                    &tcpClientAddrLen);
                 if (tcpFd == ERR) {
@@ -155,7 +158,7 @@ void *tcpConnect(void *args) {
 
                 printf("Nouveau client connecté via TCP depuis %s\n", inet_ntoa(threadInfo->clients[i].addr.sin_addr));
                 threadInfo->clients[i].connecter = 1;
-                threadInfo->clients[i].socket=tcpFd;
+                threadInfo->clients[i].socket = tcpFd;
 
                 pthread_create(&clientThreads[threadCount], NULL, clientCommunication, &threadInfo->clients[i]);
                 threadCount++;

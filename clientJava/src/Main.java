@@ -8,7 +8,7 @@ public class Main {
         UdpBroadcastClient udp = new UdpBroadcastClient();
         List<String> servers = udp.scanConnection();
         if (servers.isEmpty()){
-            System.err.println("Aucuns servers trouvé");
+            System.out.println("Aucuns servers trouvé");
             return;
         }
 

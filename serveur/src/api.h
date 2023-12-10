@@ -8,8 +8,15 @@
 #include "cJSON/cJSON.h"
 
 #define messageClientAttendue "looking for bomberstudent servers"
-#define notifClientServeurUp "hello i’m a bomberstudent server"
+#define notifClientServeurUp "hello i'm a bomberstudent server"
+#define getPartieListe "GET game/list"
 
 void *clientCommunication(void *args);
+
+cJSON sendMapListe();
+
+cJSON *badRequest();
+
+cJSON *errInconnue();
 
 #endif //PROJECT_API_H

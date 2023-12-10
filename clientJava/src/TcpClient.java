@@ -12,7 +12,8 @@ public class TcpClient {
     private PrintWriter writer;
     private final int port = 42069;
     private String server;
-    Socket socket;
+    private Socket socket;
+    private final int bufferSize = 4096;
 
     public TcpClient(String server) {
         this.server = server;
@@ -48,9 +49,9 @@ public class TcpClient {
      */
     public String get(){
         // Lecture de la réponse du serveur
-        char[] response = new char[1024];
+        char[] response = new char[bufferSize];
         try {
-            reader.read(response,0,1024);
+            reader.read(response,0,bufferSize);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

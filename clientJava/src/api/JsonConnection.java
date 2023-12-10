@@ -3,10 +3,10 @@ package api;
 import dto.Game;
 
 public class JsonConnection {
-    public static final String RES_ATTENDU = "hello i'm bomberstudent server";
+    public static final String RES_ATTENDU = "hello i'm a bomberstudent server";
 
     public static String msgSearch(){
-        return "looking for bomberstudent servers\0";
+        return "looking for bomberstudent servers";
     }
 
     public static String msgConnect(){
