@@ -2,10 +2,8 @@ package modele;
 
 import java.util.*;
 
-import api.Api;
-import api.JsonJouer;
-import api.MapperRes;
-import dto.Update;
+import api.*;
+import dto.*;
 
 import java.awt.Point;
 import java.awt.Robot;
@@ -34,7 +32,7 @@ public class Carte{
         this.myName = myName;
         this.resGameJoin = resGameJoin;
         //Charger une map
-        Lecture map = new Lecture("map" + resGameJoin.getMap());
+        Lecture map = new Lecture("map" + resGameJoin.getMapId());
         maListe = map.getMaListe();
         maxi = map.getNbLigne();
         maxj = map.getTailleLigne();
@@ -42,8 +40,8 @@ public class Carte{
     }
 
     /**Toute les methodes pour acceder aux arguments private */
-    public Player getRobot(){
-        return robot;
+    public List<Player> getRobots(){
+        return robots;
     }
     public int getMaxi(){
         return maxi;
@@ -56,117 +54,6 @@ public class Carte{
     }
     public Indeplacable[][] getPlateau(){
         return plateau;
-    }
-
-    /**Méthode qui vide la liste des mises à jour*/
-    public void ViderMesMAJ(){
-        mesMAJ.clear();
-    }
-
-    /**
-     * Méthode qui met a jour le X ou le Y du robot
-     * @param c : la direction du robot
-     */
-    public void direction(char c){
-        //On incrémente le nombre de mouvements
-        //Aller vers le haut
-        if (c == 'z'){
-            robot.setX(-1);
-            robot.setDirection(0);
-        }
-        //Aller vers la gauche
-        else if (c == 'q'){
-            robot.setY(-1);
-            robot.setDirection(1);
-        }
-        //Aller vers le bas
-        else if (c == 's'){
-            robot.setX(1);
-            robot.setDirection(2);
-        }
-        //Aller vers la droite
-        else if (c == 'd'){
-            robot.setY(1);
-            robot.setDirection(3);
-        }
-    }
-
-    private void askForMove(char c){
-        String move;
-        if (c == 'z'){
-            move = "up";
-        } else if (c == 'q'){
-            move = "left";
-        } else if (c == 's'){
-            move = "down";
-        } else if (c == 'd'){
-            move = "right";
-        Api.post("ip", JsonJouer.postPlayerMove(move));
-    }
-
-    /**
-     * Méthode qui fait le mouvement inverse que celui entré par le joueur
-     * @param c : la direction du robot
-     * @return : La direction opposée
-     */
-    public char counteur(char c){
-        //Le counteur utilise direction pour faire le mouvement inverse, donc on décrémente de 2
-        if (c=='z') return 's';
-        if (c=='q') return 'd';
-        if (c=='s') return 'z';
-        return 'q';
-    }
-
-    private Player getPlayerByName(String name){
-        for (Player p : robots){
-            if (p.getName().equals(name)){
-                return p;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Méthode qui teste si le robot peut se deplacer et le déplace
-     * @param c : La direction du robot
-     * @return : vrai si le robot a pu se deplacer, faux sinon
-     */
-    public void robotSeDeplace(char c){
-        askForMove(c);
-        // reception de la réponse todo
-        String resServeur = "POST player/position/update {\"player\":\"player2\",\"dir\":\"up\" }";
-        Update ppu = MapperRes.fromJson(resServeur.substring(resServeur.indexOf("{")), Update.class);
-        Player p = getPlayerByName(ppu.getPlayer());
-        if (ppu.getDir().equals("up")){
-            p.setX(-1);
-        } else if (ppu.getDir().equals("down")){
-            p.setX(1);
-        } else if (ppu.getDir().equals("left")){
-            p.setY(-1);
-        } else if (ppu.getDir().equals("right")){
-            p.setY(1);
-        }
-        mesMAJ.add(new Point(p.getX(),p.getY()));
-    }
-
-    /**
-     * Méthode qui teste si tout les caisses sont sur une destination
-     * @return : vrai si c'est le cas, faux sinon
-     */
-    public boolean finDePartie(){
-        /*
-        //À voir si je laisse, mais pas tres utile (ajouté pour le bug de passage de niveau)
-        if (mesDestinations.isEmpty()) return false;
-
-        for (Point destination : mesDestinations){
-            //Pour chaque destination on regarde s'il y a une caisse
-            if (!plateau[(int) destination.getX()][(int) destination.getY()].aCaisse()){
-                //Si y'en a pas on return faux
-                return false;
-            }
-        }
-        //Si on sort, c'est que toutes les caisses sont sur des destinations*/
-        return false;
     }
 
     /**Méthode qui relance une partie*/
@@ -186,44 +73,101 @@ public class Carte{
                 if (carac == '#') plateau[i][j] = new Mur();
                 else if (carac == '/') plateau[i][j] = new Vide();
                 //Sinon tout le reste est un sol avec des choses posées dessus
-                else if (carac == 'S'){
-                    plateau[i][j] = new Sol("S"); // speed +
-                } else if (carac == 's'){
-                    plateau[i][j] = new Sol("s"); // speed -
-                } else if (carac == 'R'){
-                    plateau[i][j] = new Sol("R"); // remote bomb +
-                } else if (carac == 'M'){
-                    plateau[i][j] = new Sol("M"); // mine + 
-                } else if (carac == 'I'){
-                    plateau[i][j] = new Sol("I"); // impact +
-                } else if (carac == 'i'){
-                    plateau[i][j] = new Sol("i"); // impact -
-                } else if (carac == 'B'){
-                    plateau[i][j] = new Sol("B"); // classic bomb +
-                } else if (carac == '*'){
-                    plateau[i][j] = new Sol("*"); // mur cassable
-                } else plateau[i][j] = new Sol(" "); // sol
+                else if (carac == ' ') new Sol(" ");
+                else {
+                    plateau[i][j] = new Sol(String.valueOf(carac)); // speed +
+                    plateau[i][j].setAItem(true);
+                    plateau[i][j].setItem(new Item(String.valueOf(carac)));
+                }
             }
         }
 
         if (resGameJoin.getNbPlayer() > 1){
             robots = new ArrayList<>();
             for (Player player : resGameJoin.getPlayers()){
-                robots.add(new Player(player));
+                robots.add(player);
                 // player.getPos() = "x,y", on recupere x et y en on les transforment en integer
-                int x = player.getPos().substring(',')[0];
-                int y = player.getPos().substring(',')[1];
-                plateau[x][y] = new Sol('$');
+                int x = Integer.parseInt(player.getPos().split(",")[0]);
+                int y = Integer.parseInt(player.getPos().split(",")[1]);
+                plateau[x][y] = new Sol("$");
             }
         }
-        int x = resGameJoin.getStartPos().substring(',')[0];
-        int y = resGameJoin.getStartPos().substring(',')[1];
+        int x = Integer.parseInt(resGameJoin.getStartPos().split(",")[0]);
+        int y = Integer.parseInt(resGameJoin.getStartPos().split(",")[1]);
         plateau[x][y] = new Sol("@");
         plateau[x][y].setAJoueur(true);
         resGameJoin.getPlayer().setX(x);
         resGameJoin.getPlayer().setY(y);
         resGameJoin.getPlayer().setName(this.myName);
         robots.add(resGameJoin.getPlayer());
+    }
+
+    /**Méthode qui vide la liste des mises à jour*/
+    public void ViderMesMAJ(){
+        mesMAJ.clear();
+    }
+
+    private void askForMove(char c){
+        String move;
+        if (c == 'z'){
+            move = "up";
+        } else if (c == 'q'){
+            move = "left";
+        } else if (c == 's'){
+            move = "down";
+        } else if (c == 'd'){
+            move = "right";
+        }
+        //Api.post("ip", JsonJouer.postPlayerMove(move));
+    }
+
+    private Player getPlayerByName(String name){
+        for (Player p : robots){
+            if (p.getName().equals(name)){
+                return p;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Méthode qui teste si le robot peut se deplacer et le déplace
+     * @param c : La direction du robot
+     * @return : vrai si le robot a pu se deplacer, faux sinon
+     */
+    public void robotSeDeplace(Update ppu){
+        Player p = getPlayerByName(ppu.getPlayer());
+        String carac = plateau[p.getX()][p.getY()].getCarac();
+        Indeplacable temp = plateau[p.getX()][p.getY()];
+        if (temp.getAItem()){
+            temp.setCarac(temp.getItem().getCarac());
+        } else {
+            plateau[p.getX()][p.getY()].setCarac(" ");
+        }
+        if (ppu.getDir().equals("up")){
+            p.setX(-1);
+            p.setDirection(0);
+        } else if (ppu.getDir().equals("down")){
+            p.setX(1);
+            p.setDirection(2);
+        } else if (ppu.getDir().equals("left")){
+            p.setY(-1);
+            p.setDirection(3);
+        } else if (ppu.getDir().equals("right")){
+            p.setY(1);
+            p.setDirection(1);
+        }
+        mesMAJ.add(new Point(p.getX(),p.getY()));
+        // met a jour la map
+        plateau[p.getX()][p.getY()].setCarac(carac);
+    }
+
+    /**
+     * Méthode qui teste si le joueur est mort
+     * @return : vrai si c'est le cas, faux sinon
+     */
+    public boolean finDePartie(){
+        return getPlayerByName(myName).getLife() <= 0;
     }
 
     /**

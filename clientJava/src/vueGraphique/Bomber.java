@@ -1,25 +1,32 @@
 package vueGraphique;
 
 import modele.Carte;
+import api.TcpClient;
 
 /**
  * Classe qui modélise la Carte de jeu (la map)
  * @author PLOUVIN Patrice
  */
 public class Bomber {
-    public static void main(String[] args) throws Exception {
+
+    public Bomber() {}
+
+    public void start() throws Exception {
 
         //j'ai 5 map de niveau
         int nbNiveau = 5;
         int i=-1;
         int nbMouvTotal=0;
 
+        Intro intro = new Intro();
+        while (!(intro.getCommencer())) {}
+        intro.dispose();
+
+        /*
         //tant qu'on a pas fait tous les niveaux
         while (i!=nbNiveau){
             if (i==-1){
-                Intro intro = new Intro();
-                while (!(intro.getCommencer())) {}
-                intro.dispose();
+                break;
             } else {
                 Carte jeu = new Carte(i);
                 VueBomber vs = new VueBomber(jeu);
@@ -37,6 +44,6 @@ public class Bomber {
                 }
             }
             i++;
-        }
+        }*/
     }
 }
