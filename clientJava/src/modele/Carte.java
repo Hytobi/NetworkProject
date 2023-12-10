@@ -31,12 +31,15 @@ public class Carte{
     public Carte(String myName, ResGameJoin resGameJoin) throws Exception{
         this.myName = myName;
         this.resGameJoin = resGameJoin;
-        //Charger une map
+        /*
         Lecture map = new Lecture("map" + resGameJoin.getMapId());
         maListe = map.getMaListe();
         maxi = map.getNbLigne();
-        maxj = map.getTailleLigne();
-        initMap();
+        maxj = map.getTailleLigne();*/
+        MapInfo map = resGameJoin.getStartingMap();
+        maxi = map.getHeight();
+        maxj = map.getWidth();
+        initMap(map.getContent());
     }
 
     /**Toute les methodes pour acceder aux arguments private */
@@ -55,26 +58,28 @@ public class Carte{
     public Indeplacable[][] getPlateau(){
         return plateau;
     }
+    public String getMyName(){
+        return myName;
+    }
 
     /**Méthode qui relance une partie*/
-    public void initMap(){
+    public void initMap(String content){
         //On met tout à 0
         plateau = new Indeplacable[maxi][maxj];
 
         int i,j;
-        String temp;
         char carac;
 
         //Construction du tableau de jeu
         for (i=0;i<maxi;i++){
-            temp = maListe.get(i);
             for (j=0;j<maxj;j++){
-                carac = temp.charAt(j);
+                carac = content.charAt(i*maxj+j);
                 if (carac == '#') plateau[i][j] = new Mur();
                 else if (carac == '/') plateau[i][j] = new Vide();
                 //Sinon tout le reste est un sol avec des choses posées dessus
-                else if (carac == ' ') new Sol(" ");
+                else if (carac == ' ') plateau[i][j] = new Sol(" ");
                 else {
+                    System.out.println("carac : " + carac);
                     plateau[i][j] = new Sol(String.valueOf(carac)); // speed +
                     plateau[i][j].setAItem(true);
                     plateau[i][j].setItem(new Item(String.valueOf(carac)));
@@ -82,13 +87,15 @@ public class Carte{
             }
         }
 
-        if (resGameJoin.getNbPlayer() > 1){
+        if (resGameJoin.getNbPlayers() > 1){
             robots = new ArrayList<>();
             for (Player player : resGameJoin.getPlayers()){
-                robots.add(player);
                 // player.getPos() = "x,y", on recupere x et y en on les transforment en integer
                 int x = Integer.parseInt(player.getPos().split(",")[0]);
                 int y = Integer.parseInt(player.getPos().split(",")[1]);
+                player.setX(x);
+                player.setY(y);
+                robots.add(player);
                 plateau[x][y] = new Sol("$");
             }
         }
@@ -121,7 +128,7 @@ public class Carte{
         //Api.post("ip", JsonJouer.postPlayerMove(move));
     }
 
-    private Player getPlayerByName(String name){
+    public Player getPlayerByName(String name){
         for (Player p : robots){
             if (p.getName().equals(name)){
                 return p;
@@ -137,6 +144,7 @@ public class Carte{
      */
     public void robotSeDeplace(Update ppu){
         Player p = getPlayerByName(ppu.getPlayer());
+        mesMAJ.add(new Point(p.getX(),p.getY()));
         String carac = plateau[p.getX()][p.getY()].getCarac();
         Indeplacable temp = plateau[p.getX()][p.getY()];
         if (temp.getAItem()){
@@ -144,17 +152,34 @@ public class Carte{
         } else {
             plateau[p.getX()][p.getY()].setCarac(" ");
         }
+        int speed = p.getSpeed();
         if (ppu.getDir().equals("up")){
-            p.setX(-1);
+            if (p.getX() - speed < 0){
+                p.setX(0);
+            } else {
+                p.setX(-speed);
+            }
             p.setDirection(0);
         } else if (ppu.getDir().equals("down")){
-            p.setX(1);
+            if (p.getX() + speed >= maxi){
+                p.setX(maxi-1);
+            } else {
+                p.setX(speed);
+            }
             p.setDirection(2);
         } else if (ppu.getDir().equals("left")){
-            p.setY(-1);
+            if (p.getY() - speed < 0){
+                p.setY(0);
+            } else {
+                p.setY(-speed);
+            }
             p.setDirection(3);
         } else if (ppu.getDir().equals("right")){
-            p.setY(1);
+            if (p.getY() + speed >= maxj){
+                p.setY(maxj-1);
+            } else {
+                p.setY(speed);
+            }
             p.setDirection(1);
         }
         mesMAJ.add(new Point(p.getX(),p.getY()));

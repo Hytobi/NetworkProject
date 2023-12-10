@@ -1,20 +1,20 @@
 package dto;
 
 public class MapInfo {
-    private String id;
-    private String width;
-    private String height;
+    private int id;
+    private int width;
+    private int height;
     private String content;
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public String getWidth() {
+    public int getWidth() {
         return width;
     }
 
-    public String getHeight() {
+    public int getHeight() {
         return height;
     }
 
@@ -22,20 +22,30 @@ public class MapInfo {
         return content;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public void setWidth(String width) {
+    public void setWidth(int width) {
         this.width = width;
     }
 
-    public void setHeight(String height) {
+    public void setHeight(int height) {
         this.height = height;
     }
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+            " id='" + getId() + "'" +
+            ", width='" + getWidth() + "'" +
+            ", height='" + getHeight() + "'" +
+            ", content='" + getContent() + "'" +
+            "}";
     }
 
 }
