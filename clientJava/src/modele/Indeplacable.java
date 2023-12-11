@@ -8,6 +8,7 @@ public class Indeplacable{
     private Item item;
     private boolean aJoueur = false;
     private boolean aItem = false;
+    private boolean aBombe = false;
 
     /**Constructeur de la classe indéplaçable */
     public Indeplacable(String carac){
@@ -36,6 +37,13 @@ public class Indeplacable{
         return aItem;
     }
 
+    /**Méthode qui return vrai si la bombe est sur cette casse, faux sinon
+     * @return aBombe
+     */
+    public boolean getABombe(){
+        return aBombe;
+    }
+
     /**Méthode qui permet de changer la valeur du carac
      * @param c : la nouvelle valeur de carac
      */
@@ -55,6 +63,13 @@ public class Indeplacable{
      */
     public void setAItem(boolean b){
         aItem = b;
+    }
+
+    /**Méthode qui permet de changer la valeur de aBombe
+     * @param b : boolean
+     */
+    public void setABombe(boolean b){
+        aBombe = b;
     }
 
     public Item getItem(){

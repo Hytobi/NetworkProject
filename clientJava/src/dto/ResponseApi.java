@@ -38,7 +38,7 @@ public class ResponseApi {
         sb.append(statut);
         sb.append("\",\"message\":\"");
         sb.append(message);
-        sb.append("}");
+        sb.append("\"}");
         return sb.toString();
     }
 }

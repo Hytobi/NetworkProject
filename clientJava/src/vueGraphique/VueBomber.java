@@ -15,9 +15,11 @@ import dto.*;
  */
 public class VueBomber extends JFrame implements ActionListener,KeyListener{
     //Les images necessaires
-    public static final ImageIcon DESTINATION = new ImageIcon("img/but.gif");
-    public static final ImageIcon CAISSE = new ImageIcon("img/caisse1.gif");
-    public static final ImageIcon CAISSE_SUR_DESTINATION = new ImageIcon("img/caisse2.gif");
+    public static final ImageIcon CLASSIC = new ImageIcon("img/Classic.png");
+    public static final ImageIcon REMOTE = new ImageIcon("img/Remote.png");
+    public static final ImageIcon MINE = new ImageIcon("img/Mine.png");
+    public static final ImageIcon ITEM = new ImageIcon("img/Item.png");
+    public static final ImageIcon MUR_INCA = new ImageIcon("img/MurInca.png");
     public static final ImageIcon MUR = new ImageIcon("img/mur.gif");
     public static final ImageIcon SOL = new ImageIcon("img/sol.gif");
     public static final ImageIcon[] PERSO = new ImageIcon[] { new ImageIcon("img/Haut.gif"),
@@ -45,8 +47,6 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
         setLayout(new BorderLayout());
 
         //Les inits
-        initActions();
-        initToolBar();
         initCarte();
         initGameInfos();
         addKeyListener(this);
@@ -75,72 +75,17 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
                 c = jeu.getPlateau()[i][j].getCarac();
                 if (c == "#") cartePanel.add(new JLabel(MUR));
                 else if (c == "/") cartePanel.add(new JLabel());
-                else if (c == ".") cartePanel.add(new JLabel(DESTINATION));
+                else if (c == "B") cartePanel.add(new JLabel(CLASSIC));
+                else if (c == "M") cartePanel.add(new JLabel(MINE));
+                else if (c == "R") cartePanel.add(new JLabel(REMOTE));
+                else if (c == "I") cartePanel.add(new JLabel(ITEM));
+                else if (c == "X") cartePanel.add(new JLabel(MUR_INCA));
                 //Sinon tout le reste est un sol avec des choses posé dessus
                 else if (c == "@") cartePanel.add(new JLabel(PERSO[2]));
                 else if (c == "$") cartePanel.add(new JLabel(PERSO[2]));
-                else if (c == "*") cartePanel.add(new JLabel(CAISSE_SUR_DESTINATION));
                 else cartePanel.add(new JLabel(SOL));
             }
         }
-    }
-
-    /**Méthode qui initialise les actions des boutons */
-    private void initActions() {
-        /*
-        retourAction = new AbstractAction("Retour") {
-            public void actionPerformed(ActionEvent e) {
-                if ((jeu.getNbMouvement()>0)); {
-                    jeu.faireDernierMouvement();
-                    if (!jeu.getMesMAJ().isEmpty()) parcourDesMAJ();
-                    updateGameInfos();
-                }
-            }
-        };
-        restartAction = new AbstractAction("Restart") {
-            public void actionPerformed(ActionEvent e) {
-                jeu.restart();
-                initCarte();
-                initGameInfos();
-                cartePanel.updateUI();
-            }
-        };*/
-    }
-
-    /**Méthode qui desactive les boutons lorsque le dernier niveau est fini
-     */
-    public void desactiveAction(){
-        retourAction.setEnabled(false);
-        restartAction.setEnabled(false);
-    }
-
-    /**Méthode qui initialise la bare d'outil et les boutons */
-    private void initToolBar() {
-        JToolBar toolBar = new JToolBar();
-        JButton retourBtn = new JButton(retourAction);
-        JButton restartBtn = new JButton(restartAction);
-        retourBtn.setFocusable(false);
-        restartBtn.setFocusable(false);
-        //Pour que les boutons soient beaux
-        retourBtn.setBorderPainted(false);
-        restartBtn.setBorderPainted(false);
-        retourBtn.setFocusPainted(false);
-        restartBtn.setFocusPainted(false);
-        retourBtn.setContentAreaFilled(false);
-        restartBtn.setContentAreaFilled(false);
-        retourBtn.setForeground(Color.WHITE);
-        restartBtn.setForeground(Color.WHITE);
-        //Ajout des boutons a la ToolBar
-        toolBar.add(retourBtn);
-        toolBar.addSeparator();
-        toolBar.add(restartBtn);
-        //Pour que la ToolBar soit belle
-        toolBar.setBackground(new Color(28, 25, 71));
-        toolBar.setFloatable(false);
-        toolBar.setRollover(true);
-        toolBar.setBorderPainted(false);
-        //On l'ajoute à la vue
-        getContentPane().add(toolBar, BorderLayout.NORTH);
     }
 
     /**Méthode qui initialise les infos de la partie
@@ -169,62 +114,31 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
      */
     public void parcourDesMAJ(){
         int index;
-        Point p;
         String c;
         //Le premier point de la liste est l'endroit où était le bot avant le mouvement
         //Le perso peut être sur un Sol ou une Destination
-        p = jeu.getMesMAJ().get(0);
-        index = (int)p.getX() * jeu.getMaxj() + (int)p.getY();
-        c = jeu.getPlateau()[(int)p.getX()][(int)p.getY()].getCarac();
-        if (c == " ") {
-            cartePanel.remove(index);
-            cartePanel.add(new JLabel(SOL), index);
-        } else if (c == "."){
-            cartePanel.remove(index);
-            cartePanel.add(new JLabel(DESTINATION), index);
-        } else if (c == "$") { //Pour le cas retour
-            cartePanel.remove(index);
-            cartePanel.add(new JLabel(CAISSE), index);
-        }
+        for (Point p : jeu.getMesMAJ()) {
 
-        //Le deuxième est toujours le perso à sa nouvelle place
-        p = jeu.getMesMAJ().get(1);
-        index = (int)p.getX() * jeu.getMaxj() + (int)p.getY();
-        c = jeu.getPlateau()[(int)p.getX()][(int)p.getY()].getCarac();
-        //On fait un test, car jamais trop prudent
-        if ((c == "@")) {
-            cartePanel.remove(index);
-            cartePanel.add(new JLabel(PERSO[jeu.getPlayerByName(jeu.getMyName()).getDirection()]), index); // jeu.getRobot().getDirection()
-        }
-
-        //S'il existe le 3eme est la ou se trouve la caisse apres déplacement
-        if (jeu.getMesMAJ().size()>2) {
-            p = jeu.getMesMAJ().get(2);
-            index = (int) p.getX() * jeu.getMaxj() + (int) p.getY();
+            index = (int)p.getX() * jeu.getMaxj() + (int)p.getY();
             c = jeu.getPlateau()[(int)p.getX()][(int)p.getY()].getCarac();
-            //Si la caisse est sur une Destination ou sur un Sol ce n'est pas la même image
-            if (c=="*"){
-                cartePanel.remove(index);
-                cartePanel.add(new JLabel(CAISSE_SUR_DESTINATION), index);
-            } else if (c == "$") {
-                cartePanel.remove(index);
-                cartePanel.add(new JLabel(CAISSE), index);
-            }
-        }
-
-        //Si le 4eme existe, c'est que le joueur a fait un retour
-        //On met à jour la ou se trouvait la caisse avant le retour
-        if (jeu.getMesMAJ().size()==4) {
-            p = jeu.getMesMAJ().get(3);
-            index = (int) p.getX() * jeu.getMaxj() + (int) p.getY() ;
-            c = jeu.getPlateau()[(int)p.getX()][(int)p.getY()].getCarac();
-            //La caisse pouvait être sur une destination ou un Sol
-            if (c=="."){
-                cartePanel.remove(index);
-                cartePanel.add(new JLabel(DESTINATION), index);
-            } else if (c==" "){
+            if (c == " ") {
                 cartePanel.remove(index);
                 cartePanel.add(new JLabel(SOL), index);
+            } else if (c == "B"){
+                cartePanel.remove(index);
+                cartePanel.add(new JLabel(CLASSIC), index); // bombe
+            } else if (c == "M"){
+                cartePanel.remove(index);
+                cartePanel.add(new JLabel(MINE), index); // mine
+            } else if (c == "R"){
+                cartePanel.remove(index);
+                cartePanel.add(new JLabel(REMOTE), index); //remote
+            } else if (c == "$") { //pas encore fait
+                cartePanel.remove(index);
+                cartePanel.add(new JLabel(PERSO[1]), index);
+            } else if (c == "@") {
+                cartePanel.remove(index);
+                cartePanel.add(new JLabel(PERSO[jeu.getMyPlayer().getDirection()]), index); // jeu.getRobot().getDirection()
             }
         }
         //On met à jour la vu et on vide la liste des mises à jour
@@ -246,32 +160,74 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
         if (stop) return;
         //Selon l'entrée on déplace le robot dans la direction voulue
         String move = null;
+        String attack = null;
+        String type = null; // a retirer
         if ((e.getKeyCode() == KeyEvent.VK_RIGHT) || (e.getKeyChar() == 'd')) {
             System.out.println("Envoie demande deplacement a droite");
             tcp.post(JsonJouer.postPlayerMove("right"));
             move = "{\"player\":\"player3\",\"dir\":\"right\"}";  //tcp.get();
-        }
-        if ((e.getKeyCode() == KeyEvent.VK_LEFT) || (e.getKeyChar() == 'q')){
+        } 
+        else if ((e.getKeyCode() == KeyEvent.VK_LEFT) || (e.getKeyChar() == 'q')){
             System.out.println("Envoie demande deplacement a gauche");
             tcp.post(JsonJouer.postPlayerMove("left"));
             move = "{\"player\":\"player3\",\"dir\":\"left\"}";  //tcp.get();
         }
-        if ((e.getKeyCode() == KeyEvent.VK_DOWN) || (e.getKeyChar() == 's')){
+        else if ((e.getKeyCode() == KeyEvent.VK_DOWN) || (e.getKeyChar() == 's')){
             System.out.println("Envoie demande deplacement en bas");
             tcp.post(JsonJouer.postPlayerMove("down"));
             move = "{\"player\":\"player3\",\"dir\":\"down\"}";  //tcp.get();
         }
-        if ((e.getKeyCode() == KeyEvent.VK_UP) || (e.getKeyChar() == 'z')) {
+        else if ((e.getKeyCode() == KeyEvent.VK_UP) || (e.getKeyChar() == 'z')) {
             System.out.println("Envoie demande deplacement en haut");
             tcp.post(JsonJouer.postPlayerMove("up"));
             move = "{\"player\":\"player3\",\"dir\":\"up\"}";  //tcp.get();
         }
-        if (move == null) return;
-        Update res = MapperRes.fromJson(move, Update.class); //TODO: verifier si c'est bien un hello
-        if (res != null){
-            jeu.robotSeDeplace(res);
-        } else {
-            System.out.println("Erreur lors de la récupération du move");
+        else if (e.getKeyChar() == 'r'){
+            if (jeu.getMyPlayer().getNbRemoteBomb() == 0) return;
+            System.out.println("Envoie demande posser une remote bomb");
+            String pos = jeu.getMyPlayer().getX() + "," + jeu.getMyPlayer().getY();
+            type = "remote";
+            tcp.post(JsonJouer.postAttackBomb(pos, "remote"));
+            attack = getDebugAttack(true, false, false);  //tcp.get();
+        }
+        else if (e.getKeyChar() == 'f' || e.getKeyChar() == 'm'){
+            if (jeu.getMyPlayer().getNbMine() == 0) return;
+            System.out.println("Envoie demande posser une mine");
+            String pos = jeu.getMyPlayer().getX() + "," + jeu.getMyPlayer().getY();
+            type = "mine";
+            tcp.post(JsonJouer.postAttackBomb(pos, "mine"));
+            attack = getDebugAttack(false, true, false); //tcp.get();
+        }
+        else if (e.getKeyChar() == 'c'){
+            if (jeu.getMyPlayer().getNbClassicBomb() == 0) return;
+            System.out.println("Envoie demande posser une classic bomb");
+            String pos = jeu.getMyPlayer().getX() + "," + jeu.getMyPlayer().getY();
+            type = "classic";
+            tcp.post(JsonJouer.postAttackBomb(pos, "classic"));
+            attack = getDebugAttack(false, false, true); //tcp.get();
+        }
+        if (move != null) {
+            Update res = MapperRes.fromJson(move, Update.class);
+            if (res != null){
+                jeu.robotSeDeplace(res);
+            } else {
+                System.out.println("Erreur lors de la récupération du move");
+            }
+        } else if (attack != null) {
+            AttackBomb res = MapperRes.fromJson(attack, AttackBomb.class);
+            if (res != null){
+                jeu.updateMyPlayer(res.getPlayer());
+            } else {
+                System.out.println("Erreur lors de la récupération du move");
+            }
+            String pos = jeu.getMyPlayer().getX() + "," + jeu.getMyPlayer().getY(); // a retirer
+            String ares = "POST attack/newbomb {\"pos\":\""+ pos+"\",\"type\":\""+type+"\"}";            //tcp.get();
+            AttackNewBomb anb = MapperRes.fromJson("{" + ares.split("\\{")[1], AttackNewBomb.class);
+            if (anb != null){
+                jeu.setABomb(anb);
+            } else {
+                System.out.println("Erreur lors de la récupération du move");
+            }
         }
 
         //On met à jour les infos de la partie (le nombre de mouvements)
@@ -296,4 +252,8 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
 
     @Override
     public void actionPerformed(ActionEvent e) {}
+
+    private String getDebugAttack(boolean remote, boolean mine, boolean classic){
+        return "{\"action\":\"attack/bomb\", \"statut\":\"201\", \"message\":\"bomb is armed at pos 5,3\",\"player\":{\"life\":100,\"speed\":1,\"nbClassicBomb\":1,\"nbMine\":1,\"nbRemoteBomb\":1,\"impactDist\":2,\"invincible\":false}}";
+    }
 }
