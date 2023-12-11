@@ -211,12 +211,13 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
             System.out.println("Erreur lors de la fermeture du socket");
         } finally {
             while (true) {
+                UdpBroadcastClient.retryconnection(tcp.getServer());
                 try {
                     tcp.tcpConnect();
                     break;
                 } catch (Exception e) {
                     try {
-                        Thread.sleep(3000);
+                        Thread.sleep(10000);
                     } catch (Exception ex) {
                         System.out.println("Erreur lors de la reconnexion au serveur");
                     }
