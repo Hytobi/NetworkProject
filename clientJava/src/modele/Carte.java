@@ -23,7 +23,7 @@ public class Carte{
     private int maxj;
     private Player myPlayer;
     private List<String> maListe;
-    private List<Player> robots;
+    private List<Player> robots = new ArrayList<>();
     private List<Point> mesMAJ = new ArrayList<Point>();
 
     /**Constructeur de la Classe
@@ -73,6 +73,7 @@ public class Carte{
 
         int i,j;
         char carac;
+        content = content.replaceAll("\n", "");
 
         //Construction du tableau de jeu
         for (i=0;i<maxi;i++){
@@ -107,7 +108,6 @@ public class Carte{
         }
 
         if (resGameJoin.getNbPlayers() > 1){
-            robots = new ArrayList<>();
             for (Player player : resGameJoin.getPlayers()){
                 // player.getPos() = "x,y", on recupere x et y en on les transforment en integer
                 int x = Integer.parseInt(player.getPos().split(",")[0]);
@@ -162,7 +162,7 @@ public class Carte{
      * @param c : La direction du robot
      * @return : vrai si le robot a pu se deplacer, faux sinon
      */
-    public void robotSeDeplace(Update ppu){
+    public String robotSeDeplace(Update ppu){
         Player p = getPlayerByName(ppu.getPlayer());
         mesMAJ.add(new Point(p.getX(),p.getY()));
         String carac = plateau[p.getX()][p.getY()].getCarac();
@@ -203,10 +203,9 @@ public class Carte{
             p.setDirection(3);
         }
         mesMAJ.add(new Point(p.getX(),p.getY()));
+        String item = null;
         if (plateau[p.getX()][p.getY()].getAItem()){
-            if (ppu.getPlayermodif() != null){
-                updateMyPlayer(ppu.getPlayermodif());
-            }
+            item = plateau[p.getX()][p.getY()].getItem().randomItem();
             temp.setAItem(false);
             temp.setItem(null);
         }
@@ -215,6 +214,7 @@ public class Carte{
         }
         // met a jour la map
         plateau[p.getX()][p.getY()].setCarac(carac);
+        return item;
     }
 
     private void recupItem(String carac){ //a faire
@@ -247,11 +247,20 @@ public class Carte{
     }
 
     public void updateMyPlayer(Player p){
-        myPlayer.setLife(p.getLife());
+        if (p.getLife() < myPlayer.getLife()){
+            if (!myPlayer.getInvincible()){
+                myPlayer.setLife(myPlayer.getLife());
+            }
+        } else {
+            myPlayer.setLife(p.getLife());
+        }
         myPlayer.setSpeed(p.getSpeed());
         myPlayer.setNbClassicBomb(p.getNbClassicBomb());
         myPlayer.setNbMine(p.getNbMine());
-        myPlayer.setNbRemoteBomb(p.getNbRemoteBomb());
+        if (myPlayer.getNbRemoteBomb() > p.getNbRemoteBomb()){
+            myPlayer.setNbRemoteBomb(p.getNbRemoteBomb());
+            myPlayer.setArmedRemoteBomb(true);
+        }
         myPlayer.setImpactDist(p.getImpactDist());
         myPlayer.setInvincible(p.getInvincible());
     }
@@ -275,6 +284,38 @@ public class Carte{
                 break;
         }
         mesMAJ.add(new Point(x,y));
+    }
+
+    public void explose(AttackExplose ae){
+        int x = Integer.parseInt(ae.getPos().split(",")[0]);
+        int y = Integer.parseInt(ae.getPos().split(",")[1]);
+        plateau[x][y].setABombe(false);
+        plateau[x][y].setItem(null);
+        plateau[x][y].setCarac(" ");
+        mesMAJ.add(new Point(x,y));
+        String str;
+        for (int i=1;i<=ae.getImpactDist();i++){
+            if (x-i > 0){
+                str = ae.getMap().charAt((x-i)*maxj+y) + ""; //String.valueOf(ae.getMap().charAt((x-i)*maxj+y));
+                plateau[x-i][y].setCarac(str);
+                mesMAJ.add(new Point(x-i,y));
+            }
+            if (x+i < maxi-1){
+                str = ae.getMap().charAt((x+i)*maxj+y) + ""; //String.valueOf(ae.getMap().charAt((x+i)*maxj+y));
+                plateau[x+i][y].setCarac(str);
+                mesMAJ.add(new Point(x+i,y));
+            }
+            if (y-i > 0){
+                str = ae.getMap().charAt(x*maxj+y-i) + ""; //String.valueOf(ae.getMap().charAt(x*maxj+y-i));
+                plateau[x][y-i].setCarac(str);
+                mesMAJ.add(new Point(x,y-i));
+            }
+            if (y+i < maxj-1){
+                str = ae.getMap().charAt(x*maxj+y+i) + ""; //String.valueOf(ae.getMap().charAt(x*maxj+y+i));
+                plateau[x][y+i].setCarac(str);
+                mesMAJ.add(new Point(x,y+i));
+            }
+        }
     }
 
     /**

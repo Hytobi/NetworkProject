@@ -43,7 +43,7 @@ cJSON *sendMapListe(maps *mapsInfo) {
     return mapJson;
 }
 
-cJSON *sendGameCreation(game *g) {
+cJSON *sendGameCreation(game *g,map *map) {
     cJSON *gameCreation = cJSON_CreateObject();
 
     // Ajout des éléments au JSON
@@ -51,6 +51,13 @@ cJSON *sendGameCreation(game *g) {
     cJSON_AddStringToObject(gameCreation, "statut", "201");
     cJSON_AddStringToObject(gameCreation, "message", "game created");
     cJSON_AddNumberToObject(gameCreation, "nbPlayers", g->nbPlayers);
+
+    cJSON *game = cJSON_CreateObject();
+    cJSON_AddNumberToObject(game, "id", map->id);
+    cJSON_AddNumberToObject(game, "width", map->width);
+    cJSON_AddNumberToObject(game, "height", map->height);
+    cJSON_AddStringToObject(game, "content", map->content);
+    cJSON_AddItemToObject(gameCreation, "startingMap", game);
 
     char startPos[5];
     sprintf(startPos, "%d,%d", g->startPos[0], g->startPos[1]);
@@ -140,12 +147,24 @@ void receiveSend(client_map_games *clientMap, char *recu) {
             ENVOI_MESSAGE(cJSON_Print(errInconnue()));
             return;
         }
-        ENVOI_MESSAGE(cJSON_Print(sendGameCreation(clientMap->gameInfo->gameListe[indiceGame])));
+        ENVOI_MESSAGE(cJSON_Print(sendGameCreation(clientMap->gameInfo->gameListe[indiceGame], clientMap->mapInfo->mapListe[indiceGame])));
         printf("Partie créer !\n");
     } else if (!strncmp(recu, getPartieListe, GET_PARTIE_LISTE_SIZE)) {
         printf("Envoie de la liste des parties...\n");
         ENVOI_MESSAGE(cJSON_Print(sendPartieListe(clientMap->gameInfo)));
         printf("Envoie efectué !\n");
+
+    } else {
+        printf("Requête inconnue : %s\n", recu);
+        sprintf(buffer2, "%s", cJSON_Print(badRequest()));
+        //sprintf(buffer2,"yes");
+        int n = sendto(cl->socket, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &cl->addr, clientAddrLen);
+        //n = send(cl->socket,buffer2,BUFFER_SIZE,0);
+        if (n == ERR) {
+            perror("Erreur envoie du message");
+            return;
+        }
+
     }
 }
 

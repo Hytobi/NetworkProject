@@ -1,6 +1,7 @@
 package modele;
 
 public class Item {
+    private static final String[] ITEMS= {"classicBomb", "remoteBomb", "mine", "impactUp", "speedUp", "impactDown", "speedDown", "lifeMax", "invincible"};
     private String carac;
 
     public Item(String carac){
@@ -13,5 +14,10 @@ public class Item {
 
     public void setCarac(String c){
         carac = c;
+    }
+
+    public String randomItem(){
+        int i = (int)(Math.random() * ITEMS.length);
+        return ITEMS[i];
     }
 }

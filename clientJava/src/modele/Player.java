@@ -13,6 +13,7 @@ public class Player{
     private int nbMine;
     private int impactDist;
     private boolean invincible;
+    private boolean armedRemoteBomb;
 
     private int x;
     private int y;
@@ -134,6 +135,14 @@ public class Player{
 
     public void setInvincible(boolean b){
         invincible = b;
+    }
+
+    public void setArmedRemoteBomb(boolean b){
+        armedRemoteBomb = b;
+    }
+
+    public boolean getArmedRemoteBomb(){
+        return armedRemoteBomb;
     }
 
     /**L'affichage */
