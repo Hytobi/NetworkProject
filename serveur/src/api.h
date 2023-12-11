@@ -11,6 +11,7 @@
 #define messageClientAttendue "looking for bomberstudent servers"
 #define notifClientServeurUp "hello i'm a bomberstudent server"
 #define getPartieListe "GET game/list"
+#define getMapListe "GET maps/list\n"
 
 void *clientCommunication(void *args);
 

@@ -182,8 +182,10 @@ public class Intro extends JFrame implements ActionListener {
                 clear();
                 System.out.println("Envoie demande liste des maps");
                 tcp.post(JsonConnection.getMapList());
-                String maps = "{\"statut\":\"201\"}";  //tcp.get();
+                String maps = /*"{\"statut\":\"201\"}";*/  tcp.get();
+                System.out.println(maps);
                 ResMapList res = MapperRes.fromJson(maps, ResMapList.class); //TODO: verifier si c'est bien un hello
+                System.out.println(res);
                 if (res != null && res.getStatut() == "200"){
                     publishMessage(res.getNbMapsList() + " map(s)", true, Color.GREEN);
                 }else{

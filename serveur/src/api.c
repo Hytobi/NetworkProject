@@ -67,7 +67,8 @@ void receiveSend(client_map *clientMap, char *recu) {
             return;
         }
     }
-    if (!strcmp(recu, getPartieListe)) {
+    if (!strcmp(recu, getMapListe)) {
+        printf("Envoie des informations concernant les maps à : %s ...\n", inet_ntoa(cl->addr.sin_addr));
         sprintf(buffer2, "%s", cJSON_Print(sendMapListe(clientMap->mapInfo)));
         //sprintf(buffer2,"yes");
         int n = sendto(cl->socket, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &cl->addr, clientAddrLen);
@@ -76,6 +77,7 @@ void receiveSend(client_map *clientMap, char *recu) {
             perror("Erreur envoie du message");
             return;
         }
+        printf("Map envoyé avec Succès\n");
     }
 }
 
@@ -86,6 +88,7 @@ void *clientCommunication(void *args) {
     int n = 0;
 
     for (;;) {
+        strcpy(buffer,"");
         //n = recvfrom(cl->socket, buffer, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *) &cl->addr, &clientAddrLen);
         n = read(cl->socket, buffer, BUFFER_SIZE);
         if (n == ERR) {
@@ -98,7 +101,7 @@ void *clientCommunication(void *args) {
         }
         buffer[n] = '\0';
 
-        printf("%s : %s", inet_ntoa(cl->addr.sin_addr), buffer);
+        printf("%s : %s\n", inet_ntoa(cl->addr.sin_addr), buffer);
 
         receiveSend(cm, buffer);
 
