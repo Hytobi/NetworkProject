@@ -11,7 +11,7 @@
 #include "map.h"
 
 #define BUFFER_SIZE 4096
-#define MAX_SERVERS 8
+#define MAX_GAMES 16
 #define MAX_CLIENTS 2048
 #define PORT 42069
 #define STRING_SIZE 256
@@ -33,10 +33,11 @@ typedef struct client {
     game clientGame;
 } client;
 
-typedef struct client_map {
+typedef struct client_map_games {
     client *cl;
     maps *mapInfo;
-} client_map;
+    game *games[MAX_GAMES];
+} client_map_games;
 
 typedef struct thread_Info {
     client clients[MAX_CLIENTS];

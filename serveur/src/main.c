@@ -162,7 +162,7 @@ void *tcpConnect(void *args) {
                 threadInfo->clients[i].socket = tcpFd;
 
 
-                client_map cm;
+                client_map_games cm;
                 cm.cl=&threadInfo->clients[i];
                 cm.mapInfo = threadInfo->mapInfo;
                 pthread_create(&clientThreads[threadCount], NULL, clientCommunication, &cm);
