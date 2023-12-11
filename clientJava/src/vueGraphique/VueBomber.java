@@ -31,8 +31,6 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
 
     private JPanel cartePanel;
     private JLabel infoLabel;
-    private Action retourAction;
-    private Action restartAction;
     private boolean stop = false;
     private TcpClient tcp;
 
@@ -202,6 +200,28 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
             stop = true;
             messageFin();
             System.exit(0);
+        }
+    }
+
+    public void serveurRageQuit(){
+        JOptionPane.showMessageDialog(this,"La connection au serveur a été intérompu");
+        try {
+            tcp.closeSocket();
+        } catch (Exception e) {
+            System.out.println("Erreur lors de la fermeture du socket");
+        } finally {
+            while (true) {
+                try {
+                    tcp.tcpConnect();
+                    break;
+                } catch (Exception e) {
+                    try {
+                        Thread.sleep(3000);
+                    } catch (Exception ex) {
+                        System.out.println("Erreur lors de la reconnexion au serveur");
+                    }
+                }
+            }
         }
     }
 

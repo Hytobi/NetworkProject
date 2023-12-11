@@ -75,13 +75,18 @@ void *serveurUdp(void *args) {
 
         printf("Tentative de connexion de %s\n", inet_ntoa(clientAddr.sin_addr));
 
+
         if (strcmp(buffer, messageClientAttendue)) {
-            printf("Refusé !\n");
-            printf("Message non reconnue : %s\n", buffer);
-            sprintf(buffer2, "%s", cJSON_Print(badRequest()));
-            n = sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &clientAddr, clientAddrLen);
-            CONTINUE_IF_FAIL(n, "Erreur envoie du message");
-            continue;
+            if (strcmp(buffer, reboot)) {
+                printf("Refusé !\n");
+                printf("Message non reconnue : %s\n", buffer);
+                sprintf(buffer2, "%s", cJSON_Print(badRequest()));
+                n = sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &clientAddr, clientAddrLen);
+                CONTINUE_IF_FAIL(n, "Erreur envoie du message");
+                continue;
+            } else {
+                printf("J'ai été connecté à toi !\n");
+            }
         }
 
         printf("Message reçu de %s : %s\nMessage accepté !\n", inet_ntoa(clientAddr.sin_addr), buffer);

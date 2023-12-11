@@ -105,7 +105,6 @@ cJSON *sendPartieListe(games *gameInfo) {
         cJSON_AddItemToArray(gamesArray, game);
         i++;
     }
-    printf("%s\n", cJSON_Print(gameListe));
     return gameListe;
 }
 

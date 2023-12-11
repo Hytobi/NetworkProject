@@ -87,6 +87,9 @@ public class Bomber {
                 vs.updateGameInfos();
                 //On met à jour la vue
                 vs.parcourDesMAJ();
+            } else {
+                System.out.println("Connection au serveur perdue");
+                vs.serveurRageQuit();
             }
         }
         

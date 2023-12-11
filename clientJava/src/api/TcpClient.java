@@ -57,6 +57,16 @@ public class TcpClient {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return new String(response).split("\0")[0];
+        String res = null;
+        try {
+            res = new String(response).split("\0")[0];
+        } catch (Exception e) {
+            System.out.println("Erreur lors de la lecture du message");
+        }
+        return res;
+    }
+
+    public String getServer() {
+        return server;
     }
 }

@@ -10,7 +10,7 @@ public class JsonConnection {
     }
 
     public static String msgConnect(){
-        return "I want to connect to you";
+        return "I was connect to you";
     }
 
     public static String getMapList(){
