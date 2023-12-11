@@ -343,9 +343,10 @@ public class Intro extends JFrame implements ActionListener {
                     publishMessage("Veuiller remplir les champs", true, Color.RED);
                     return;
                 }
+                id.setText(String.valueOf(Integer.parseInt(id.getText())-1));
                 Game game = new Game(nom.getText(), id.getText());
                 tcp.post(JsonConnection.postGameCreate(game));
-                String maps = "{\"statut\":\"301\"}";  //tcp.get();
+                String maps = /*"{\"statut\":\"301\"}";*/  tcp.get();
                 ResGameJoin res = MapperRes.fromJson(maps, ResGameJoin.class); //TODO: verifier si c'est bien un hello
                 if (res != null && res.getStatut() == "201"){
                     publishMessage(" creation reussi", true, Color.GREEN);
