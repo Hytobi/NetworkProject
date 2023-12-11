@@ -43,7 +43,7 @@ cJSON *sendMapListe(maps *mapsInfo) {
     return mapJson;
 }
 
-cJSON *sendGameCreation(game *g,map *map) {
+cJSON *sendGameCreation(game *g, map *map) {
     cJSON *gameCreation = cJSON_CreateObject();
 
     // Ajout des éléments au JSON
@@ -138,7 +138,7 @@ void receiveSend(client_map_games *clientMap, char *recu) {
         ENVOI_MESSAGE(cJSON_Print(sendMapListe(clientMap->mapInfo)));
         printf("Map envoyé avec Succès\n");
     } else if (!strncmp(recu, postCreateGame, POST_CREATE_GAME_SIZE)) {
-        recu += 16;
+        recu += POST_CREATE_GAME_SIZE;
         printf("Demande de création de game: %s\n", recu);
         printf("Création de la partie...\n");
         int indiceGame = createGame(clientMap->gameInfo, cJSON_Parse(recu));
@@ -147,13 +147,30 @@ void receiveSend(client_map_games *clientMap, char *recu) {
             ENVOI_MESSAGE(cJSON_Print(errInconnue()));
             return;
         }
-        ENVOI_MESSAGE(cJSON_Print(sendGameCreation(clientMap->gameInfo->gameListe[indiceGame], clientMap->mapInfo->mapListe[indiceGame])));
+        ENVOI_MESSAGE(cJSON_Print(sendGameCreation(clientMap->gameInfo->gameListe[indiceGame],
+                                                   clientMap->mapInfo->mapListe[clientMap->gameInfo->gameListe[indiceGame]->mapId])));
+        joinGame(clientMap->gameInfo->gameListe[indiceGame], cl);
         printf("Partie créer !\n");
     } else if (!strncmp(recu, getPartieListe, GET_PARTIE_LISTE_SIZE)) {
         printf("Envoie de la liste des parties...\n");
         ENVOI_MESSAGE(cJSON_Print(sendPartieListe(clientMap->gameInfo)));
         printf("Envoie efectué !\n");
-
+    } else if (!strncmp(recu, postJoinGame, POST_JOIN_GAME_SIZE)) {
+        recu += POST_JOIN_GAME_SIZE;
+        game *g;
+        int i = 0;
+        char *name;
+        strcpy(name, cJSON_GetObjectItemCaseSensitive(cJSON_Parse(recu), "name")->valuestring);
+        while (i < MAX_GAMES) {
+            if (clientMap->gameInfo->gameListe[i] == NULL) {
+                i++;
+                continue;
+            }
+            if (!strcmp(clientMap->gameInfo->gameListe[i]->name,name)) {
+                g=clientMap->gameInfo->gameListe[i];
+            }
+        }
+        joinGame(g,cl);
     } else {
         printf("Requête inconnue : %s\n", recu);
         sprintf(buffer2, "%s", cJSON_Print(badRequest()));

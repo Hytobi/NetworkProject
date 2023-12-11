@@ -33,8 +33,30 @@ int createGame(games *gameInfo, cJSON *info) {
     g->startPos[1]=1;
 
     gameInfo->gameListe[i]=g;
-    printf("NbPlayers: %d\n",g->nbPlayers);
     return i;
+}
+
+int joinGame(game *g, client *cl){
+    if (g->nbPlayers >= MAX_PLAYER){
+        printf("Impossible de rejoindre, partie pleine\n");
+        return ERR;
+    }
+    int i=0;
+    while (i<=g->nbPlayers){
+        if (g->players[i]!=NULL){
+            i++;
+        }
+        g->nbPlayers++;
+        g->players[i]= malloc(sizeof(player));
+        if (g->players[i]==NULL){
+            perror("Allocation joueur de la partie");
+            return ERR;
+        }
+        *g->players[i]=*g->defaultPlayer;
+        cl->clientGame=g;
+        return 1;
+    }
+
 }
 
 void destroyGame(game *g) {

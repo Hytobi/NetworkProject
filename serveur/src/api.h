@@ -6,19 +6,23 @@
 #define PROJECT_API_H
 
 #include "cJSON/cJSON.h"
+#include <string.h>
 #include "map.h"
 
 #define messageClientAttendue "looking for bomberstudent servers"
 #define notifClientServeurUp "hello i'm a bomberstudent server"
 
 #define getPartieListe "GET game/list"
-#define GET_PARTIE_LISTE_SIZE 13
+#define GET_PARTIE_LISTE_SIZE strlen(getPartieListe)
 
 #define getMapListe "GET maps/list"
-#define GET_MAP_LISTE_SIZE 13
+#define GET_MAP_LISTE_SIZE strlen(getMapListe)
 
 #define postCreateGame "POST game/create"
-#define POST_CREATE_GAME_SIZE 16
+#define POST_CREATE_GAME_SIZE strlen(postCreateGame)
+
+#define postJoinGame "POST game/join"
+#define POST_JOIN_GAME_SIZE strlen(postJoinGame)
 
 void *clientCommunication(void *args);
 

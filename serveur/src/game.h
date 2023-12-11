@@ -10,7 +10,21 @@
 
 void initGames(games *gameInfo);
 
+/**
+ * créer la game, et renvoie l'index à laquelle la game est stocke dans la structure
+ * ERR s'il y a eu un problème
+ * @param gameInfo
+ * @param info
+ * @return
+ */
 int createGame(games *gameInfo, cJSON *info);
+
+/**
+ * Fais rejoindre la game au client choisis,
+ * return 1 si tous s'est bien passe,
+ * ERR si erreur
+ */
+int joinGame(game *g, client *cl);
 
 void destroyGame(game *g);
 

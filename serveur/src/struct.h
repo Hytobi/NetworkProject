@@ -57,7 +57,7 @@ typedef struct client {
     int socket;
     struct sockaddr_in addr;
     int connecter; /**< 0: pas connecte, 1: connecte, 2: en cours de connection */
-    game clientGame; /**< game dans laquelle se trouve le client */
+    game *clientGame; /**< game dans laquelle se trouve le client */
 } client;
 
 typedef struct client_map_games {
