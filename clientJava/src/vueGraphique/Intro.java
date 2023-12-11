@@ -201,7 +201,6 @@ public class Intro extends JFrame implements ActionListener {
                         label.setForeground(Color.BLUE);
                         infoPanel.add(label, c);
                         for (int j=0; j<lignes.length; j++){
-                            System.out.println(lignes[j]);
                             setGridBag(x, 5, 1, 1, (nbmap*x)+j+2);
                             JLabel label2 = new JLabel(lignes[j]);
                             label2.setForeground(Color.WHITE);
@@ -346,9 +345,9 @@ public class Intro extends JFrame implements ActionListener {
                 id.setText(String.valueOf(Integer.parseInt(id.getText())-1));
                 Game game = new Game(nom.getText(), id.getText());
                 tcp.post(JsonConnection.postGameCreate(game));
-                String maps = /*"{\"statut\":\"301\"}";*/  tcp.get();
-                ResGameJoin res = MapperRes.fromJson(maps, ResGameJoin.class); //TODO: verifier si c'est bien un hello
-                if (res != null && res.getStatut() == "201"){
+                String create = tcp.get();
+                ResGameJoin res = MapperRes.fromJson(create, ResGameJoin.class);
+                if (res != null && res.getStatut().equals("201")){
                     publishMessage(" creation reussi", true, Color.GREEN);
                     myName = "player" + res.getNbPlayers()+1;
                     resGameJoin = res;

@@ -104,7 +104,7 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
 
     /**Méthode qui met à jour l'affichage du nombre de mouvements du robot
      */
-    private void updateGameInfos() {
+    public void updateGameInfos() {
         Player p = jeu.getPlayerByName(this.jeu.getMyName());
 
         infoLabel.setText("pv :" + p.getLife() + " | speed :" + p.getSpeed() + " | BClassic :" + p.getNbClassicBomb() + " | Mine :" + p.getNbMine() + " | BRemote :" + p.getNbRemoteBomb() + " | impactDist :" + p.getImpactDist() + " | invincible :" + p.getInvincible() );
@@ -113,12 +113,12 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
     /**Méthode qui parcourt la liste des Mises a Jour pour afficher la bonne image
      */
     public void parcourDesMAJ(){
+        if (jeu.getMesMAJ().isEmpty()) return;
         int index;
         String c;
         //Le premier point de la liste est l'endroit où était le bot avant le mouvement
         //Le perso peut être sur un Sol ou une Destination
         for (Point p : jeu.getMesMAJ()) {
-
             index = (int)p.getX() * jeu.getMaxj() + (int)p.getY();
             c = jeu.getPlateau()[(int)p.getX()][(int)p.getY()].getCarac();
             if (c == " ") {
@@ -159,86 +159,49 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
         //Si le jeu est fini on fait rien
         if (stop) return;
         //Selon l'entrée on déplace le robot dans la direction voulue
-        String move = null;
-        String attack = null;
-        String type = null; // a retirer
         if ((e.getKeyCode() == KeyEvent.VK_RIGHT) || (e.getKeyChar() == 'd')) {
-            System.out.println("Envoie demande deplacement a droite");
+            System.out.println("[POST] deplacement a droite");
             tcp.post(JsonJouer.postPlayerMove("right"));
-            move = "{\"player\":\"player3\",\"dir\":\"right\"}";  //tcp.get();
         } 
         else if ((e.getKeyCode() == KeyEvent.VK_LEFT) || (e.getKeyChar() == 'q')){
-            System.out.println("Envoie demande deplacement a gauche");
+            System.out.println("[POST] deplacement a gauche");
             tcp.post(JsonJouer.postPlayerMove("left"));
-            move = "{\"player\":\"player3\",\"dir\":\"left\"}";  //tcp.get();
         }
         else if ((e.getKeyCode() == KeyEvent.VK_DOWN) || (e.getKeyChar() == 's')){
-            System.out.println("Envoie demande deplacement en bas");
+            System.out.println("[POST] deplacement en bas");
             tcp.post(JsonJouer.postPlayerMove("down"));
-            move = "{\"player\":\"player3\",\"dir\":\"down\"}";  //tcp.get();
         }
         else if ((e.getKeyCode() == KeyEvent.VK_UP) || (e.getKeyChar() == 'z')) {
-            System.out.println("Envoie demande deplacement en haut");
+            System.out.println("[POST] deplacement en haut");
             tcp.post(JsonJouer.postPlayerMove("up"));
-            move = "{\"player\":\"player3\",\"dir\":\"up\"}";  //tcp.get();
         }
         else if (e.getKeyChar() == 'r'){
             if (jeu.getMyPlayer().getNbRemoteBomb() == 0) return;
-            System.out.println("Envoie demande posser une remote bomb");
+            System.out.println("[POST] posser une remote bomb");
             String pos = jeu.getMyPlayer().getX() + "," + jeu.getMyPlayer().getY();
-            type = "remote";
             tcp.post(JsonJouer.postAttackBomb(pos, "remote"));
-            attack = getDebugAttack(true, false, false);  //tcp.get();
         }
         else if (e.getKeyChar() == 'f' || e.getKeyChar() == 'm'){
             if (jeu.getMyPlayer().getNbMine() == 0) return;
-            System.out.println("Envoie demande posser une mine");
+            System.out.println("[POST] posser une mine");
             String pos = jeu.getMyPlayer().getX() + "," + jeu.getMyPlayer().getY();
-            type = "mine";
             tcp.post(JsonJouer.postAttackBomb(pos, "mine"));
-            attack = getDebugAttack(false, true, false); //tcp.get();
         }
         else if (e.getKeyChar() == 'c'){
             if (jeu.getMyPlayer().getNbClassicBomb() == 0) return;
-            System.out.println("Envoie demande posser une classic bomb");
+            System.out.println("[POST] posser une classic bomb");
             String pos = jeu.getMyPlayer().getX() + "," + jeu.getMyPlayer().getY();
-            type = "classic";
             tcp.post(JsonJouer.postAttackBomb(pos, "classic"));
-            attack = getDebugAttack(false, false, true); //tcp.get();
-        }
-        if (move != null) {
-            Update res = MapperRes.fromJson(move, Update.class);
-            if (res != null){
-                jeu.robotSeDeplace(res);
-            } else {
-                System.out.println("Erreur lors de la récupération du move");
-            }
-        } else if (attack != null) {
-            AttackBomb res = MapperRes.fromJson(attack, AttackBomb.class);
-            if (res != null){
-                jeu.updateMyPlayer(res.getPlayer());
-            } else {
-                System.out.println("Erreur lors de la récupération du move");
-            }
-            String pos = jeu.getMyPlayer().getX() + "," + jeu.getMyPlayer().getY(); // a retirer
-            String ares = "POST attack/newbomb {\"pos\":\""+ pos+"\",\"type\":\""+type+"\"}";            //tcp.get();
-            AttackNewBomb anb = MapperRes.fromJson("{" + ares.split("\\{")[1], AttackNewBomb.class);
-            if (anb != null){
-                jeu.setABomb(anb);
-            } else {
-                System.out.println("Erreur lors de la récupération du move");
-            }
+        } else if (e.getKeyChar() == 'e'){
+            if (!jeu.getMyPlayer().getArmedRemoteBomb()) return;
+            System.out.println("[POST] explosion de remote bomb");
+            tcp.post(JsonJouer.postAttackRemoteGo());
         }
 
-        //On met à jour les infos de la partie (le nombre de mouvements)
-        updateGameInfos();
-        //S'il n'y a pas de mises à jour on sort, sinon on met à jour
-        if (jeu.getMesMAJ().isEmpty()) return;
-        else parcourDesMAJ();
-        //Si le jeu est fini on arrête et on sort (jamais trop prudent)
-        if (jeu.finDePartie()){
+        if (jeu.finDePartie()) {
             stop = true;
-            return;
+            messageFin();
+            System.exit(0);
         }
     }
 
@@ -246,14 +209,10 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
      * @param i : le nombre de niveau
      * @param nb : le nombre de pas total
      */
-    public void messageFin(int i, int nb){
-        JOptionPane.showMessageDialog(this,"Vous avez fini les " + i +" niveaux en "+ nb +" mouvements");
+    public void messageFin(){
+        JOptionPane.showMessageDialog(this,"Partie terminée !");
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {}
-
-    private String getDebugAttack(boolean remote, boolean mine, boolean classic){
-        return "{\"action\":\"attack/bomb\", \"statut\":\"201\", \"message\":\"bomb is armed at pos 5,3\",\"player\":{\"life\":100,\"speed\":1,\"nbClassicBomb\":1,\"nbMine\":1,\"nbRemoteBomb\":1,\"impactDist\":2,\"invincible\":false}}";
-    }
 }

@@ -45,13 +45,13 @@ cJSON *sendMapListe(maps *mapsInfo) {
 
 cJSON *sendGameCreation(game *g) {
     cJSON *gameCreation = cJSON_CreateObject();
-    printf("nbPlayers: %d\n",g->nbPlayers);
 
     // Ajout des éléments au JSON
     cJSON_AddStringToObject(gameCreation, "action", "game/create");
     cJSON_AddStringToObject(gameCreation, "statut", "201");
     cJSON_AddStringToObject(gameCreation, "message", "game created");
     cJSON_AddNumberToObject(gameCreation, "nbPlayers", g->nbPlayers);
+    cJSON_AddStringToObject(gameCreation, "startingMap", *ici *);
 
     char startPos[5];
     sprintf(startPos, "%d,%d", g->startPos[0], g->startPos[1]);
@@ -65,7 +65,7 @@ cJSON *sendGameCreation(game *g) {
     cJSON_AddNumberToObject(playerJson, "nbMine", defautPlayer->nbMine);
     cJSON_AddNumberToObject(playerJson, "nbRemoteBomb", defautPlayer->nbRemoteBomb);
     cJSON_AddNumberToObject(playerJson, "impactDist", defautPlayer->impactDist);
-    cJSON_AddBoolToObject(playerJson, "invicible", defautPlayer->invincible);
+    cJSON_AddBoolToObject(playerJson, "invincible", defautPlayer->invincible);
 
     // Ajout de l'objet playerJson à l'objet principal gameCreation
     cJSON_AddItemToObject(gameCreation, "player", playerJson);
@@ -115,6 +115,17 @@ void receiveSend(client_map_games *clientMap, char *recu) {
         ENVOI_MESSAGE(cJSON_Print(sendGameCreation(clientMap->gameInfo->gameListe[indiceGame])));
         printf("Partie créer !\n");
 
+    } else {
+        printf("Requête inconnue : %s\n", recu);
+        sprintf(buffer2, "%s", cJSON_Print(badRequest()));
+        //sprintf(buffer2,"yes");
+        int n = sendto(cl->socket, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &cl->addr, clientAddrLen);
+        //n = send(cl->socket,buffer2,BUFFER_SIZE,0);
+        if (n == ERR) {
+            perror("Erreur envoie du message");
+            return;
+        }
+    
     }
 }
 

@@ -4,7 +4,6 @@ import modele.Player;
 public class Update {
     private String player;
     private String dir;
-    private Player playermodif;
 
     public String getPlayer() {
         return player;
@@ -20,13 +19,5 @@ public class Update {
 
     public void setDir(String dir) {
         this.dir = dir;
-    }
-
-    public Player getPlayermodif() {
-        return playermodif;
-    }
-
-    public void setPlayermodif(Player playermodif) {
-        this.playermodif = playermodif;
     }
 }
