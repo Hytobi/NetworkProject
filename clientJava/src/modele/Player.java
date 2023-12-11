@@ -18,6 +18,23 @@ public class Player{
     private int y;
     private int direction;
 
+    public Player(){}
+
+    public Player(String name, String pos){
+        this.name = name;
+        this.pos = pos;
+    }
+
+    public Player(int life, int speed, int nbClassicBomb, int nbRemoteBomb, int nbMine, int impactDist, boolean invincible){
+        this.life = life;
+        this.speed = speed;
+        this.nbClassicBomb = nbClassicBomb;
+        this.nbRemoteBomb = nbRemoteBomb;
+        this.nbMine = nbMine;
+        this.impactDist = impactDist;
+        this.invincible = invincible;
+    }
+
     /**Constructeur de la classe Robot */
     public Player(int x, int y){
         this.x = x;

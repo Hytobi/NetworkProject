@@ -7,15 +7,19 @@ import java.awt.*;
 import java.awt.event.*;
 import api.*;
 import dto.*;
+import modele.*; // a enlevé apres le debug
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Intro extends JFrame implements ActionListener {
 
-    public static final ImageIcon BOMBER = new ImageIcon("img/Sokoban.gif");
+    public static final ImageIcon BOMBER = new ImageIcon("img/bomber.png");
 
     private boolean commencer = false;
+    private String myName;
+    private ResGameJoin resGameJoin;
 
     private JPanel infoPanel;
     private JLabel bomber;
@@ -24,6 +28,7 @@ public class Intro extends JFrame implements ActionListener {
     private Action quitterAction;
     private JButton commencerBtn;
     private Action commencerAction;
+    private Action finiAction;
     private TcpClient tcp;
     private GridBagConstraints c = new GridBagConstraints();
 
@@ -57,9 +62,14 @@ public class Intro extends JFrame implements ActionListener {
         };
         commencerAction = new AbstractAction("Commencer") {
             public void actionPerformed(ActionEvent e){
-                System.out.println("Commencer");
-                //commencer=true;
                 scan();
+            }
+        };
+        finiAction = new AbstractAction("Fini") {
+            public void actionPerformed(ActionEvent e){
+                myName = "player3";
+                resGameJoin = getDebugGame();
+                commencer=true;
             }
         };
     }
@@ -105,10 +115,19 @@ public class Intro extends JFrame implements ActionListener {
         return tcp;
     }
 
+    public String getMyName(){
+        return myName;
+    }
+
+    public ResGameJoin getResGameJoin(){
+        return resGameJoin;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {}
 
     public void scan(){
+        System.out.println("Scan des serveurs");
         UdpBroadcastClient udp = new UdpBroadcastClient();
         List<String> servers = udp.scanConnection();
         if (servers.isEmpty()){
@@ -119,8 +138,7 @@ public class Intro extends JFrame implements ActionListener {
 
         // On enleve l'image BOMBER
         infoPanel.remove(bomber);
-        infoPanel.remove(infoJeu);
-        removeBtn();
+        clear();
 
         // On cree un bouton pour chaque serveur lorsqu'on appui dessus on affiche le nom du bouton
         for (int i=0; i<servers.size(); i++){
@@ -153,12 +171,15 @@ public class Intro extends JFrame implements ActionListener {
 
     private void addBtnAfterConnect(){
         // On enleve les boutons
-        removeBtn();
+        clear();
+        // ToolBar
+        JToolBar toolBar = new JToolBar();
         // lister les maps
         JButton maps = createBtn("Lister les maps");
         maps.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                clear();
                 System.out.println("Envoie demande liste des maps");
                 tcp.post(JsonConnection.getMapList());
                 String maps = "{\"statut\":\"201\"}";  //tcp.get();
@@ -172,13 +193,12 @@ public class Intro extends JFrame implements ActionListener {
                 infoPanel.repaint();
             }
         });
-        setGridBag(1, 20, 0.5, 1, 1);
-        infoPanel.add(maps, c);
 
         JButton games = createBtn("Lister les games");
         games.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                clear();
                 System.out.println("Envoie demande liste des games");
                 tcp.post(JsonConnection.getGameList());
                 String maps = "{\"statut\":\"201\"}";  //tcp.get();
@@ -192,10 +212,100 @@ public class Intro extends JFrame implements ActionListener {
                 infoPanel.repaint();
             }
         });
-        setGridBag(1, 20, 0.5, 2, 1);
-        infoPanel.add(games, c);
 
-        //cree un component qui contient une zone de texte et un bouton pour creer une game
+        JButton create = createBtn("Créer une game");
+        create.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                clear();
+                vueCreateGame();
+                infoPanel.revalidate();
+                infoPanel.repaint();
+            }
+        });
+
+        JButton force = new JButton(finiAction);
+        force.setBorderPainted(false);
+        force.setFocusPainted(false);
+        force.setContentAreaFilled(false);
+        force.setForeground(Color.WHITE);
+
+        /*
+        force.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                myName = "player1";
+                resGameJoin = getDebugGame();
+                commencer=true;
+            }
+        });*/
+
+        toolBar.add(maps);
+        toolBar.addSeparator();
+        toolBar.add(games);
+        toolBar.addSeparator();
+        toolBar.add(create);
+        toolBar.addSeparator();
+        toolBar.add(force);
+        //Pour que la ToolBar soit belle
+        toolBar.setBackground(new Color(28, 25, 71));
+        toolBar.setFloatable(false);
+        toolBar.setRollover(true);
+        toolBar.setBorderPainted(false);
+
+        // On ajoute la ToolBar
+        getContentPane().add(toolBar, BorderLayout.NORTH);
+
+        infoPanel.revalidate();
+        infoPanel.repaint();
+    }
+
+    private JButton createBtn(String name){
+        JButton btn = new JButton(name);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setContentAreaFilled(false);
+        btn.setForeground(Color.WHITE);
+        return btn;
+    }
+
+    private void setGridBag(int gridwidth, int ipady, double weightx, int gridx, int gridy){
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = gridwidth;
+        c.ipady = ipady;
+        c.weightx = weightx;
+        c.gridx = gridx;
+        c.gridy = gridy;
+    }
+
+    private void clear(){
+        Component[] components = infoPanel.getComponents();
+        for (Component component : components) {
+            if (component instanceof JButton || component instanceof JLabel || component instanceof JTextField) {
+                infoPanel.remove(component);
+            }
+        }
+    }
+
+    private void publishMessage(String message, boolean now, Color color) {
+        if (infoJeu != null) {
+            infoPanel.remove(infoJeu);
+        }
+        infoJeu = new JLabel(message, JLabel.CENTER);
+        infoJeu.setForeground(color);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = 5;
+        c.ipady = 20;
+        c.gridx = 0;
+        c.gridy = 0;
+        infoPanel.add(infoJeu, c);
+        if (now) {
+            infoPanel.revalidate();
+            infoPanel.repaint();
+        }
+    }
+
+    private void vueCreateGame(){
         JTextField nom = new JTextField(10);
         nom.setText("Nom de la game");
         JTextField id = new JTextField(10);
@@ -212,9 +322,12 @@ public class Intro extends JFrame implements ActionListener {
                 Game game = new Game(nom.getText(), id.getText());
                 tcp.post(JsonConnection.postGameCreate(game));
                 String maps = "{\"statut\":\"301\"}";  //tcp.get();
-                ResGameCreate res = MapperRes.fromJson(maps, ResGameCreate.class); //TODO: verifier si c'est bien un hello
+                ResGameJoin res = MapperRes.fromJson(maps, ResGameJoin.class); //TODO: verifier si c'est bien un hello
                 if (res != null && res.getStatut() == "201"){
                     publishMessage(" creation reussi", true, Color.GREEN);
+                    myName = "player" + res.getNbPlayers()+1;
+                    resGameJoin = res;
+                    commencer=true;
                     //TODO : processus de jeu
                 }else{
                     publishMessage("Erreur lors de la creation de game", true, Color.RED);
@@ -239,64 +352,44 @@ public class Intro extends JFrame implements ActionListener {
         infoPanel.add(id, c);
         setGridBag(1, 20, 0.5, 2, 4);
         infoPanel.add(submitButton, c);
-
-        /*
-
-        // creer une game
-        
-        tcp.post(JsonConnection.postGameCreate("game1"));
-        String game = tcp.get();
-        System.out.println("Game créée : " + game);*/
-
-        // retour arriere
-
-        infoPanel.revalidate();
-        infoPanel.repaint();
     }
 
-    private JButton createBtn(String name){
-        JButton btn = new JButton(name);
-        btn.setBorderPainted(false);
-        btn.setFocusPainted(false);
-        btn.setContentAreaFilled(false);
-        btn.setForeground(Color.WHITE);
-        return btn;
-    }
+    private ResGameJoin getDebugGame(){
+        ResGameJoin res = new ResGameJoin();
+        res.setAction("game/join");
+        res.setStatut("201");
+        res.setMessage("game joined");
+        res.setNbPlayers(2);
+        res.setMapId(1);
+        res.setStartPos("5,3");
+        Player p = new Player();
+        p.setSpeed(1);
+        p.setLife(100);
+        p.setNbClassicBomb(1);
+        p.setNbMine(0);
+        p.setNbRemoteBomb(0);
+        p.setImpactDist(2);
+        p.setInvincible(false);
+        res.setPlayer(p);
+        MapInfo map = new MapInfo();
+        map.setId(1);
+        map.setWidth(10);
+        map.setHeight(10);
+        map.setContent("                                                                                                    ");
+        res.setStartingMap(map);
 
-    private void setGridBag(int gridwidth, int ipady, double weightx, int gridx, int gridy){
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridwidth = gridwidth;
-        c.ipady = ipady;
-        c.weightx = weightx;
-        c.gridx = gridx;
-        c.gridy = gridy;
-    }
+        List<Player> players = new ArrayList<>();
+        Player p1 = new Player();
+        p1.setName("player1");
+        p1.setPos("0,0");
+        players.add(p1);
+        Player p2 = new Player();
+        p2.setName("player2");
+        p2.setPos("6,4");
+        players.add(p2);
+        res.setPlayers(players);
+        return res;
 
-    private void removeBtn(){
-        Component[] components = infoPanel.getComponents();
-        for (Component component : components) {
-            if (component instanceof JButton) {
-                infoPanel.remove(component);
-            }
-        }
-    }
-
-    private void publishMessage(String message, boolean now, Color color) {
-        if (infoJeu != null) {
-            infoPanel.remove(infoJeu);
-        }
-        infoJeu = new JLabel(message, JLabel.CENTER);
-        infoJeu.setForeground(color);
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridwidth = 5;
-        c.ipady = 20;
-        c.gridx = 0;
-        c.gridy = 0;
-        infoPanel.add(infoJeu, c);
-        if (now) {
-            infoPanel.revalidate();
-            infoPanel.repaint();
-        }
     }
 
 }

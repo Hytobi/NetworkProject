@@ -3,16 +3,17 @@ package dto;
 import modele.Player;
 
 public class ResGameCreate extends ResponseApi {
-    private int nbPlayer;
-    private String mapId;
+    private int nbPlayers;
+    private int  mapId;
     private String startPos;
     private Player player;
+    private MapInfo startingMap;
 
-    public int getNbPlayer() {
-        return nbPlayer;
+    public int getNbPlayers() {
+        return nbPlayers;
     }
 
-    public String getMapId() {
+    public int getMapId() {
         return mapId;
     }
 
@@ -24,11 +25,15 @@ public class ResGameCreate extends ResponseApi {
         return player;
     }
 
-    public void setNbPlayer(int nbPlayer) {
-        this.nbPlayer = nbPlayer;
+    public MapInfo getStartingMap() {
+        return startingMap;
     }
 
-    public void setMapId(String mapId) {
+    public void setNbPlayers(int nbPlayers) {
+        this.nbPlayers = nbPlayers;
+    }
+
+    public void setMapId(int mapId) {
         this.mapId = mapId;
     }
 
@@ -40,16 +45,22 @@ public class ResGameCreate extends ResponseApi {
         this.player = player;
     }
 
+    public void setStartingMap(MapInfo startingMap) {
+        this.startingMap = startingMap;
+    }
+
     public String toString(){
         StringBuffer sb = new StringBuffer();
         sb.append("{\"nbPlayer\":\"");
-        sb.append(nbPlayer);
+        sb.append(nbPlayers);
         sb.append("\",\"gameId\":\"");
         sb.append(mapId);
         sb.append("\",\"startPos\":\"");
         sb.append(startPos);
         sb.append("\",\"player\":");
         sb.append(player.toString());
+        sb.append(",\"startingMap\":\"");
+        sb.append(startingMap.toString());
         sb.append("}");
         return sb.toString();
     }

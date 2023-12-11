@@ -1,13 +1,13 @@
 #!/bin/bash
 
-name="Main"
+name="vueGraphique/Bomber"
 
 # On supprime les .class
 rm -rf bin/*.class
 
 # On compile 
 #javac -d bin -cp bin:src src/$name.java && echo "Compilation terminée"
-javac -d ./bin -cp ./lib/jackson-annotations-2.16.0.jar:./lib/jackson-core-2.16.0.jar:./lib/jackson-databind-2.16.0-rc1.jar:src src/*.java
+javac -d ./bin -cp ./lib/jackson-annotations-2.16.0.jar:./lib/jackson-core-2.16.0.jar:./lib/jackson-databind-2.16.0-rc1.jar:src src/$name.java && echo "Compilation terminée"
 
 # On execute 
 #read -p "Lancer le programme ? (y/n) " var

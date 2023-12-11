@@ -6,6 +6,8 @@ import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import api.*;
+import dto.*;
 
 /**
  * Classe qui s'occupe de la vue du Sokoban
@@ -13,29 +15,31 @@ import javax.swing.*;
  */
 public class VueBomber extends JFrame implements ActionListener,KeyListener{
     //Les images necessaires
-    public static final ImageIcon DESTINATION = new ImageIcon("src/main/resources/img/but.gif");
-    public static final ImageIcon CAISSE = new ImageIcon("src/main/resources/img/caisse1.gif");
-    public static final ImageIcon CAISSE_SUR_DESTINATION = new ImageIcon("src/main/resources/img/caisse2.gif");
-    public static final ImageIcon MUR = new ImageIcon("src/main/resources/img/mur.gif");
-    public static final ImageIcon SOL = new ImageIcon("src/main/resources/img/sol.gif");
-    public static final ImageIcon[] PERSO = new ImageIcon[] { new ImageIcon("src/main/resources/img/Haut.gif"),
-                                                              new ImageIcon("src/main/resources/img/Gauche.gif"),
-                                                              new ImageIcon("src/main/resources/img/Bas.gif"),
-                                                              new ImageIcon("src/main/resources/img/Droite.gif")};
+    public static final ImageIcon DESTINATION = new ImageIcon("img/but.gif");
+    public static final ImageIcon CAISSE = new ImageIcon("img/caisse1.gif");
+    public static final ImageIcon CAISSE_SUR_DESTINATION = new ImageIcon("img/caisse2.gif");
+    public static final ImageIcon MUR = new ImageIcon("img/mur.gif");
+    public static final ImageIcon SOL = new ImageIcon("img/sol.gif");
+    public static final ImageIcon[] PERSO = new ImageIcon[] { new ImageIcon("img/Haut.gif"),
+                                                              new ImageIcon("img/Gauche.gif"),
+                                                              new ImageIcon("img/Bas.gif"),
+                                                              new ImageIcon("img/Droite.gif")};
 
     private Carte jeu;
 
     private JPanel cartePanel;
-    private JLabel nbMouvementLabel;
+    private JLabel infoLabel;
     private Action retourAction;
     private Action restartAction;
     private boolean stop = false;
+    private TcpClient tcp;
 
     /**Constructeur de la classe vue*/
-    public VueBomber(Carte jeu){
+    public VueBomber(Carte jeu, TcpClient tcp){
         //Donne le titre via JFrame
         super("Bomberstudent");
         this.jeu = jeu;
+        this.tcp = tcp;
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -74,7 +78,7 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
                 else if (c == ".") cartePanel.add(new JLabel(DESTINATION));
                 //Sinon tout le reste est un sol avec des choses posé dessus
                 else if (c == "@") cartePanel.add(new JLabel(PERSO[2]));
-                else if (c == "$") cartePanel.add(new JLabel(CAISSE));
+                else if (c == "$") cartePanel.add(new JLabel(PERSO[2]));
                 else if (c == "*") cartePanel.add(new JLabel(CAISSE_SUR_DESTINATION));
                 else cartePanel.add(new JLabel(SOL));
             }
@@ -144,9 +148,9 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
      */
     private void initGameInfos() {
         JPanel gameInfos = new JPanel();
-        nbMouvementLabel = new JLabel();
-        nbMouvementLabel.setForeground(Color.WHITE);
-        gameInfos.add(nbMouvementLabel);
+        infoLabel = new JLabel();
+        infoLabel.setForeground(Color.WHITE);
+        gameInfos.add(infoLabel);
         updateGameInfos();
         gameInfos.setBackground(new Color(28, 25, 71));
         getContentPane().add(gameInfos, BorderLayout.SOUTH);
@@ -156,11 +160,9 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
     /**Méthode qui met à jour l'affichage du nombre de mouvements du robot
      */
     private void updateGameInfos() {
-        int nbMouvement = 8; //jeu.getNbMouvement();
-        if (nbMouvement < 2)
-            nbMouvementLabel.setText(nbMouvement + " Mouvement");
-        else
-            nbMouvementLabel.setText(nbMouvement + " Mouvements");
+        Player p = jeu.getPlayerByName(this.jeu.getMyName());
+
+        infoLabel.setText("pv :" + p.getLife() + " | speed :" + p.getSpeed() + " | BClassic :" + p.getNbClassicBomb() + " | Mine :" + p.getNbMine() + " | BRemote :" + p.getNbRemoteBomb() + " | impactDist :" + p.getImpactDist() + " | invincible :" + p.getInvincible() );
     }
 
     /**Méthode qui parcourt la liste des Mises a Jour pour afficher la bonne image
@@ -190,9 +192,9 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
         index = (int)p.getX() * jeu.getMaxj() + (int)p.getY();
         c = jeu.getPlateau()[(int)p.getX()][(int)p.getY()].getCarac();
         //On fait un test, car jamais trop prudent
-        if ((c == "@") || (c == "+")) {
+        if ((c == "@")) {
             cartePanel.remove(index);
-            cartePanel.add(new JLabel(PERSO[jeu.getRobot().getDirection()]), index);
+            cartePanel.add(new JLabel(PERSO[jeu.getPlayerByName(jeu.getMyName()).getDirection()]), index); // jeu.getRobot().getDirection()
         }
 
         //S'il existe le 3eme est la ou se trouve la caisse apres déplacement
@@ -243,10 +245,35 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
         //Si le jeu est fini on fait rien
         if (stop) return;
         //Selon l'entrée on déplace le robot dans la direction voulue
-        if ((e.getKeyCode() == KeyEvent.VK_RIGHT) || (e.getKeyChar() == 'd')) jeu.robotSeDeplace('d');
-        if ((e.getKeyCode() == KeyEvent.VK_LEFT) || (e.getKeyChar() == 'q')) jeu.robotSeDeplace('q');
-        if ((e.getKeyCode() == KeyEvent.VK_DOWN) || (e.getKeyChar() == 's')) jeu.robotSeDeplace('s');
-        if ((e.getKeyCode() == KeyEvent.VK_UP) || (e.getKeyChar() == 'z')) jeu.robotSeDeplace('z');
+        String move = null;
+        if ((e.getKeyCode() == KeyEvent.VK_RIGHT) || (e.getKeyChar() == 'd')) {
+            System.out.println("Envoie demande deplacement a droite");
+            tcp.post(JsonJouer.postPlayerMove("right"));
+            move = "{\"player\":\"player3\",\"dir\":\"right\"}";  //tcp.get();
+        }
+        if ((e.getKeyCode() == KeyEvent.VK_LEFT) || (e.getKeyChar() == 'q')){
+            System.out.println("Envoie demande deplacement a gauche");
+            tcp.post(JsonJouer.postPlayerMove("left"));
+            move = "{\"player\":\"player3\",\"dir\":\"left\"}";  //tcp.get();
+        }
+        if ((e.getKeyCode() == KeyEvent.VK_DOWN) || (e.getKeyChar() == 's')){
+            System.out.println("Envoie demande deplacement en bas");
+            tcp.post(JsonJouer.postPlayerMove("down"));
+            move = "{\"player\":\"player3\",\"dir\":\"down\"}";  //tcp.get();
+        }
+        if ((e.getKeyCode() == KeyEvent.VK_UP) || (e.getKeyChar() == 'z')) {
+            System.out.println("Envoie demande deplacement en haut");
+            tcp.post(JsonJouer.postPlayerMove("up"));
+            move = "{\"player\":\"player3\",\"dir\":\"up\"}";  //tcp.get();
+        }
+        if (move == null) return;
+        Update res = MapperRes.fromJson(move, Update.class); //TODO: verifier si c'est bien un hello
+        if (res != null){
+            jeu.robotSeDeplace(res);
+        } else {
+            System.out.println("Erreur lors de la récupération du move");
+        }
+
         //On met à jour les infos de la partie (le nombre de mouvements)
         updateGameInfos();
         //S'il n'y a pas de mises à jour on sort, sinon on met à jour
