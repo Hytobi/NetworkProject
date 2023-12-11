@@ -182,12 +182,34 @@ public class Intro extends JFrame implements ActionListener {
                 clear();
                 System.out.println("Envoie demande liste des maps");
                 tcp.post(JsonConnection.getMapList());
-                String maps = /*"{\"statut\":\"201\"}";*/  tcp.get();
-                System.out.println(maps);
-                ResMapList res = MapperRes.fromJson(maps, ResMapList.class); //TODO: verifier si c'est bien un hello
-                System.out.println(res);
-                if (res != null && res.getStatut() == "200"){
-                    publishMessage(res.getNbMapsList() + " map(s)", true, Color.GREEN);
+                String maps = tcp.get();
+                ResMapList res = MapperRes.fromJson(maps, ResMapList.class);
+                if (res != null && res.getStatut().equals("200")){
+                    setGridBag(1, 20, 0.5, 1, 0);
+                    publishMessage(res.getNbMapsList() + " map(s) trouvée(s) :", true, Color.GREEN);
+                    int nbmap = 0;
+                    int i = 1;
+                    while (nbmap < res.getNbMapsList()){
+                        
+                        String map = res.getMaps().get(nbmap).getContent();
+                        int x = res.getMaps().get(nbmap).getWidth();
+                        int y = res.getMaps().get(nbmap).getHeight();
+                        map = map.replaceAll(" ", "_ ");
+                        String[] lignes = map.split("\n");
+                        setGridBag(1, 20, 0.5, 1, (nbmap*x)+1);
+                        JLabel label = new JLabel("Map " + (res.getMaps().get(nbmap).getId() +1), JLabel.LEFT);
+                        label.setForeground(Color.BLUE);
+                        infoPanel.add(label, c);
+                        for (int j=0; j<lignes.length; j++){
+                            System.out.println(lignes[j]);
+                            setGridBag(x, 5, 1, 1, (nbmap*x)+j+2);
+                            JLabel label2 = new JLabel(lignes[j]);
+                            label2.setForeground(Color.WHITE);
+                            infoPanel.add(label2, c);
+                        }
+                        nbmap++;
+                        i = i+y+1;
+                    }
                 }else{
                     publishMessage("Erreur lors de la récupération des maps", true, Color.RED);
                 }
@@ -368,22 +390,22 @@ public class Intro extends JFrame implements ActionListener {
         p.setSpeed(1);
         p.setLife(100);
         p.setNbClassicBomb(1);
-        p.setNbMine(0);
-        p.setNbRemoteBomb(0);
+        p.setNbMine(1);
+        p.setNbRemoteBomb(1);
         p.setImpactDist(2);
         p.setInvincible(false);
         res.setPlayer(p);
         MapInfo map = new MapInfo();
         map.setId(1);
-        map.setWidth(10);
-        map.setHeight(10);
-        map.setContent("                                                                                                    ");
+        map.setWidth(15);
+        map.setHeight(15);
+        map.setContent("XXXXXXXXXXXXXXXX             XX             XX  ####  I    XX             XX         ##  XX             XX             XX      ####   XX             XX    B        XX      M      XX   R     ### XX             XXXXXXXXXXXXXXXX");
         res.setStartingMap(map);
 
         List<Player> players = new ArrayList<>();
         Player p1 = new Player();
         p1.setName("player1");
-        p1.setPos("0,0");
+        p1.setPos("1,1");
         players.add(p1);
         Player p2 = new Player();
         p2.setName("player2");

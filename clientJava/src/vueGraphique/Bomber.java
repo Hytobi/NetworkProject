@@ -35,7 +35,7 @@ public class Bomber {
             //Sinon on affiche le message de fin
             vs.messageFin(i + 1, nbMouvTotal);
             //Et on désactive les boutons
-            vs.desactiveAction();
+            //vs.desactiveAction();
         }
         
     }

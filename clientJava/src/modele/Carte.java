@@ -21,6 +21,7 @@ public class Carte{
     private Indeplacable[][] plateau;
     private int maxi;
     private int maxj;
+    private Player myPlayer;
     private List<String> maListe;
     private List<Player> robots;
     private List<Point> mesMAJ = new ArrayList<Point>();
@@ -61,6 +62,9 @@ public class Carte{
     public String getMyName(){
         return myName;
     }
+    public Player getMyPlayer(){
+        return myPlayer;
+    }
 
     /**Méthode qui relance une partie*/
     public void initMap(String content){
@@ -74,16 +78,31 @@ public class Carte{
         for (i=0;i<maxi;i++){
             for (j=0;j<maxj;j++){
                 carac = content.charAt(i*maxj+j);
-                if (carac == '#') plateau[i][j] = new Mur();
+                if (carac == 'X') plateau[i][j] = new MurInca();
                 else if (carac == '/') plateau[i][j] = new Vide();
                 //Sinon tout le reste est un sol avec des choses posées dessus
-                else if (carac == ' ') plateau[i][j] = new Sol(" ");
-                else {
-                    System.out.println("carac : " + carac);
-                    plateau[i][j] = new Sol(String.valueOf(carac)); // speed +
+                else if (carac == '#') plateau[i][j] = new Sol("#");
+                else if (carac == 'I') {
+                    plateau[i][j] = new Sol("I");
                     plateau[i][j].setAItem(true);
-                    plateau[i][j].setItem(new Item(String.valueOf(carac)));
+                    plateau[i][j].setItem(new Item("I"));
                 }
+                else if (carac == 'R') {
+                    plateau[i][j] = new Sol("R");
+                    plateau[i][j].setABombe(true);
+                    plateau[i][j].setItem(new Item("R"));
+                }
+                else if (carac == 'B') {
+                    plateau[i][j] = new Sol("B");
+                    plateau[i][j].setABombe(true);
+                    plateau[i][j].setItem(new Item("B"));
+                }
+                else if (carac == 'M') {
+                    plateau[i][j] = new Sol("M");
+                    plateau[i][j].setABombe(true);
+                    plateau[i][j].setItem(new Item("M"));
+                }
+                else plateau[i][j] = new Sol(" ");
             }
         }
 
@@ -107,6 +126,7 @@ public class Carte{
         resGameJoin.getPlayer().setY(y);
         resGameJoin.getPlayer().setName(this.myName);
         robots.add(resGameJoin.getPlayer());
+        myPlayer = resGameJoin.getPlayer();
     }
 
     /**Méthode qui vide la liste des mises à jour*/
@@ -147,7 +167,7 @@ public class Carte{
         mesMAJ.add(new Point(p.getX(),p.getY()));
         String carac = plateau[p.getX()][p.getY()].getCarac();
         Indeplacable temp = plateau[p.getX()][p.getY()];
-        if (temp.getAItem()){
+        if (temp.getABombe()){
             temp.setCarac(temp.getItem().getCarac());
         } else {
             plateau[p.getX()][p.getY()].setCarac(" ");
@@ -173,18 +193,88 @@ public class Carte{
             } else {
                 p.setY(-speed);
             }
-            p.setDirection(3);
+            p.setDirection(1);
         } else if (ppu.getDir().equals("right")){
             if (p.getY() + speed >= maxj){
                 p.setY(maxj-1);
             } else {
                 p.setY(speed);
             }
-            p.setDirection(1);
+            p.setDirection(3);
         }
         mesMAJ.add(new Point(p.getX(),p.getY()));
+        if (plateau[p.getX()][p.getY()].getAItem()){
+            if (ppu.getPlayermodif() != null){
+                updateMyPlayer(ppu.getPlayermodif());
+            }
+            temp.setAItem(false);
+            temp.setItem(null);
+        }
+        else {
+            plateau[p.getX()][p.getY()].setCarac(carac);
+        }
         // met a jour la map
         plateau[p.getX()][p.getY()].setCarac(carac);
+    }
+
+    private void recupItem(String carac){ //a faire
+        switch (carac){
+            case "B":
+                myPlayer.setNbClassicBomb(myPlayer.getNbClassicBomb()+1);
+                break;
+            case "R":
+                myPlayer.setNbRemoteBomb(myPlayer.getNbRemoteBomb()+1);
+                break;
+            case "M":
+                myPlayer.setNbMine(myPlayer.getNbMine()+1);
+                break;
+            case "I":
+                myPlayer.setInvincible(true);
+                break;
+            case "S":
+                myPlayer.setSpeed(myPlayer.getSpeed()+1);
+                break;
+            case "L":
+                myPlayer.setLife(myPlayer.getLife()+1);
+                break;
+            case "D":
+                myPlayer.setImpactDist(myPlayer.getImpactDist()+1);
+                break;
+            default:
+                System.out.println("Erreur dans le type d'item");
+                break;
+        }
+    }
+
+    public void updateMyPlayer(Player p){
+        myPlayer.setLife(p.getLife());
+        myPlayer.setSpeed(p.getSpeed());
+        myPlayer.setNbClassicBomb(p.getNbClassicBomb());
+        myPlayer.setNbMine(p.getNbMine());
+        myPlayer.setNbRemoteBomb(p.getNbRemoteBomb());
+        myPlayer.setImpactDist(p.getImpactDist());
+        myPlayer.setInvincible(p.getInvincible());
+    }
+
+    public void setABomb(AttackNewBomb anb){
+        int x = Integer.parseInt(anb.getPos().split(",")[0]);
+        int y = Integer.parseInt(anb.getPos().split(",")[1]);
+        plateau[x][y].setABombe(true);
+        switch (anb.getType()){
+            case "classic":
+                plateau[x][y].setItem(new Item("B"));
+                break;
+            case "remote":
+                plateau[x][y].setItem(new Item("R"));
+                break;
+            case "mine":
+                plateau[x][y].setItem(new Item("M"));
+                break;
+            default :
+                System.out.println("Erreur dans le type de bombe");
+                break;
+        }
+        mesMAJ.add(new Point(x,y));
     }
 
     /**
