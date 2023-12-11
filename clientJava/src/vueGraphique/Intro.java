@@ -346,6 +346,7 @@ public class Intro extends JFrame implements ActionListener {
                 Game game = new Game(nom.getText(), id.getText());
                 tcp.post(JsonConnection.postGameCreate(game));
                 String create = tcp.get();
+                System.out.println(create);
                 ResGameJoin res = MapperRes.fromJson(create, ResGameJoin.class);
                 if (res != null && res.getStatut().equals("201")){
                     publishMessage(" creation reussi", true, Color.GREEN);

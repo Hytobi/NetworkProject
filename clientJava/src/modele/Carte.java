@@ -23,7 +23,7 @@ public class Carte{
     private int maxj;
     private Player myPlayer;
     private List<String> maListe;
-    private List<Player> robots;
+    private List<Player> robots = new ArrayList<>();
     private List<Point> mesMAJ = new ArrayList<Point>();
 
     /**Constructeur de la Classe
@@ -73,6 +73,7 @@ public class Carte{
 
         int i,j;
         char carac;
+        content = content.replaceAll("\n", "");
 
         //Construction du tableau de jeu
         for (i=0;i<maxi;i++){
@@ -107,7 +108,6 @@ public class Carte{
         }
 
         if (resGameJoin.getNbPlayers() > 1){
-            robots = new ArrayList<>();
             for (Player player : resGameJoin.getPlayers()){
                 // player.getPos() = "x,y", on recupere x et y en on les transforment en integer
                 int x = Integer.parseInt(player.getPos().split(",")[0]);
