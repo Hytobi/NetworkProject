@@ -7,7 +7,6 @@
 
 #include <pthread.h>
 #include "netinet/in.h"
-#include "map.h"
 
 #define MAX_PLAYER 4
 #define LIFE 100
@@ -17,6 +16,9 @@
 #define NB_REMOTE_BOMB 1
 #define NB_MINE 1
 #define INVINCIBLE 0
+
+#define MAX_MAP 16
+#define MAX_MAP_SIZE 2048
 
 #define BUFFER_SIZE 4096
 #define MAX_CLIENTS 2048
@@ -59,6 +61,22 @@ typedef struct client {
     int connecter; /**< 0: pas connecte, 1: connecte, 2: en cours de connection */
     game *clientGame; /**< game dans laquelle se trouve le client */
 } client;
+
+typedef struct map {
+    int id; /**< id de la map concernée*/
+    int width; /**<largeur de la map en nombre de cases*/
+    int height; /**<hauteur de la map en nombre de cases*/
+    char content[MAX_MAP_SIZE]; /** descriptif de la map
+ * La map est décrite au moyen des caractères suivants :
+ * = correspond à un mur cassable par une explosion de bombe
+ * * correspond à un mur incassable
+ * - correspond à une case libre */
+} map;
+
+typedef struct maps {
+    int nbMap;
+    map *mapListe[MAX_MAP];
+} maps;
 
 typedef struct client_map_games {
     client *cl;

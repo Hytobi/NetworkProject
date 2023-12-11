@@ -24,6 +24,9 @@
 #define postJoinGame "POST game/join"
 #define POST_JOIN_GAME_SIZE strlen(postJoinGame)
 
+#define postPlayerMove "POST player/move"
+#define POST_PLAYER_MOVE_SIZE strlen(postPlayerMove)
+
 void *clientCommunication(void *args);
 
 cJSON *sendMapListe(maps *mapListe);

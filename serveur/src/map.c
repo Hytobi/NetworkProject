@@ -7,8 +7,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include "map.h"
+#include "struct.h"
 
 #define DIR_PATH "../map"
+
+int nextX[2][MAX_PLAYER]={{1,14,1,14},{1,20,1,20}};
+int nextY[2][MAX_PLAYER]={{1,1,13,13},{1,1,6,6}};
 
 void setMapInfo(maps *mapInfo) {
     mapInfo->nbMap = 0;
@@ -56,4 +60,12 @@ void setMapInfo(maps *mapInfo) {
     }
     mapInfo->nbMap = i;
     closedir(dir);
+}
+
+int nextPosX(int i, int mapId){
+    return nextX[mapId][i];
+}
+
+int nextPosY(int i, int mapId){
+    return nextY[mapId][i];
 }

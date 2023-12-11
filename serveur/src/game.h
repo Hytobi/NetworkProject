@@ -24,7 +24,7 @@ int createGame(games *gameInfo, cJSON *info);
  * return 1 si tous s'est bien passe,
  * ERR si erreur
  */
-int joinGame(game *g, client *cl);
+int joinGame(game *g, client *cl, map *m);
 
 void destroyGame(game *g);
 
