@@ -6,6 +6,7 @@
 #define PROJECT_API_H
 
 #include "cJSON/cJSON.h"
+#include "map.h"
 
 #define messageClientAttendue "looking for bomberstudent servers"
 #define notifClientServeurUp "hello i'm a bomberstudent server"
@@ -13,7 +14,7 @@
 
 void *clientCommunication(void *args);
 
-cJSON sendMapListe();
+cJSON *sendMapListe(maps *mapListe);
 
 cJSON *badRequest();
 

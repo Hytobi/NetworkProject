@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include "netinet/in.h"
 #include "player.h"
+#include "map.h"
 
 #define BUFFER_SIZE 4096
 #define MAX_SERVERS 8
@@ -32,8 +33,14 @@ typedef struct client {
     game clientGame;
 } client;
 
+typedef struct client_map {
+    client *cl;
+    maps *mapInfo;
+} client_map;
+
 typedef struct thread_Info {
     client clients[MAX_CLIENTS];
+    maps *mapInfo;
     pthread_mutex_t mutex;
 } thread_Info;
 

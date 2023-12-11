@@ -18,6 +18,7 @@
 #include "err.h"
 #include "cJSON/cJSON.h"
 #include "struct.h"
+#include "map.h"
 
 void *serveurUdp(void *args) {
     thread_Info *threadInfo = (thread_Info *) args;
@@ -160,7 +161,11 @@ void *tcpConnect(void *args) {
                 threadInfo->clients[i].connecter = 1;
                 threadInfo->clients[i].socket = tcpFd;
 
-                pthread_create(&clientThreads[threadCount], NULL, clientCommunication, &threadInfo->clients[i]);
+
+                client_map cm;
+                cm.cl=&threadInfo->clients[i];
+                cm.mapInfo = threadInfo->mapInfo;
+                pthread_create(&clientThreads[threadCount], NULL, clientCommunication, &cm);
                 threadCount++;
             }
         }
@@ -175,6 +180,8 @@ void *tcpConnect(void *args) {
 
 int main(int arvc, char **argv) {
     thread_Info *threadInfo = malloc(sizeof(thread_Info));
+    threadInfo->mapInfo=malloc(sizeof(maps));
+    setMapInfo(threadInfo->mapInfo);
     if (pthread_mutex_init(&(threadInfo->mutex), NULL) != 0) {
         perror("Erreur initialisation du mutex");
         exit(2);
