@@ -27,7 +27,6 @@
 
 typedef struct player {
     int id; /**< player id */
-    //client *cl; /**< client associe au joueur */
     int x; /**< pos x du joueur */
     int y; /**< pos y du joueur */
     int life; /**< nombre de points de vie du joueur */
@@ -41,6 +40,7 @@ typedef struct player {
 } player;
 
 typedef struct game {
+    char name[STRING_SIZE];
     int nbPlayers; /**< nombre de joueurs actuel dans la partie */
     int mapId; /**< id de la map sur laquelle se joue la partie */
     int startPos[2]; /**< position initiale d’un nouveau joueur */
@@ -57,7 +57,7 @@ typedef struct client {
     int socket;
     struct sockaddr_in addr;
     int connecter; /**< 0: pas connecte, 1: connecte, 2: en cours de connection */
-    game clientGame;
+    game clientGame; /**< game dans laquelle se trouve le client */
 } client;
 
 typedef struct client_map_games {

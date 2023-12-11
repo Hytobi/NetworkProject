@@ -45,7 +45,6 @@ cJSON *sendMapListe(maps *mapsInfo) {
 
 cJSON *sendGameCreation(game *g) {
     cJSON *gameCreation = cJSON_CreateObject();
-    printf("nbPlayers: %d\n",g->nbPlayers);
 
     // Ajout des éléments au JSON
     cJSON_AddStringToObject(gameCreation, "action", "game/create");
@@ -65,13 +64,42 @@ cJSON *sendGameCreation(game *g) {
     cJSON_AddNumberToObject(playerJson, "nbMine", defautPlayer->nbMine);
     cJSON_AddNumberToObject(playerJson, "nbRemoteBomb", defautPlayer->nbRemoteBomb);
     cJSON_AddNumberToObject(playerJson, "impactDist", defautPlayer->impactDist);
-    cJSON_AddBoolToObject(playerJson, "invicible", defautPlayer->invincible);
+    cJSON_AddBoolToObject(playerJson, "invincible", defautPlayer->invincible);
 
     // Ajout de l'objet playerJson à l'objet principal gameCreation
     cJSON_AddItemToObject(gameCreation, "player", playerJson);
 
     // Retourne le JSON créé
     return gameCreation;
+}
+
+cJSON *sendPartieListe(games *gameInfo) {
+    cJSON *gameListe = cJSON_CreateObject();
+
+    // Ajout des éléments au JSON
+    cJSON_AddStringToObject(gameListe, "action", "game/list");
+    cJSON_AddStringToObject(gameListe, "statut", "200");
+    cJSON_AddStringToObject(gameListe, "message", "ok");
+    cJSON_AddNumberToObject(gameListe, "nbGamesList", gameInfo->nbGames);
+
+    // Création d'un tableau JSON pour "games"
+    cJSON *gamesArray = cJSON_AddArrayToObject(gameListe, "games");
+
+    int i = 0;
+    while (i < gameInfo->nbGames) {
+        game *gameI = gameInfo->gameListe[i];
+        if (gameI == NULL) {
+            continue;
+        }
+        cJSON *game = cJSON_CreateObject();
+        cJSON_AddStringToObject(game, "name", gameI->name);
+        cJSON_AddNumberToObject(game, "nbPlayer", gameI->nbPlayers);
+        cJSON_AddNumberToObject(game, "mapId", gameI->mapId);
+        cJSON_AddItemToArray(gamesArray, game);
+        i++;
+    }
+    printf("%s\n", cJSON_Print(gameListe));
+    return gameListe;
 }
 
 cJSON *badRequest() {
@@ -98,23 +126,26 @@ void receiveSend(client_map_games *clientMap, char *recu) {
     char buffer2[BUFFER_SIZE];
     if (!strcmp(recu, messageClientAttendue)) {
         ENVOI_MESSAGE(notifClientServeurUp);
-    } else if (!strncmp(recu, getMapListe, 13)) {
+    } else if (!strncmp(recu, getMapListe, GET_MAP_LISTE_SIZE)) {
         printf("Envoie des informations concernant les maps à : %s ...\n", inet_ntoa(cl->addr.sin_addr));
         ENVOI_MESSAGE(cJSON_Print(sendMapListe(clientMap->mapInfo)));
         printf("Map envoyé avec Succès\n");
-    } else if (!strncmp(recu, postCreateGame, 16)) {
+    } else if (!strncmp(recu, postCreateGame, POST_CREATE_GAME_SIZE)) {
         recu += 16;
         printf("Demande de création de game: %s\n", recu);
         printf("Création de la partie...\n");
         int indiceGame = createGame(clientMap->gameInfo, cJSON_Parse(recu));
-        if(indiceGame==ERR){
+        if (indiceGame == ERR) {
             printf("erreur lors de la création de la game\n");
             ENVOI_MESSAGE(cJSON_Print(errInconnue()));
             return;
         }
         ENVOI_MESSAGE(cJSON_Print(sendGameCreation(clientMap->gameInfo->gameListe[indiceGame])));
         printf("Partie créer !\n");
-
+    } else if (!strncmp(recu, getPartieListe, GET_PARTIE_LISTE_SIZE)) {
+        printf("Envoie de la liste des parties...\n");
+        ENVOI_MESSAGE(cJSON_Print(sendPartieListe(clientMap->gameInfo)));
+        printf("Envoie efectué !\n");
     }
 }
 

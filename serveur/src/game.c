@@ -3,6 +3,7 @@
 //
 
 #include <malloc.h>
+#include <string.h>
 #include "game.h"
 #include "stdio.h"
 #include "err.h"
@@ -24,6 +25,7 @@ int createGame(games *gameInfo, cJSON *info) {
         perror("Erreur allocation mémoire de la partie");
         return ERR;
     }
+    strcpy(g->name,cJSON_GetObjectItemCaseSensitive(info,"name")->valuestring);
     g->nbPlayers = 0;
     g->mapId = cJSON_GetObjectItemCaseSensitive(info,"mapId")->valueint;
     g->defaultPlayer=createPlayer(0,1,1);

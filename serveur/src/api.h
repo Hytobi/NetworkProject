@@ -10,9 +10,15 @@
 
 #define messageClientAttendue "looking for bomberstudent servers"
 #define notifClientServeurUp "hello i'm a bomberstudent server"
+
 #define getPartieListe "GET game/list"
+#define GET_PARTIE_LISTE_SIZE 13
+
 #define getMapListe "GET maps/list"
+#define GET_MAP_LISTE_SIZE 13
+
 #define postCreateGame "POST game/create"
+#define POST_CREATE_GAME_SIZE 16
 
 void *clientCommunication(void *args);
 

@@ -225,7 +225,8 @@ public class Intro extends JFrame implements ActionListener {
                 clear();
                 System.out.println("Envoie demande liste des games");
                 tcp.post(JsonConnection.getGameList());
-                String maps = "{\"statut\":\"201\"}";  //tcp.get();
+                String maps = /*"{\"statut\":\"201\"}"; */ tcp.get();
+                System.out.println(maps);
                 ResGameList res = MapperRes.fromJson(maps, ResGameList.class); //TODO: verifier si c'est bien un hello
                 if (res != null && res.getStatut() == "200"){
                     publishMessage(res.getGames().size() + " game(s)", true, Color.GREEN);
