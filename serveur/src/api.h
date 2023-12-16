@@ -11,6 +11,7 @@
 
 #define messageClientAttendue "looking for bomberstudent servers"
 #define notifClientServeurUp "hello i'm a bomberstudent server"
+#define reboot "I was connect to you"
 
 #define getPartieListe "GET game/list"
 #define GET_PARTIE_LISTE_SIZE strlen(getPartieListe)

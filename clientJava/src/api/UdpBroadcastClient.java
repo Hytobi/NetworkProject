@@ -6,7 +6,7 @@ import java.util.List;
 
 public class UdpBroadcastClient {
     private final int port = 42069;
-    private final int bufferSize = 4096;
+    private static final int bufferSize = 4096;
 
     public UdpBroadcastClient() {
     }
@@ -49,7 +49,10 @@ public class UdpBroadcastClient {
 
                     // Traitement de la réponse
                     String serverResponse = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                    System.out.println("Réponse du serveur : " + serverResponse.split("\0")[0]+".");
+                    if (serverResponse.split("\0")[0].equals(JsonConnection.RES_ATTENDU)) {
+                        System.out.println("Serveur trouvé");
+                        respondingServers.add(receivePacket.getAddress().getHostAddress());
+                    } 
 
                     /* TODO FIX
                     // Ajout de l'adresse IP à la liste
@@ -61,7 +64,7 @@ public class UdpBroadcastClient {
                         System.out.println("Réponse refusée");
                     }
                      */
-                    respondingServers.add(receivePacket.getAddress().getHostAddress());
+                    
 
                 }
             } catch (SocketTimeoutException e) {
@@ -78,5 +81,59 @@ public class UdpBroadcastClient {
         }
 
         return null;
+    }
+
+    public static void retryconnection(String serveur){
+        // Port sur lequel le serveur écoute
+        int serverPort = 42069;
+
+        try {
+            System.out.println("En attente du serveur...");
+            // Création du socket UDP
+            DatagramSocket socket = new DatagramSocket();
+
+            // Activation de l'option de diffusion
+            socket.setBroadcast(true);
+
+            // Message à envoyer (vous pouvez personnaliser cela selon vos besoins)
+            byte[] sendData = JsonConnection.msgConnect().getBytes();
+
+            InetAddress serverAddress = InetAddress.getByName(serveur);
+
+            // Création du paquet à envoyer
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, serverAddress, serverPort);
+
+            // Envoi du paquet
+            socket.send(sendPacket);
+
+            // Attente de la réponse du serveur pendant 5 secondes
+            socket.setSoTimeout(1000);
+
+            // Liste pour stocker les adresses IP des serveurs qui ont répondu
+            List<String> respondingServers = new ArrayList<>();
+            byte[] receiveData = new byte[bufferSize];
+
+            try {
+                while (respondingServers.size() < 1) {
+                    DatagramPacket receivePacket = new DatagramPacket(receiveData, bufferSize);
+                    socket.receive(receivePacket);
+
+                    // Traitement de la réponse
+                    String serverResponse = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                    if (serverResponse.split("\0")[0].equals(JsonConnection.RES_ATTENDU)) {
+                        System.out.println("Serveur trouvé");
+                        respondingServers.add(receivePacket.getAddress().getHostAddress());
+                    }
+                }
+            } catch (SocketTimeoutException e) {
+                System.out.println("Fin de la recherche de serveurs.");
+            }
+
+            // Fermeture du socket
+            socket.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

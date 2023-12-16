@@ -7,10 +7,7 @@ import java.awt.*;
 import java.awt.event.*;
 import api.*;
 import dto.*;
-import modele.*; // a enlevé apres le debug
 import java.io.IOException;
-import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Intro extends JFrame implements ActionListener {
@@ -28,7 +25,6 @@ public class Intro extends JFrame implements ActionListener {
     private Action quitterAction;
     private JButton commencerBtn;
     private Action commencerAction;
-    private Action finiAction;
     private TcpClient tcp;
     private GridBagConstraints c = new GridBagConstraints();
 
@@ -63,13 +59,6 @@ public class Intro extends JFrame implements ActionListener {
         commencerAction = new AbstractAction("Commencer") {
             public void actionPerformed(ActionEvent e){
                 scan();
-            }
-        };
-        finiAction = new AbstractAction("Fini") {
-            public void actionPerformed(ActionEvent e){
-                myName = "player3";
-                resGameJoin = getDebugGame();
-                commencer=true;
             }
         };
     }
@@ -183,6 +172,10 @@ public class Intro extends JFrame implements ActionListener {
                 System.out.println("Envoie demande liste des maps");
                 tcp.post(JsonConnection.getMapList());
                 String maps = tcp.get();
+                if (maps == null){
+                    closeAll();
+                    return;
+                }
                 ResMapList res = MapperRes.fromJson(maps, ResMapList.class);
                 if (res != null && res.getStatut().equals("200")){
                     setGridBag(1, 20, 0.5, 1, 0);
@@ -224,11 +217,15 @@ public class Intro extends JFrame implements ActionListener {
                 clear();
                 System.out.println("Envoie demande liste des games");
                 tcp.post(JsonConnection.getGameList());
-                String maps = /*"{\"statut\":\"201\"}"; */ tcp.get();
-                System.out.println(maps);
-                ResGameList res = MapperRes.fromJson(maps, ResGameList.class); //TODO: verifier si c'est bien un hello
-                if (res != null && res.getStatut() == "200"){
-                    publishMessage(res.getGames().size() + " game(s)", true, Color.GREEN);
+                String gameslist = tcp.get();
+                if (gameslist == null){
+                    closeAll();
+                    return;
+                }
+                ResGameList res = MapperRes.fromJson(gameslist, ResGameList.class);
+                if (res != null && res.getStatut().equals("200")){
+                    publishMessage(res.getGames().size() + " game(s) trouvées", true, Color.GREEN);
+                    // TODO : afficher les games
                 }else{
                     publishMessage("Erreur lors de la récupération des games", true, Color.RED);
                 }
@@ -248,30 +245,11 @@ public class Intro extends JFrame implements ActionListener {
             }
         });
 
-        JButton force = new JButton(finiAction);
-        force.setBorderPainted(false);
-        force.setFocusPainted(false);
-        force.setContentAreaFilled(false);
-        force.setForeground(Color.WHITE);
-
-        /*
-        force.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                myName = "player1";
-                resGameJoin = getDebugGame();
-                commencer=true;
-            }
-        });*/
-
         toolBar.add(maps);
         toolBar.addSeparator();
         toolBar.add(games);
         toolBar.addSeparator();
         toolBar.add(create);
-        toolBar.addSeparator();
-        toolBar.add(force);
-        //Pour que la ToolBar soit belle
         toolBar.setBackground(new Color(28, 25, 71));
         toolBar.setFloatable(false);
         toolBar.setRollover(true);
@@ -347,14 +325,16 @@ public class Intro extends JFrame implements ActionListener {
                 Game game = new Game(nom.getText(), id.getText());
                 tcp.post(JsonConnection.postGameCreate(game));
                 String create = tcp.get();
-                System.out.println(create);
+                if (create == null){
+                    closeAll();
+                    return;
+                }
                 ResGameJoin res = MapperRes.fromJson(create, ResGameJoin.class);
                 if (res != null && res.getStatut().equals("201")){
                     publishMessage(" creation reussi", true, Color.GREEN);
                     myName = "player" + res.getNbPlayers()+1;
                     resGameJoin = res;
                     commencer=true;
-                    //TODO : processus de jeu
                 }else{
                     publishMessage("Erreur lors de la creation de game", true, Color.RED);
                 }
@@ -380,43 +360,29 @@ public class Intro extends JFrame implements ActionListener {
         infoPanel.add(submitButton, c);
     }
 
-    private ResGameJoin getDebugGame(){
-        ResGameJoin res = new ResGameJoin();
-        res.setAction("game/join");
-        res.setStatut("201");
-        res.setMessage("game joined");
-        res.setNbPlayers(2);
-        res.setMapId(1);
-        res.setStartPos("5,3");
-        Player p = new Player();
-        p.setSpeed(1);
-        p.setLife(100);
-        p.setNbClassicBomb(1);
-        p.setNbMine(1);
-        p.setNbRemoteBomb(1);
-        p.setImpactDist(2);
-        p.setInvincible(false);
-        res.setPlayer(p);
-        MapInfo map = new MapInfo();
-        map.setId(1);
-        map.setWidth(15);
-        map.setHeight(15);
-        map.setContent("XXXXXXXXXXXXXXXX             XX             XX  ####  I    XX             XX         ##  XX             XX             XX      ####   XX             XX    B        XX      M      XX   R     ### XX             XXXXXXXXXXXXXXXX");
-        res.setStartingMap(map);
-
-        List<Player> players = new ArrayList<>();
-        Player p1 = new Player();
-        p1.setName("player1");
-        p1.setPos("1,1");
-        players.add(p1);
-        Player p2 = new Player();
-        p2.setName("player2");
-        p2.setPos("6,4");
-        players.add(p2);
-        res.setPlayers(players);
-        return res;
-
+    private void closeAll(){
+        JOptionPane.showMessageDialog(this,"La connection au serveur a été intérompu");
+        try {
+            tcp.closeSocket();
+        } catch (Exception e) {
+            System.out.println("Erreur lors de la fermeture du socket");
+        } finally {
+            while (true) {
+                UdpBroadcastClient.retryconnection(tcp.getServer());
+                try {
+                    tcp.tcpConnect();
+                    break;
+                } catch (Exception e) {
+                    try {
+                        Thread.sleep(10000);
+                    } catch (Exception ex) {
+                        System.out.println("Erreur lors de la reconnexion au serveur");
+                    }
+                }
+            }
+            //UdpBroadcastClient.retryconnection(tcp.getServer());
+            //tcp.post(JsonConnection.msgConnect());
+        }
     }
-
 }
 
