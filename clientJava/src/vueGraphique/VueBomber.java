@@ -10,10 +10,12 @@ import api.*;
 import dto.*;
 
 /**
- * Classe qui s'occupe de la vue du Sokoban
+ * Classe qui s'occupe de la vue du Bomber
  * @author PLOUVIN Patrice
  */
 public class VueBomber extends JFrame implements ActionListener,KeyListener{
+    private static final Integer MAX_RETRY = 3;
+
     //Les images necessaires
     public static final ImageIcon CLASSIC = new ImageIcon("img/Classic.png");
     public static final ImageIcon REMOTE = new ImageIcon("img/Remote.png");
@@ -210,7 +212,8 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
         } catch (Exception e) {
             System.out.println("Erreur lors de la fermeture du socket");
         } finally {
-            while (true) {
+            int i=1;
+            while (i <= MAX_RETRY) {
                 UdpBroadcastClient.retryconnection(tcp.getServer());
                 try {
                     tcp.tcpConnect();
@@ -222,6 +225,11 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
                         System.out.println("Erreur lors de la reconnexion au serveur");
                     }
                 }
+                i++;
+            }
+            if (i > MAX_RETRY) {
+                JOptionPane.showMessageDialog(this,"Impossible de se reconnecter au serveur");
+                System.exit(0);
             }
         }
     }
