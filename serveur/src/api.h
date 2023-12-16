@@ -21,6 +21,21 @@
 #define postCreateGame "POST game/create"
 #define POST_CREATE_GAME_SIZE 16
 
+#define postJoinGame "POST game/join"
+#define POST_JOIN_GAME_SIZE 14
+
+#define postPlayerMove "POST player/move"
+#define POST_PLAYER_MOVE_SIZE 14
+
+#define postPlayerAttack "POST player/attack"
+#define POST_PLAYER_ATTACK_SIZE 16
+
+#define postAttackRemoteGo "POST attack/remote/go"
+#define POST_ATTACK_REMOTE_GO_SIZE 20
+
+#define postObjectNew "POST object/new"
+#define POST_OBJECT_NEW_SIZE 14
+
 void *clientCommunication(void *args);
 
 cJSON *sendMapListe(maps *mapListe);

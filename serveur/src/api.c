@@ -130,7 +130,18 @@ void receiveSend(client_map_games *clientMap, char *recu) {
     client *cl = clientMap->cl;
     socklen_t clientAddrLen = sizeof(cl->addr);
     char buffer2[BUFFER_SIZE];
-    if (!strcmp(recu, messageClientAttendue)) {
+    
+    if (!strncmp(recu, postJoinGame, POST_JOIN_GAME_SIZE)) {
+        //todo
+    } else if (!strncmp(recu, postPlayerMove, POST_PLAYER_MOVE_SIZE)) {
+        //todo
+    } else if (!strncmp(recu, postPlayerAttack, POST_PLAYER_ATTACK_SIZE)) {
+        //todo
+    } else if (!strncmp(recu, postAttackRemoteGo, POST_ATTACK_REMOTE_GO_SIZE)) {
+        //todo
+    } else if (!strncmp(recu, postObjectNew, POST_OBJECT_NEW_SIZE)) {
+        //todo
+    } else if (!strcmp(recu, messageClientAttendue)) {
         ENVOI_MESSAGE(notifClientServeurUp);
     } else if (!strncmp(recu, getMapListe, GET_MAP_LISTE_SIZE)) {
         printf("Envoie des informations concernant les maps à : %s ...\n", inet_ntoa(cl->addr.sin_addr));
@@ -152,18 +163,16 @@ void receiveSend(client_map_games *clientMap, char *recu) {
         printf("Envoie de la liste des parties...\n");
         ENVOI_MESSAGE(cJSON_Print(sendPartieListe(clientMap->gameInfo)));
         printf("Envoie efectué !\n");
-
+    } else if (!strncmp(recu, postJoinGame, POST_JOIN_GAME_SIZE)) {
+        //todo
     } else {
         printf("Requête inconnue : %s\n", recu);
         sprintf(buffer2, "%s", cJSON_Print(badRequest()));
-        //sprintf(buffer2,"yes");
         int n = sendto(cl->socket, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &cl->addr, clientAddrLen);
-        //n = send(cl->socket,buffer2,BUFFER_SIZE,0);
         if (n == ERR) {
             perror("Erreur envoie du message");
             return;
         }
-
     }
 }
 
