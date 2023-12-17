@@ -5,15 +5,15 @@
 #ifndef PROJECT_MAP_H
 #define PROJECT_MAP_H
 
-#define SOL " "
-#define MUR "#"
-#define MUR_INCA "X"
-#define VIDE "/"
-#define CLASSIC_BOMB "B"
-#define REMOTE_BOMB "R"
-#define MINE "M"
-#define ITEM "I"
-#define PLAYER "@"
+#define SOL_CHAR ' '
+#define MUR_CHAR '#'
+#define MUR_INCA_CHAR 'X'
+#define VIDE_CHAR '/'
+#define CLASSIC_BOMB_CHAR 'B'
+#define REMOTE_BOMB_CHAR 'R'
+#define MINE_CHAR 'M'
+#define ITEM_CHAR 'I'
+#define PLAYER_CHAR '@'
 
 #include "struct.h"
 

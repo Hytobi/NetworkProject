@@ -130,20 +130,32 @@ cJSON *sendJoinGame(Game *g, Player *p) {
         cJSON_AddStringToObject(playerIJSON, "name", name);
 
         char pos[8];
-        sprintf(pos,"%d,%d",g->players[i]->x,g->players[i]->y);
+        sprintf(pos, "%d,%d", g->players[i]->x, g->players[i]->y);
         cJSON_AddItemToArray(playerListeJson, playerIJSON);
         i++;
     }
 
     char startPos[8];
-    sprintf(startPos,"%d,%d",p->x,p->y);
-    cJSON_AddStringToObject(joinGame,"startPos",startPos);
+    sprintf(startPos, "%d,%d", p->x, p->y);
+    cJSON_AddStringToObject(joinGame, "startPos", startPos);
 
     // info du joueur
     cJSON *playerInfo = playerToJSON(*p);
     cJSON_AddItemToObject(joinGame, "player", playerInfo);
 
     return joinGame;
+}
+
+cJSON *sendMove(Player *p, char move[5]){
+    cJSON *moveJSON = cJSON_CreateObject();
+
+    char playerX[8];
+    sprintf(playerX,"player%d",p->id);
+
+    cJSON_AddStringToObject(moveJSON,"player",playerX);
+    cJSON_AddStringToObject(moveJSON,"dir",move);
+
+    return moveJSON;
 }
 
 cJSON *badRequest() {

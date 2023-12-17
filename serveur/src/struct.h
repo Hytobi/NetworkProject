@@ -78,6 +78,7 @@ typedef struct client {
     struct sockaddr_in addr;
     int connecter; /**< 0: pas connecte, 1: connecte, 2: en cours de connection */
     Game *clientGame; /**< game dans laquelle se trouve le Client */
+    Player *player; /**< player associe au client */
 } Client;
 
 typedef struct client_map_games {

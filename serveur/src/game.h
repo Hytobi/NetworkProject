@@ -17,7 +17,7 @@ void initGames(Games *gameInfo);
  * @param info
  * @return
  */
-int createGame(Games *gameInfo, Maps *maps,cJSON *info, struct sockaddr_in);
+int createGame(Games *gameInfo, Maps *maps, cJSON *info, Client *cl);
 
 /**
  * Fais rejoindre la game au Client choisis,
@@ -25,6 +25,17 @@ int createGame(Games *gameInfo, Maps *maps,cJSON *info, struct sockaddr_in);
  * ERR sinon
  */
 int joinGame(Game *g, Client *cl, Map *m);
+
+/**
+ * Move le player donne en parametre dans la game donne en parametre
+ * Return le num de la case si tous se passe bien
+ * ERR sinon
+ * @param p
+ * @param game
+ * @param info
+ * @return
+ */
+int movePlayer(Player *p, Game *game, cJSON *info);
 
 void destroyGame(Game *g);
 
