@@ -88,24 +88,18 @@ int moveOnMine(Player *p, Map *m) {
 }
 
 int movePlayer(Player *p, Game *game, cJSON *info) {
-    printf("11\n");
     Map *map = game->map;
     char move[5];
     strcpy(move, cJSON_GetObjectItemCaseSensitive(info, "move")->valuestring);
-    printf("12\n");
     int actual_x = p->x, actual_y = p->y;
     int numCase = map->height * actual_x + actual_y;
-    printf("13\n");
     // si le joueur n'a pas la bonne place sur la map
     if (map->content[numCase] != PLAYER_CHAR) {
         //TODO
-        printf("131\n");
     }
     char carac;
     // up
-    printf("14\n");
     if (!strcmp(move, "up")) {
-        printf("141\n");
         carac = map->content[numCase + 1];
         TEST_MOVE(carac);
         if (carac == MINE_CHAR) {
@@ -116,7 +110,6 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
         map->content[numCase + 1] = PLAYER_CHAR;
         // down
     } else if (!strcmp(move, "down")) {
-        printf("142\n");
         carac = map->content[numCase - 1];
         TEST_MOVE(carac);
         if (carac == MINE_CHAR) {
@@ -127,7 +120,6 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
         map->content[numCase - 1] = PLAYER_CHAR;
         // left
     } else if (!strcmp(move, "left")) {
-        printf("143\n");
         carac = map->content[numCase - map->height];
         TEST_MOVE(carac);
         if (carac == MINE_CHAR) {
@@ -138,7 +130,6 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
         map->content[numCase - map->height] = PLAYER_CHAR;
         // right
     } else {
-        printf("144\n");
         carac = map->content[numCase + map->height];
         TEST_MOVE(carac);
         if (carac == MINE_CHAR) {
