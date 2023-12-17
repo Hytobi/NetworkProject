@@ -12,11 +12,11 @@
  * @param y
  * @return
  */
-player *createPlayer(int id, int x, int y, struct sockaddr_in);
+Player *createPlayer(int id, int x, int y, struct sockaddr_in);
 
 /**
  * Détruit le joueur passe en paramètre
  */
-void destroyPlayer(player *);
+void destroyPlayer(Player *);
 
 #endif // PLAYER_H

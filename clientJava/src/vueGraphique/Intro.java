@@ -164,20 +164,20 @@ public class Intro extends JFrame implements ActionListener {
         clear();
         // ToolBar
         JToolBar toolBar = new JToolBar();
-        // lister les maps
-        JButton maps = createBtn("Lister les maps");
-        maps.addActionListener(new ActionListener() {
+        // lister les Maps
+        JButton Maps = createBtn("Lister les Maps");
+        Maps.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 clear();
-                System.out.println("Envoie demande liste des maps");
+                System.out.println("Envoie demande liste des Maps");
                 tcp.post(JsonConnection.getMapList());
-                String maps = tcp.get();
-                if (maps == null){
+                String Maps = tcp.get();
+                if (Maps == null){
                     closeAll();
                     return;
                 }
-                ResMapList res = MapperRes.fromJson(maps, ResMapList.class);
+                ResMapList res = MapperRes.fromJson(Maps, ResMapList.class);
                 if (res != null && res.getStatut().equals("200")){
                     setGridBag(1, 20, 0.5, 1, 0);
                     publishMessage(res.getNbMapsList() + " map(s) trouvée(s) :", true, Color.GREEN);
@@ -204,19 +204,19 @@ public class Intro extends JFrame implements ActionListener {
                         i = i+y+1;
                     }
                 }else{
-                    publishMessage("Erreur lors de la récupération des maps", true, Color.RED);
+                    publishMessage("Erreur lors de la récupération des Maps", true, Color.RED);
                 }
                 infoPanel.revalidate();
                 infoPanel.repaint();
             }
         });
 
-        JButton games = createBtn("Lister les games");
-        games.addActionListener(new ActionListener() {
+        JButton Games = createBtn("Lister les Games");
+        Games.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 clear();
-                System.out.println("Envoie demande liste des games");
+                System.out.println("Envoie demande liste des Games");
                 tcp.post(JsonConnection.getGameList());
                 String gameslist = tcp.get();
                 if (gameslist == null){
@@ -226,9 +226,9 @@ public class Intro extends JFrame implements ActionListener {
                 ResGameList res = MapperRes.fromJson(gameslist, ResGameList.class);
                 if (res != null && res.getStatut().equals("200")){
                     publishMessage(res.getGames().size() + " game(s) trouvées", true, Color.GREEN);
-                    // TODO : afficher les games
+                    // TODO : afficher les Games
                 }else{
-                    publishMessage("Erreur lors de la récupération des games", true, Color.RED);
+                    publishMessage("Erreur lors de la récupération des Games", true, Color.RED);
                 }
                 infoPanel.revalidate();
                 infoPanel.repaint();
@@ -246,9 +246,9 @@ public class Intro extends JFrame implements ActionListener {
             }
         });
 
-        toolBar.add(maps);
+        toolBar.add(Maps);
         toolBar.addSeparator();
-        toolBar.add(games);
+        toolBar.add(Games);
         toolBar.addSeparator();
         toolBar.add(create);
         toolBar.setBackground(new Color(28, 25, 71));

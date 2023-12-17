@@ -1,7 +1,7 @@
 #include "player.h"
 
-player *createPlayer(int id, int x, int y, struct sockaddr_in addr) {
-    player *p = malloc(sizeof(player));
+Player *createPlayer(int id, int x, int y, struct sockaddr_in addr) {
+    Player *p = malloc(sizeof(Player));
     p->id = id;
     p->x = x;
     p->y = y;
@@ -18,6 +18,6 @@ player *createPlayer(int id, int x, int y, struct sockaddr_in addr) {
     return p;
 }
 
-void destroyPlayer(player *p) {
+void destroyPlayer(Player *p) {
     free(p);
 }

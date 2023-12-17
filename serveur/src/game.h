@@ -8,7 +8,7 @@
 #include "struct.h"
 #include "cJSON/cJSON.h"
 
-void initGames(games *gameInfo);
+void initGames(Games *gameInfo);
 
 /**
  * créer la game, et renvoie l'index à laquelle la game est stocke dans la structure
@@ -17,15 +17,15 @@ void initGames(games *gameInfo);
  * @param info
  * @return
  */
-int createGame(games *gameInfo, cJSON *info, struct sockaddr_in);
+int createGame(Games *gameInfo, Maps *maps,cJSON *info, struct sockaddr_in);
 
 /**
- * Fais rejoindre la game au client choisis,
- * return 1 si tous s'est bien passe,
- * ERR si erreur
+ * Fais rejoindre la game au Client choisis,
+ * return l'indice du joueur dans le tableau si tous s'est bien passe,
+ * ERR sinon
  */
-int joinGame(game *g, client *cl, map *m);
+int joinGame(Game *g, Client *cl, Map *m);
 
-void destroyGame(game *g);
+void destroyGame(Game *g);
 
 #endif //PROJECT_GAME_H

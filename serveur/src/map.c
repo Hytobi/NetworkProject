@@ -15,7 +15,7 @@
 int nextX[2][MAX_PLAYER]={{1,14,1,14},{1,20,1,20}};
 int nextY[2][MAX_PLAYER]={{1,1,13,13},{1,1,6,6}};
 
-void setMapInfo(maps *mapInfo) {
+void setMapInfo(Maps *mapInfo) {
     mapInfo->nbMap = 0;
     int i = 0;
 
@@ -33,7 +33,7 @@ void setMapInfo(maps *mapInfo) {
         if (i >= MAX_MAP) {
             break;
         }
-        mapInfo->mapListe[i]= malloc(sizeof(map));
+        mapInfo->mapListe[i]= malloc(sizeof(Map));
         strcpy(mapInfo->mapListe[i]->content,"");
         mapInfo->mapListe[i]->id=i;
         mapInfo->mapListe[i]->height=0;
@@ -63,8 +63,8 @@ void setMapInfo(maps *mapInfo) {
     closedir(dir);
 }
 
-map * getMap(maps * mapListe, int id){
-    map * m;
+Map * getMap(Maps * mapListe, int id){
+    Map * m;
     int i=0;
     do {
         if (i>mapListe->nbMap){

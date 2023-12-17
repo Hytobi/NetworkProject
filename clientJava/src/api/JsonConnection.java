@@ -14,7 +14,7 @@ public class JsonConnection {
     }
 
     public static String getMapList(){
-        return "GET maps/list";
+        return "GET Maps/list";
     }
 
     public static  String getGameList(){

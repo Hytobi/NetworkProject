@@ -22,7 +22,7 @@
 #include "game.h"
 
 void *serveurUdp(void *args) {
-    thread_Info *threadInfo = (thread_Info *) args;
+    Thread_Info *threadInfo = (Thread_Info *) args;
     printf("\033[H\033[2J");
 
     // Création du socket
@@ -104,7 +104,7 @@ void *serveurUdp(void *args) {
             if (threadInfo->clients[i].connecter) {
                 continue;
             }
-            // Ajouter le nouveau client à la structure
+            // Ajouter le nouveau Client à la structure
             // memcpy(&(threadInfo->clients[i].addr), &clientAddr, sizeof(clientAddr));
             threadInfo->clients[i].addr = clientAddr;
             threadInfo->clients[i].connecter = 2;
@@ -113,14 +113,14 @@ void *serveurUdp(void *args) {
         }
 
         /*
-        // Vérifier que le client n'est pas déjà connecté
+        // Vérifier que le Client n'est pas déjà connecté
         for (int i = 0; i < threadInfo->clientCount; i++) {
             if (!&threadInfo->clients[i]) {
                 //TODO a retirer si ca marche sans
                 printf("Client non alloue\n");
             }
             if (memcmp(&(threadInfo->clients[i].addr), &clientAddr, sizeof(clientAddr)) == 0) {
-                // Ajouter le nouveau client à la structure
+                // Ajouter le nouveau Client à la structure
                 threadInfo->clients[i].connecter = 2;
                 memcpy(&(threadInfo->clients[threadInfo->clientCount].addr), &clientAddr,
                        sizeof(clientAddr));
@@ -139,10 +139,10 @@ void *serveurUdp(void *args) {
 }
 
 void *tcpConnect(void *args) {
-    thread_Info *threadInfo = (thread_Info *) args;
+    Thread_Info *threadInfo = (Thread_Info *) args;
 
-    games * gameInfo;
-    gameInfo = malloc(sizeof(games));
+    Games * gameInfo;
+    gameInfo = malloc(sizeof(Games));
     if (gameInfo == NULL){
         perror("Erreur allocation gameInfo");
         exit(2);
@@ -154,9 +154,9 @@ void *tcpConnect(void *args) {
     for (;;) {
         pthread_mutex_lock(&threadInfo->mutex);
         for (int i = 0; i < MAX_CLIENTS; i++) {
-            // Premiere connection du client
+            // Premiere connection du Client
             if (threadInfo->clients[i].connecter == 2) {
-                // adresse TCP du client
+                // adresse TCP du Client
                 socklen_t tcpClientAddrLen = sizeof(threadInfo->clients[i].addr);
 
                 // socket TCP
@@ -171,12 +171,12 @@ void *tcpConnect(void *args) {
                     continue;
                 }
 
-                printf("Nouveau client connecté via TCP depuis %s\n", inet_ntoa(threadInfo->clients[i].addr.sin_addr));
+                printf("Nouveau Client connecté via TCP depuis %s\n", inet_ntoa(threadInfo->clients[i].addr.sin_addr));
                 threadInfo->clients[i].connecter = 1;
                 threadInfo->clients[i].socket = tcpFd;
 
 
-                client_map_games *cm = malloc(sizeof(client_map_games));
+                Client_Map_Games *cm = malloc(sizeof(Client_Map_Games));
                 cm->gameInfo=gameInfo;
                 cm->cl=&threadInfo->clients[i];
                 cm->mapInfo = threadInfo->mapInfo;
@@ -194,9 +194,9 @@ void *tcpConnect(void *args) {
 }
 
 int main(int arvc, char **argv) {
-    thread_Info *threadInfo = malloc(sizeof(thread_Info));
+    Thread_Info *threadInfo = malloc(sizeof(Thread_Info));
 
-    threadInfo->mapInfo=malloc(sizeof(maps));
+    threadInfo->mapInfo=malloc(sizeof(Maps));
     setMapInfo(threadInfo->mapInfo);
 
     if (pthread_mutex_init(&(threadInfo->mutex), NULL) != 0) {

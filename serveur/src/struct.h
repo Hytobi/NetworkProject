@@ -40,28 +40,7 @@ typedef struct player {
     int nbMine; /**< nombre de mines possédées par le joueur */
     int impactDist; /**< nombre de cases impactées par une explosion (pour une direction donnée) */
     int invincible; /**<  indique si le joueur est en mode invincible */
-} player;
-
-typedef struct game {
-    char name[STRING_SIZE];
-    int nbPlayers; /**< nombre de joueurs actuel dans la partie */
-    int mapId; /**< id de la map sur laquelle se joue la partie */
-    int startPos[2]; /**< position initiale d’un nouveau joueur */
-    player *defaultPlayer; /**< objet JSON décrivant les caractéristiques d’un nouveau joueur */
-    player *players[MAX_PLAYER]; /**< Joueurs de la partie */
-} game;
-
-typedef struct games {
-    int nbGames;
-    game *gameListe[MAX_GAMES];
-} games;
-
-typedef struct client {
-    int socket;
-    struct sockaddr_in addr;
-    int connecter; /**< 0: pas connecte, 1: connecte, 2: en cours de connection */
-    game *clientGame; /**< game dans laquelle se trouve le client */
-} client;
+} Player;
 
 typedef struct map {
     int id; /**< id de la map concernée*/
@@ -72,23 +51,45 @@ typedef struct map {
  * = correspond à un mur cassable par une explosion de bombe
  * * correspond à un mur incassable
  * - correspond à une case libre */
-} map;
+} Map;
 
 typedef struct maps {
     int nbMap;
-    map *mapListe[MAX_MAP];
-} maps;
+    Map *mapListe[MAX_MAP];
+} Maps;
+
+typedef struct game {
+    char name[STRING_SIZE];
+    int nbPlayers; /**< nombre de joueurs actuel dans la partie */
+    int mapId; /**< id de la map sur laquelle se joue la partie */
+    Map *map; /**< map actuelle de la partie */
+    int startPos[2]; /**< position initiale d’un nouveau joueur */
+    Player *defaultPlayer; /**< objet JSON décrivant les caractéristiques d’un nouveau joueur */
+    Player *players[MAX_PLAYER]; /**< Joueurs de la partie */
+} Game;
+
+typedef struct games {
+    int nbGames;
+    Game *gameListe[MAX_GAMES];
+} Games;
+
+typedef struct client {
+    int socket;
+    struct sockaddr_in addr;
+    int connecter; /**< 0: pas connecte, 1: connecte, 2: en cours de connection */
+    Game *clientGame; /**< game dans laquelle se trouve le Client */
+} Client;
 
 typedef struct client_map_games {
-    client *cl;
-    maps *mapInfo;
-    games *gameInfo;
-} client_map_games;
+    Client *cl;
+    Maps *mapInfo;
+    Games *gameInfo;
+} Client_Map_Games;
 
 typedef struct thread_Info {
-    client clients[MAX_CLIENTS];
-    maps *mapInfo;
+    Client clients[MAX_CLIENTS];
+    Maps *mapInfo;
     pthread_mutex_t mutex;
-} thread_Info;
+} Thread_Info;
 
 #endif //PROJECT_STRUCT_H

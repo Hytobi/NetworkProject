@@ -17,7 +17,7 @@
 
 #include "struct.h"
 
-void setMapInfo(maps *mapInfo);
+void setMapInfo(Maps *mapInfo);
 
 /**
  * retourne la map associe à l'id donnée en paramètre,
@@ -26,7 +26,7 @@ void setMapInfo(maps *mapInfo);
  * @param id
  * @return
  */
-map * getMap(maps * mapListe, int id);
+Map * getMap(Maps * mapListe, int id);
 
 int nextPosX(int i, int mapId);
 int nextPosY(int i, int mapId);

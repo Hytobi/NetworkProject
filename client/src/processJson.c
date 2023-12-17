@@ -32,7 +32,7 @@ char* getJsonConnect() {
 }
 
 char* getMap() {
-    char* jsonString = "{\"path\":\"maps/list\"}";
+    char* jsonString = "{\"path\":\"Maps/list\"}";
     cJSON *json = cJSON_Parse(jsonString);
     if (json == NULL) {
         const char *error_ptr = cJSON_GetErrorPtr();

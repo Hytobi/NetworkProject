@@ -12,11 +12,13 @@
 #include "cJSON/cJSON.h"
 #include "struct.h"
 
-cJSON *sendMapListe(maps *mapsInfo);
+cJSON *sendMapListe(Maps *mapsInfo);
 
-cJSON *sendGameCreation(game *g, map *map);
+cJSON *sendGameCreation(Game *g, Map *map);
 
-cJSON *sendPartieListe(games *gameInfo);
+cJSON *sendPartieListe(Games *gameInfo);
+
+cJSON *sendJoinGame(Game *g, Player *p);
 
 cJSON *badRequest();
 

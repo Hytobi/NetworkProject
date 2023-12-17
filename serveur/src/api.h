@@ -16,7 +16,7 @@
 #define getPartieListe "GET game/list"
 #define GET_PARTIE_LISTE_SIZE strlen(getPartieListe)
 
-#define getMapListe "GET maps/list"
+#define getMapListe "GET Maps/list"
 #define GET_MAP_LISTE_SIZE strlen(getMapListe)
 
 #define postCreateGame "POST game/create"
@@ -45,7 +45,7 @@
 
 void *clientCommunication(void *args);
 
-cJSON *sendMapListe(maps *mapListe);
+cJSON *sendMapListe(Maps *mapListe);
 
 cJSON *badRequest();
 

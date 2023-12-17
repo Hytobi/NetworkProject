@@ -67,7 +67,7 @@ void connectToServer(char* ip) {
 
 void askExistingMap(char* ip) {
     printf("\033[H\033[2J");
-    printf("Demande de la liste des maps...\n");
+    printf("Demande de la liste des Maps...\n");
     get(ip, getMap());
     sleep(2);
 }
