@@ -19,11 +19,11 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
     //Les images necessaires
     public static final ImageIcon CLASSIC = new ImageIcon("img/Classic.png");
     public static final ImageIcon REMOTE = new ImageIcon("img/Remote.png");
-    public static final ImageIcon MINE = new ImageIcon("img/Mine.png");
-    public static final ImageIcon ITEM = new ImageIcon("img/Item.png");
-    public static final ImageIcon MUR_INCA = new ImageIcon("img/MurInca.png");
-    public static final ImageIcon MUR = new ImageIcon("img/mur.gif");
-    public static final ImageIcon SOL = new ImageIcon("img/sol.gif");
+    public static final ImageIcon MINE_CHAR = new ImageIcon("img/Mine.png");
+    public static final ImageIcon ITEM_CHAR = new ImageIcon("img/Item.png");
+    public static final ImageIcon MUR_INCA_CHAR = new ImageIcon("img/MurInca.png");
+    public static final ImageIcon MUR_CHAR = new ImageIcon("img/mur.gif");
+    public static final ImageIcon SOL_CHAR = new ImageIcon("img/sol.gif");
     public static final ImageIcon[] PERSO = new ImageIcon[] { new ImageIcon("img/Haut.gif"),
                                                               new ImageIcon("img/Gauche.gif"),
                                                               new ImageIcon("img/Bas.gif"),
@@ -73,17 +73,17 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
         for (int i=0;i<jeu.getMaxi();i++) {
             for (int j=0;j<jeu.getMaxj();j++) {
                 c = jeu.getPlateau()[i][j].getCarac();
-                if (c == "#") cartePanel.add(new JLabel(MUR));
+                if (c == "#") cartePanel.add(new JLabel(MUR_CHAR));
                 else if (c == "/") cartePanel.add(new JLabel());
                 else if (c == "B") cartePanel.add(new JLabel(CLASSIC));
-                else if (c == "M") cartePanel.add(new JLabel(MINE));
+                else if (c == "M") cartePanel.add(new JLabel(MINE_CHAR));
                 else if (c == "R") cartePanel.add(new JLabel(REMOTE));
-                else if (c == "I") cartePanel.add(new JLabel(ITEM));
-                else if (c == "X") cartePanel.add(new JLabel(MUR_INCA));
+                else if (c == "I") cartePanel.add(new JLabel(ITEM_CHAR));
+                else if (c == "X") cartePanel.add(new JLabel(MUR_INCA_CHAR));
                 //Sinon tout le reste est un sol avec des choses posé dessus
                 else if (c == "@") cartePanel.add(new JLabel(PERSO[2]));
                 else if (c == "$") cartePanel.add(new JLabel(PERSO[2]));
-                else cartePanel.add(new JLabel(SOL));
+                else cartePanel.add(new JLabel(SOL_CHAR));
             }
         }
     }
@@ -123,13 +123,13 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
             c = jeu.getPlateau()[(int)p.getX()][(int)p.getY()].getCarac();
             if (c == " ") {
                 cartePanel.remove(index);
-                cartePanel.add(new JLabel(SOL), index);
+                cartePanel.add(new JLabel(SOL_CHAR), index);
             } else if (c == "B"){
                 cartePanel.remove(index);
                 cartePanel.add(new JLabel(CLASSIC), index); // bombe
             } else if (c == "M"){
                 cartePanel.remove(index);
-                cartePanel.add(new JLabel(MINE), index); // mine
+                cartePanel.add(new JLabel(MINE_CHAR), index); // mine
             } else if (c == "R"){
                 cartePanel.remove(index);
                 cartePanel.add(new JLabel(REMOTE), index); //remote

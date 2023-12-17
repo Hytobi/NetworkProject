@@ -28,20 +28,17 @@
 #define postPlayerMove "POST player/move"
 #define POST_PLAYER_MOVE_SIZE strlen(postPlayerMove)
 
-#define postJoinGame "POST game/join"
-#define POST_JOIN_GAME_SIZE 14
-
-#define postPlayerMove "POST player/move"
-#define POST_PLAYER_MOVE_SIZE 14
-
 #define postPlayerAttack "POST player/attack"
-#define POST_PLAYER_ATTACK_SIZE 16
+#define POST_PLAYER_ATTACK_SIZE strlen(postPlayerAttack)
 
 #define postAttackRemoteGo "POST attack/remote/go"
-#define POST_ATTACK_REMOTE_GO_SIZE 20
+#define POST_ATTACK_REMOTE_GO_SIZE strlen(postAttackRemoteGo)
 
 #define postObjectNew "POST object/new"
-#define POST_OBJECT_NEW_SIZE 14
+#define POST_OBJECT_NEW_SIZE strlen(postObjectNew)
+
+#define POST_POSITION_PLAYER_UPDATE "POST player/position/update"
+#define POST_POSITION_PLAYER_UPDATE_SIZE strlen(POST_POSITION_PLAYER_UPDATE)
 
 void *clientCommunication(void *args);
 

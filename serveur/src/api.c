@@ -45,7 +45,7 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         recu += POST_CREATE_GAME_SIZE;
         printf("Demande de création de game: %s\n", recu);
         printf("Création de la partie...\n");
-        int indiceGame = createGame(clientMap->gameInfo, clientMap->mapInfo,cJSON_Parse(recu), cl->addr);
+        int indiceGame = createGame(clientMap->gameInfo, clientMap->mapInfo,cJSON_Parse(recu), cl);
         if (indiceGame == ERR) {
             printf("erreur lors de la création de la game\n");
             ENVOI_MESSAGE(cJSON_Print(errInconnue()));
@@ -96,11 +96,13 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         recu+=POST_PLAYER_MOVE_SIZE;
         printf("Tentative de déplacement du joueur %s\n", inet_ntoa(cl->addr.sin_addr));
 
-        Map *m= getMap(clientMap->mapInfo, cl->clientGame->mapId);
-        for (int i=0;i<MAX_GAMES;i++){
-            if (cl->clientGame->)
+        if (movePlayer(cl->player,cl->clientGame,recu)==ERR){
+            ENVOIE_ERR_INCONNUE;
+            return;
         }
-
+        char postMove[BUFFER_SIZE];
+        sprintf(postMove,"%s\n%s",POST_POSITION_PLAYER_UPDATE, cJSON_Print(sendMove(cl->player,recu)));
+        ENVOI_MESSAGE(postMove);
     }
     else {
         printf("Requête inconnue : %s\n", recu);

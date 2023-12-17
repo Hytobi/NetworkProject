@@ -20,6 +20,8 @@ cJSON *sendPartieListe(Games *gameInfo);
 
 cJSON *sendJoinGame(Game *g, Player *p);
 
+cJSON *sendMove(Player *p,char move[5]);
+
 cJSON *badRequest();
 
 cJSON *errInconnue();

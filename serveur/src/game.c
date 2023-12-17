@@ -10,8 +10,14 @@
 #include "player.h"
 #include "map.h"
 
+#define TEST_MOVE(carac) if (carac==MUR_INCA_CHAR || carac==MUR_CHAR\
+|| carac==VIDE_CHAR || carac==PLAYER_CHAR || carac==CLASSIC_BOMB_CHAR\
+|| carac==REMOTE_BOMB_CHAR) {\
+printf("Déplacement impossible !\n");\
+return ERR;\
+}
 
-int createGame(Games *gameInfo, Maps *maps, cJSON *info, struct sockaddr_in addr) {
+int createGame(Games *gameInfo, Maps *maps, cJSON *info, Client *cl) {
     int i = 0;
     while (i < gameInfo->nbGames) {
         printf("yes\n");
@@ -35,7 +41,7 @@ int createGame(Games *gameInfo, Maps *maps, cJSON *info, struct sockaddr_in addr
         return ERR;
     }
     g->map = getMap(maps, g->mapId);
-    g->defaultPlayer = createPlayer(0, 1, 1, addr);
+    g->defaultPlayer = createPlayer(0, 1, 1, cl->addr);
     g->startPos[0] = 1;
     g->startPos[1] = 1;
 
@@ -65,29 +71,77 @@ int joinGame(Game *g, Client *cl, Map *m) {
         g->defaultPlayer->x = nextPosX(i, g->mapId);
         g->defaultPlayer->y = nextPosY(i, g->mapId);
         cl->clientGame = g;
+        cl->player=g->players[i];
         return i;
     }
     return ERR;
 }
 
-//TODO empecher les collisions avec les autres joueurs
-// Gerer si la speed est superieur a 1
-// Gerer la speed tout cours, (on ne voudra pas tjr se déplacer de 2 cases)
-int movePlayer(Player *p, Map *map, cJSON *info) {
+/**
+ * Si le joueur marche sur une mine il doit prendre des dégats et la map doit s'update
+ * @param p
+ * @param m
+ * @return
+ */
+int moveOnMine(Player *p, Map *m) {
+    //TODO
+}
+
+int movePlayer(Player *p, Game *game, cJSON *info) {
+    Map *map = game->map;
     char move[5];
     strcpy(move, cJSON_GetObjectItemCaseSensitive(info, "move")->valuestring);
-    int x = atoi(strtok(move, ","));
-    int y = atoi(strtok(NULL, ","));
-    if (x < 0 || x > map->width || y < 0 || y > map->height) {
-        // Ne peut pas se déplacer
-        return 0;
+
+    int actual_x = p->x, actual_y = p->y;
+    int numCase = map->height * actual_x + actual_y;
+    // si le joueur n'a pas la bonne place sur la map
+    if (map->content[numCase] != PLAYER_CHAR) {
+        //TODO
     }
-    char carac = map->content[x + y * map->width];
-    if (!strcmp(carac, MUR_INCA) || !strcmp(carac, MUR) || !strcmp(carac, VIDE)) { // # / ou X
-        // Ne peut pas se déplacer
-        return 0;
+    char carac;
+    // up
+    if (!strcmp(move, "up")) {
+        carac = map->content[numCase + 1];
+        TEST_MOVE(carac);
+        if (carac == MINE_CHAR) {
+            moveOnMine(p, map);
+            return numCase + 1;
+        }
+        map->content[numCase] = SOL_CHAR;
+        map->content[numCase + 1] = PLAYER_CHAR;
+        // down
+    } else if (!strcmp(move, "down")) {
+        carac = map->content[numCase - 1];
+        TEST_MOVE(carac);
+        if (carac == MINE_CHAR) {
+            moveOnMine(p, map);
+            return numCase - 1;
+        }
+        map->content[numCase] = SOL_CHAR;
+        map->content[numCase - 1] = PLAYER_CHAR;
+        // left
+    } else if (!strcmp(move, "left")) {
+        carac = map->content[numCase - map->height];
+        TEST_MOVE(carac);
+        if (carac == MINE_CHAR) {
+            moveOnMine(p, map);
+            return numCase - map->height;
+        }
+        map->content[numCase] = SOL_CHAR;
+        map->content[numCase - map->height] = PLAYER_CHAR;
+        // right
+    } else {
+        carac = map->content[numCase + map->height];
+        TEST_MOVE(carac);
+        if (carac == MINE_CHAR) {
+            moveOnMine(p, map);
+            return numCase + map->height;
+        }
+        map->content[numCase] = SOL_CHAR;
+        map->content[numCase + map->height] = PLAYER_CHAR;
     }
-    return 1;
+
+    return ERR;
 }
 
 void destroyGame(Game *g) {
