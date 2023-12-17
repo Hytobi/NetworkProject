@@ -1,5 +1,11 @@
 package dto;
 
+/**
+ * ResGameList : Objet reponse de la liste des games (envoyé par le serveur)
+ * 
+ * @author Hana DELCOURT, Patrice PLOUVIN
+ */
+
 import java.util.List;
 
 public class ResGameList extends ResponseApi {

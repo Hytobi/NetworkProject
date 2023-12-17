@@ -14,6 +14,7 @@ public class Intro extends JFrame implements ActionListener {
 
     public static final ImageIcon BOMBER = new ImageIcon("img/bomber.png");
     private static final Integer MAX_RETRY = 3;
+    private static final Integer MAX_PLAYER = 4;
 
     private boolean commencer = false;
     private String myName;
@@ -181,15 +182,15 @@ public class Intro extends JFrame implements ActionListener {
                 if (res != null && res.getStatut().equals("200")){
                     setGridBag(1, 20, 0.5, 1, 0);
                     publishMessage(res.getNbMapsList() + " map(s) trouvée(s) :", true, Color.GREEN);
-                    int nbmap = 0;
-                    int i = 1;
+                    int nbmap = 0,i = 1,x,y;
+                    String map;
+                    String[] lignes;
                     while (nbmap < res.getNbMapsList()){
-                        
-                        String map = res.getMaps().get(nbmap).getContent();
-                        int x = res.getMaps().get(nbmap).getWidth();
-                        int y = res.getMaps().get(nbmap).getHeight();
+                        map = res.getMaps().get(nbmap).getContent();
+                        x = res.getMaps().get(nbmap).getWidth();
+                        y = res.getMaps().get(nbmap).getHeight();
                         map = map.replaceAll(" ", "_ ");
-                        String[] lignes = map.split("\n");
+                        lignes = map.split("\n");
                         setGridBag(1, 20, 0.5, 1, (nbmap*x)+1);
                         JLabel label = new JLabel("Map " + (res.getMaps().get(nbmap).getId() +1), JLabel.LEFT);
                         label.setForeground(Color.BLUE);
@@ -225,8 +226,10 @@ public class Intro extends JFrame implements ActionListener {
                 }
                 ResGameList res = MapperRes.fromJson(gameslist, ResGameList.class);
                 if (res != null && res.getStatut().equals("200")){
-                    publishMessage(res.getGames().size() + " game(s) trouvées", true, Color.GREEN);
-                    // TODO : afficher les Games
+                    clear();
+                    vueGameListGame(res);
+                    infoPanel.revalidate();
+                    infoPanel.repaint();
                 }else{
                     publishMessage("Erreur lors de la récupération des Games", true, Color.RED);
                 }
@@ -359,6 +362,42 @@ public class Intro extends JFrame implements ActionListener {
         infoPanel.add(id, c);
         setGridBag(1, 20, 0.5, 2, 4);
         infoPanel.add(submitButton, c);
+    }
+
+    private void vueGameListGame(ResGameList rgl){
+        publishMessage(rgl.getNbGamesList() + " game(s) trouvées", true, Color.GREEN);
+
+        for (int i=0; i<rgl.getNbGamesList(); i++){
+            Game game = rgl.getGames().get(i);
+            JButton btn = createBtn(game.getName() +":\nMap:" + game.getMapId() + " - Player:" + game.getNbPlayer() + "/" + MAX_PLAYER);
+            btn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    clear();
+                    System.out.println("Envoie demande join de game");
+                    Game join = new Game(game.getName());
+                    tcp.post(JsonConnection.postGameJoin(join));
+                    String resJoin = tcp.get();
+                    if (join == null){
+                        closeAll();
+                        return;
+                    }
+                    ResGameJoin res = MapperRes.fromJson(resJoin, ResGameJoin.class);
+                    if (res != null && res.getStatut().equals("201")){
+                        myName = "player" + res.getNbPlayers()+1;
+                        resGameJoin = res;
+                        commencer=true;
+                    }else{
+                        publishMessage("Erreur lors du join de game", true, Color.RED);
+                    }
+                    infoPanel.revalidate();
+                    infoPanel.repaint();
+                }
+            });
+            setGridBag(1, 60, 0.5, 1, i+2);
+            
+            infoPanel.add(btn, c);
+        }
     }
 
     private void closeAll(){

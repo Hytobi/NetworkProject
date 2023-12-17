@@ -1,10 +1,16 @@
 package dto;
 
+/**
+ * ResGameCreate : Objet reponse de creation d'une game (envoyé par le serveur)
+ *
+ * @author Hana DELCOURT, Patrice PLOUVIN
+ */
+
 import modele.Player;
 
 public class ResGameCreate extends ResponseApi {
     private int nbPlayers;
-    private int  mapId;
+    private int mapId;
     private String startPos;
     private Player player;
     private MapInfo startingMap;
@@ -49,7 +55,7 @@ public class ResGameCreate extends ResponseApi {
         this.startingMap = startingMap;
     }
 
-    public String toString(){
+    public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("{\"nbPlayer\":\"");
         sb.append(nbPlayers);

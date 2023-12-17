@@ -1,5 +1,11 @@
 package dto;
 
+/**
+ * ObjectNew : Objet reponse nouvelle statistique du joueur (envoyé par le serveur)
+ * 
+ * @author Hana DELCOURT, Patrice PLOUVIN
+ */
+
 import modele.Player;
 
 public class ObjectNew extends ResponseApi {
@@ -9,7 +15,7 @@ public class ObjectNew extends ResponseApi {
         return player;
     }
 
-    public void setPlayer(Player player){
+    public void setPlayer(Player player) {
         this.player = player;
     }
 }

@@ -66,7 +66,10 @@ public class Carte{
         return myPlayer;
     }
 
-    /**Méthode qui relance une partie*/
+    /**
+     * Méthode qui initialise la carte
+     * @param content : le contenu de la carte
+     */
     public void initMap(String content){
         //On met tout à 0
         plateau = new Indeplacable[maxi][maxj];
@@ -107,6 +110,7 @@ public class Carte{
             }
         }
 
+        // Si c'est une connection a une game en cours, il faut ajouter les autres joueurs
         if (resGameJoin.getNbPlayers() > 1){
             for (Player player : resGameJoin.getPlayers()){
                 // player.getPos() = "x,y", on recupere x et y en on les transforment en integer
@@ -118,6 +122,8 @@ public class Carte{
                 plateau[x][y] = new Sol("$");
             }
         }
+
+        // On ajoute le joueur
         int x = Integer.parseInt(resGameJoin.getStartPos().split(",")[0]);
         int y = Integer.parseInt(resGameJoin.getStartPos().split(",")[1]);
         plateau[x][y] = new Sol("@");
@@ -134,20 +140,11 @@ public class Carte{
         mesMAJ.clear();
     }
 
-    private void askForMove(char c){
-        String move;
-        if (c == 'z'){
-            move = "up";
-        } else if (c == 'q'){
-            move = "left";
-        } else if (c == 's'){
-            move = "down";
-        } else if (c == 'd'){
-            move = "right";
-        }
-        //Api.post("ip", JsonJouer.postPlayerMove(move));
-    }
-
+    /**
+     * Méthode qui récupère l'objet Player à partir de son nom
+     * @param name : le nom du joueur
+     * @return : le joueur, null si il n'existe pas
+     */
     public Player getPlayerByName(String name){
         for (Player p : robots){
             if (p.getName().equals(name)){
@@ -158,14 +155,17 @@ public class Carte{
     }
 
     /**
-     * Méthode qui teste si le robot peut se deplacer et le déplace
-     * @param c : La direction du robot
-     * @return : vrai si le robot a pu se deplacer, faux sinon
+     * Méthode qui gère le séplacement du joueur
+     * @param ppu : l'objet qui contient les informations de déplacement
+     * @return : le type d'item récupéré, null si il n'y en a pas
      */
     public String robotSeDeplace(Update ppu){
+        // On recupere le joueur
         Player p = getPlayerByName(ppu.getPlayer());
+        // On mettra a jour la case ou il se trouve actuellement
         mesMAJ.add(new Point(p.getX(),p.getY()));
         String carac = plateau[p.getX()][p.getY()].getCarac();
+        // set Le nouveau caractère
         Indeplacable temp = plateau[p.getX()][p.getY()];
         if (temp.getABombe()){
             temp.setCarac(temp.getItem().getCarac());
@@ -208,8 +208,7 @@ public class Carte{
             item = plateau[p.getX()][p.getY()].getItem().randomItem();
             temp.setAItem(false);
             temp.setItem(null);
-        }
-        else {
+        } else {
             plateau[p.getX()][p.getY()].setCarac(carac);
         }
         // met a jour la map

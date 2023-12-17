@@ -1,5 +1,12 @@
 package dto;
 
+/**
+ * MapInfo : Objet contenant les information d'une game (envoyé par le
+ * serveur)
+ * 
+ * @author Hana DELCOURT, Patrice PLOUVIN
+ */
+
 public class MapInfo {
     private int id;
     private int width;
@@ -41,11 +48,11 @@ public class MapInfo {
     @Override
     public String toString() {
         return "{" +
-            " id='" + getId() + "'" +
-            ", width='" + getWidth() + "'" +
-            ", height='" + getHeight() + "'" +
-            ", content='" + getContent() + "'" +
-            "}";
+                " id='" + getId() + "'" +
+                ", width='" + getWidth() + "'" +
+                ", height='" + getHeight() + "'" +
+                ", content='" + getContent() + "'" +
+                "}";
     }
 
 }

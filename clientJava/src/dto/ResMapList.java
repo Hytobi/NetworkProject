@@ -1,7 +1,15 @@
 package dto;
 
+/**
+ * ResMapList : Objet reponse de la liste des maps (envoyé par le serveur)
+ * 
+ * @author Hana DELCOURT, Patrice PLOUVIN
+ * 
+ */
+
 import java.util.List;
-public class ResMapList extends ResponseApi{
+
+public class ResMapList extends ResponseApi {
     private Integer nbMapsList;
     private List<MapInfo> Maps;
 
@@ -21,7 +29,7 @@ public class ResMapList extends ResponseApi{
         this.Maps = Maps;
     }
 
-    public String toString(){
+    public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("{\"action\":\"");
         sb.append(getAction());
@@ -36,7 +44,7 @@ public class ResMapList extends ResponseApi{
             sb.append(map.toString());
             sb.append(",");
         }
-        sb.deleteCharAt(sb.length()-1);
+        sb.deleteCharAt(sb.length() - 1);
         sb.append("]}");
         return sb.toString();
     }

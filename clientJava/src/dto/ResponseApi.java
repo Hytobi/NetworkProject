@@ -1,5 +1,12 @@
 package dto;
 
+/**
+ * ResponseApi : Corps principale de la réponse de l'API
+ * 
+ * @author Hana DELCOURT, Patrice PLOUVIN
+ * 
+ */
+
 public class ResponseApi {
     private String action;
     private String statut;
@@ -29,8 +36,7 @@ public class ResponseApi {
         this.message = message;
     }
 
-
-    public String toString(){
+    public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("{\"action\":\"");
         sb.append(action);

@@ -1,5 +1,13 @@
 package dto;
+
 import modele.Player;
+
+/**
+ * Update : Objet notifiant le client qu'un joueur s'est déplacé (envoyé par le
+ * serveur)
+ * 
+ * @author Hana DELCOURT, Patrice PLOUVIN
+ */
 
 public class Update {
     private String player;

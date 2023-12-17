@@ -1,5 +1,12 @@
 package api;
 
+/**
+ * TcpClient : Gestion de la communication avec le serveur
+ * 
+ * @author Hana DELCOURT, Patrice PLOUVIN
+ * 
+ */
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,27 +28,38 @@ public class TcpClient {
         this.server = server;
     }
 
+    /**
+     * Ferme le socket tcpConnect
+     * 
+     * @throws IOException
+     */
     public void closeSocket() throws IOException {
         reader.close();
         writer.close();
         socket.close();
     }
 
+    /**
+     * Se connecte au serveur
+     * 
+     * @throws IOException
+     */
     public void tcpConnect() throws IOException {
 
         // Boucle pour se connecter à chaque serveur
-        System.out.println("Tentative de connexion au serveur : "+server);
+        System.out.println("Tentative de connexion au serveur : " + server);
         socket = new Socket(InetAddress.getByName(server), port);
-            // Flux de lecture et écriture pour la communication avec le serveur
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            writer = new PrintWriter(socket.getOutputStream(), true);
+        // Flux de lecture et écriture pour la communication avec le serveur
+        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        writer = new PrintWriter(socket.getOutputStream(), true);
     }
 
     /**
      * Envoi un message sur le socket tcp
+     * 
      * @param str
      */
-    public void post(String str){
+    public void post(String str) {
         // Envoi d'une requête au serveur
         writer.println(str);
     }
@@ -49,11 +67,11 @@ public class TcpClient {
     /**
      * lis un message sur le socket tcpConnect
      */
-    public String get(){
+    public String get() {
         // Lecture de la réponse du serveur
         char[] response = new char[bufferSize];
         try {
-            reader.read(response,0,bufferSize);
+            reader.read(response, 0, bufferSize);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

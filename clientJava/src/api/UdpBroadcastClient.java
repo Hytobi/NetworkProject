@@ -1,4 +1,12 @@
 package api;
+
+/**
+ * UdpBroadcastClient : Gestion de la recherche de serveurs
+ * 
+ * @author Hana DELCOURT, Patrice PLOUVIN
+ * 
+ */
+
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +19,11 @@ public class UdpBroadcastClient {
     public UdpBroadcastClient() {
     }
 
+    /**
+     * Envoie un message en broadcast sur le réseau local pour détecter les serveurs
+     * 
+     * @return la liste des adresses IP des serveurs qui ont répondu
+     */
     public List<String> scanConnection() {
         // Port sur lequel le serveur écoute
         int serverPort = 42069;
@@ -29,7 +42,8 @@ public class UdpBroadcastClient {
             InetAddress localBroadcastAddress = InetAddress.getByName("255.255.255.255");
 
             // Création du paquet à envoyer
-            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, localBroadcastAddress, serverPort);
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, localBroadcastAddress,
+                    serverPort);
 
             // Envoi du paquet
             socket.send(sendPacket);
@@ -52,19 +66,7 @@ public class UdpBroadcastClient {
                     if (serverResponse.split("\0")[0].equals(JsonConnection.RES_ATTENDU)) {
                         System.out.println("Serveur trouvé");
                         respondingServers.add(receivePacket.getAddress().getHostAddress());
-                    } 
-
-                    /* TODO FIX
-                    // Ajout de l'adresse IP à la liste
-                    System.out.println(JsonConnection.RES_ATTENDU+".");
-                    if (serverResponse.equals(JsonConnection.RES_ATTENDU)) {
-                        System.out.println("Réponse acceptée");
-                        respondingServers.add(receivePacket.getAddress().getHostAddress());
-                    } else {
-                        System.out.println("Réponse refusée");
                     }
-                     */
-                    
 
                 }
             } catch (SocketTimeoutException e) {
@@ -83,7 +85,13 @@ public class UdpBroadcastClient {
         return null;
     }
 
-    public static boolean retryconnection(String serveur){
+    /**
+     * Envoie un message en UDP pour se reconnecter au serveur si une déconnection
+     * est survenue
+     * 
+     * @return vrai si le serveur a répondu, faux sinon
+     */
+    public static boolean retryconnection(String serveur) {
         // Port sur lequel le serveur écoute
         int serverPort = 42069;
 
@@ -123,7 +131,8 @@ public class UdpBroadcastClient {
                     respondingServers.add(receivePacket.getAddress().getHostAddress());
                     return true;
                 }
-            } catch (SocketTimeoutException e) {}
+            } catch (SocketTimeoutException e) {
+            }
 
             // Fermeture du socket
             socket.close();

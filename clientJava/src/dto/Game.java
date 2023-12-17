@@ -1,5 +1,11 @@
 package dto;
 
+/**
+ * Game : Objet game pour la creation d'une game (envoyé par le client)
+ * 
+ * @author Hana DELCOURT, Patrice PLOUVIN
+ */
+
 public class Game {
     private String name;
     private String mapId;
@@ -38,11 +44,11 @@ public class Game {
         this.nbPlayer = nbPlayer;
     }
 
-    public String toString(){
+    public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("{\"name\":\"");
         sb.append(name);
-        if (mapId != null){
+        if (mapId != null) {
             sb.append("\",\"mapId\":\"");
             sb.append(mapId);
         }
