@@ -96,10 +96,14 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         recu+=POST_PLAYER_MOVE_SIZE;
         printf("Tentative de déplacement du joueur %s\n", inet_ntoa(cl->addr.sin_addr));
 
+        printf("Avant:\n");
+        afficheMap(*cl->clientGame->map);
         if (movePlayer(cl->player,cl->clientGame, cJSON_Parse(recu))==ERR){
             ENVOIE_ERR_INCONNUE;
             return;
         }
+        printf("Après:\n");
+        afficheMap(*cl->clientGame->map);
         printf("1\n");
         char postMove[BUFFER_SIZE];
         printf("2\n");

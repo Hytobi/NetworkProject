@@ -28,6 +28,8 @@ void setMapInfo(Maps *mapInfo);
  */
 Map * getMap(Maps * mapListe, int id);
 
+void afficheMap(Map m);
+
 int nextPosX(int i, int mapId);
 int nextPosY(int i, int mapId);
 

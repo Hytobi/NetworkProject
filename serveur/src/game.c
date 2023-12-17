@@ -67,11 +67,11 @@ int joinGame(Game *g, Client *cl, Map *m) {
         }
         *g->players[i] = *g->defaultPlayer;
         g->players[i]->id = g->nbPlayers;
-        m->content[m->width * g->players[i]->x + g->players[i]->y] = '@'; // place le joueur sur la map
+        m->content[g->players[i]->x + m->width * g->players[i]->y] = '@'; // place le joueur sur la map
         g->defaultPlayer->x = nextPosX(i, g->mapId);
         g->defaultPlayer->y = nextPosY(i, g->mapId);
         cl->clientGame = g;
-        cl->player=g->players[i];
+        cl->player = g->players[i];
         return i;
     }
     return ERR;
@@ -92,7 +92,7 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
     char move[5];
     strcpy(move, cJSON_GetObjectItemCaseSensitive(info, "move")->valuestring);
     int actual_x = p->x, actual_y = p->y;
-    int numCase = map->width * actual_x + actual_y;
+    int numCase = actual_x + map->width * actual_y;
     // si le joueur n'a pas la bonne place sur la map
     if (map->content[numCase] != PLAYER_CHAR) {
         //TODO
@@ -100,16 +100,26 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
     char carac;
     // up
     if (!strcmp(move, "up")) {
-        carac = map->content[numCase + 1];
+        carac = map->content[numCase - map->width];
         TEST_MOVE(carac);
         if (carac == MINE_CHAR) {
             moveOnMine(p, map);
-            return numCase + 1;
+            return numCase * map->width;
         }
         map->content[numCase] = SOL_CHAR;
-        map->content[numCase + 1] = PLAYER_CHAR;
+        map->content[numCase - map->width] = PLAYER_CHAR;
         // down
     } else if (!strcmp(move, "down")) {
+        carac = map->content[numCase + map->width];
+        TEST_MOVE(carac);
+        if (carac == MINE_CHAR) {
+            moveOnMine(p, map);
+            return numCase + map->width;
+        }
+        map->content[numCase] = SOL_CHAR;
+        map->content[numCase +map->width] = PLAYER_CHAR;
+        // left
+    } else if (!strcmp(move, "left")) {
         carac = map->content[numCase - 1];
         TEST_MOVE(carac);
         if (carac == MINE_CHAR) {
@@ -118,26 +128,16 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
         }
         map->content[numCase] = SOL_CHAR;
         map->content[numCase - 1] = PLAYER_CHAR;
-        // left
-    } else if (!strcmp(move, "left")) {
-        carac = map->content[numCase - map->width];
-        TEST_MOVE(carac);
-        if (carac == MINE_CHAR) {
-            moveOnMine(p, map);
-            return numCase - map->width;
-        }
-        map->content[numCase] = SOL_CHAR;
-        map->content[numCase - map->width] = PLAYER_CHAR;
         // right
     } else {
-        carac = map->content[numCase + map->width];
+        carac = map->content[numCase + 1];
         TEST_MOVE(carac);
         if (carac == MINE_CHAR) {
             moveOnMine(p, map);
-            return numCase + map->width;
+            return numCase + 1;
         }
         map->content[numCase] = SOL_CHAR;
-        map->content[numCase + map->width] = PLAYER_CHAR;
+        map->content[numCase + 1] = PLAYER_CHAR;
     }
 
     return ERR;

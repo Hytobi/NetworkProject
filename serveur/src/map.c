@@ -51,6 +51,13 @@ void setMapInfo(Maps *mapInfo) {
 
         char buffer[MAX_MAP_SIZE];
         while (fgets(buffer, MAX_MAP_SIZE, file) != NULL) {
+            size_t newlinePos = strcspn(buffer, "\n");
+
+            // Si un saut de ligne est trouvé, le remplacer par le caractère nul
+            if (buffer[newlinePos] == '\n') {
+                buffer[newlinePos] = '\0';
+            }
+
             strcat(mapInfo->mapListe[i]->content, buffer);
             mapInfo->mapListe[i]->height++;
         }
@@ -78,6 +85,15 @@ Map * getMap(Maps * mapListe, int id){
         i++;
     } while (m->id!=id);
     return m;
+}
+
+void afficheMap(Map m){
+    for (int i=0;i<m.height;i++){
+        for (int j=0;j<m.width;j++){
+            printf("%c",m.content[i*m.width+j]);
+        }
+        printf("\n");
+    }
 }
 
 int nextPosX(int i, int mapId){
