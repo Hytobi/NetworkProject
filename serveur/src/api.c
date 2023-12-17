@@ -18,6 +18,11 @@ perror("Erreur envoie du message"); \
 return; \
 }
 
+#define GET_MAP(m, i) m = getMap(clientMap->mapInfo,clientMap->gameInfo->gameListe[i]->mapId);\
+if (m==NULL){ \
+ \
+}
+
 cJSON *sendMapListe(maps *mapsInfo) {
     int nbMaps = mapsInfo->nbMap;
     cJSON *mapJson = cJSON_CreateObject();
@@ -127,8 +132,9 @@ cJSON *errInconnue() {
  * @param recu
  */
 void receiveSend(client_map_games *clientMap, char *recu) {
-    client *cl = clientMap->cl;
-    socklen_t clientAddrLen = sizeof(cl->addr);
+    client *cl = clientMap->cl; // structure contenant toutes les infos necessaire
+    socklen_t clientAddrLen = sizeof(cl->addr); // adresse du client
+    map *m; // la map sur laquelle on travaille (à initialiser)
     char buffer2[BUFFER_SIZE];
     if (!strcmp(recu, messageClientAttendue)) {
         ENVOI_MESSAGE(notifClientServeurUp);
@@ -148,7 +154,8 @@ void receiveSend(client_map_games *clientMap, char *recu) {
         }
         ENVOI_MESSAGE(cJSON_Print(sendGameCreation(clientMap->gameInfo->gameListe[indiceGame],
                                                    clientMap->mapInfo->mapListe[clientMap->gameInfo->gameListe[indiceGame]->mapId])));
-        joinGame(clientMap->gameInfo->gameListe[indiceGame], cl);
+        GET_MAP(m, indiceGame);
+        joinGame(clientMap->gameInfo->gameListe[indiceGame], cl, m);
         printf("Partie créer !\n");
     } else if (!strncmp(recu, getPartieListe, GET_PARTIE_LISTE_SIZE)) {
         printf("Envoie de la liste des parties...\n");
@@ -165,11 +172,12 @@ void receiveSend(client_map_games *clientMap, char *recu) {
                 i++;
                 continue;
             }
-            if (!strcmp(clientMap->gameInfo->gameListe[i]->name,name)) {
-                g=clientMap->gameInfo->gameListe[i];
+            if (!strcmp(clientMap->gameInfo->gameListe[i]->name, name)) {
+                g = clientMap->gameInfo->gameListe[i];
             }
         }
-        joinGame(g,cl);
+        GET_MAP(m, g->mapId);
+        joinGame(g, cl, m);
     } else {
         printf("Requête inconnue : %s\n", recu);
         sprintf(buffer2, "%s", cJSON_Print(badRequest()));

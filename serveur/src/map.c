@@ -62,6 +62,23 @@ void setMapInfo(maps *mapInfo) {
     closedir(dir);
 }
 
+map * getMap(maps * mapListe, int id){
+    map * m;
+    int i=0;
+    do {
+        if (i>mapListe->nbMap){
+            return NULL;
+        }
+        if (!mapListe->mapListe[i]){
+            i++;
+            continue;
+        }
+        m=mapListe->mapListe[i];
+        i++;
+    } while (m->id!=id);
+    return m;
+}
+
 int nextPosX(int i, int mapId){
     return nextX[mapId][i];
 }
