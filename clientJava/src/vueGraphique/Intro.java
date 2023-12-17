@@ -180,7 +180,8 @@ public class Intro extends JFrame implements ActionListener {
                 }
                 ResMapList res = MapperRes.fromJson(maps, ResMapList.class);
                 if (res != null && res.getStatut().equals("200")){
-                    setGridBag(1, 20, 0.5, 1, 0);
+                    int gridy=0;
+                    setGridBag(1, 20, 0.5, 1, gridy);
                     publishMessage(res.getNbMapsList() + " map(s) trouvée(s) :", true, Color.GREEN);
                     int nbmap = 0,i = 1,x,y;
                     String map;
@@ -189,14 +190,23 @@ public class Intro extends JFrame implements ActionListener {
                         map = res.getMaps().get(nbmap).getContent();
                         x = res.getMaps().get(nbmap).getWidth();
                         y = res.getMaps().get(nbmap).getHeight();
-                        map = map.replaceAll(" ", "_ ");
-                        lignes = map.split("\n");
-                        setGridBag(1, 20, 0.5, 1, (nbmap*x)+1);
+                        lignes = new String[x];
+                        for (int k = 0; k < y; k++) {
+                            lignes[k] = ""; // Initialisation de la chaîne vide
+                            for (int l = 0; l < x; l++) {
+                                if (map.charAt(l + k * x) == ' '){
+                                    lignes[k] += "_ ";
+                                } else {
+                                    lignes[k] += map.charAt(l + k * x);
+                                }
+                            }
+                        }
+                        setGridBag(1, 20, 0.5, 1, ++gridy);
                         JLabel label = new JLabel("Map " + (res.getMaps().get(nbmap).getId() +1), JLabel.LEFT);
                         label.setForeground(Color.BLUE);
                         infoPanel.add(label, c);
                         for (int j=0; j<lignes.length; j++){
-                            setGridBag(x, 5, 1, 1, (nbmap*x)+j+2);
+                            setGridBag(x, 5, 1, 1, ++gridy);
                             JLabel label2 = new JLabel(lignes[j]);
                             label2.setForeground(Color.WHITE);
                             infoPanel.add(label2, c);
@@ -314,15 +324,33 @@ public class Intro extends JFrame implements ActionListener {
     private void vueCreateGame(){
         JTextField nom = new JTextField(10);
         nom.setText("Nom de la game");
+        nom.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                JTextField source = (JTextField) e.getSource();
+                if (source.getText().equals("Nom de la game")) {
+                    source.setText("");
+                }
+            }
+        });
         JTextField id = new JTextField(10);
         id.setText("Id de la map");
+        id.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                JTextField source = (JTextField) e.getSource();
+                if (source.getText().equals("Id de la map")) {
+                    source.setText("");
+                }
+            }
+        });
         JButton submitButton = createBtn("Créer une game");
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Envoie demande creation de game");
                 if (nom.getText().equals("Nom de la game") || id.getText().equals("Id de la map") || nom.getText().equals("") || id.getText().equals("")){
-                    publishMessage("Veuiller remplir les champs", true, Color.RED);
+                    publishMessage("Veuillez remplir les champs", true, Color.RED);
                     return;
                 }
                 id.setText(String.valueOf(Integer.parseInt(id.getText())-1));
@@ -336,7 +364,7 @@ public class Intro extends JFrame implements ActionListener {
                 ResGameJoin res = MapperRes.fromJson(create, ResGameJoin.class);
                 if (res != null && res.getStatut().equals("201")){
                     publishMessage(" creation reussi", true, Color.GREEN);
-                    myName = "player" + res.getNbPlayers()+1;
+                    myName = "player" + res.getNbPlayers();
                     resGameJoin = res;
                     commencer=true;
                 }else{

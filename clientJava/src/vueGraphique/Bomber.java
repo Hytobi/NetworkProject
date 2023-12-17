@@ -30,6 +30,7 @@ public class Bomber {
         String msg = null;
         while ((!jeu.finDePartie())) {
             msg = intro.getTcp().get();
+            System.out.println("Message reçu : " + msg);
             if (msg != null && !msg.isBlank()){
                 // si le message commence par POST, on split le message pour récupérer les infos
                 if (msg.startsWith("POST")) {

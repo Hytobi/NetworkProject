@@ -10,7 +10,7 @@
 
 #define MAX_PLAYER 4
 #define LIFE 100
-#define SPEED 75 // en pixels par seconde
+#define SPEED 1 // 75 en pixels par seconde
 #define DEFAUT_IMPATC_DIST 2;
 #define NB_CLASSIC_BOMB 2
 #define NB_REMOTE_BOMB 1

@@ -10,12 +10,7 @@
 #include "player.h"
 #include "map.h"
 
-#define TEST_MOVE(carac) if (carac==MUR_INCA_CHAR || carac==MUR_CHAR\
-|| carac==VIDE_CHAR || carac==PLAYER_CHAR || carac==CLASSIC_BOMB_CHAR\
-|| carac==REMOTE_BOMB_CHAR) {\
-printf("Déplacement impossible !\n");\
-return ERR;\
-}
+
 
 int createGame(Games *gameInfo, Maps *maps, cJSON *info, Client *cl) {
     int i = 0;
@@ -87,12 +82,16 @@ int moveOnMine(Player *p, Map *m) {
     //TODO
 }
 
+int testMove(char carac) {
+    return (carac!=MUR_INCA_CHAR && carac!=MUR_CHAR && carac!=VIDE_CHAR && carac!=PLAYER_CHAR && carac!=CLASSIC_BOMB_CHAR && carac!=REMOTE_BOMB_CHAR);
+}
+
 int movePlayer(Player *p, Game *game, cJSON *info) {
     Map *map = game->map;
     char move[5];
     strcpy(move, cJSON_GetObjectItemCaseSensitive(info, "move")->valuestring);
     int actual_x = p->x, actual_y = p->y;
-    int numCase = actual_x + map->width * actual_y;
+    int numCase = actual_y + map->width * actual_x;
     // si le joueur n'a pas la bonne place sur la map
     if (map->content[numCase] != PLAYER_CHAR) {
         //TODO
@@ -101,43 +100,55 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
     // up
     if (!strcmp(move, "up")) {
         carac = map->content[numCase - map->width];
-        TEST_MOVE(carac);
-        if (carac == MINE_CHAR) {
-            moveOnMine(p, map);
-            return numCase * map->width;
+        if (testMove(carac)){
+            if (carac == MINE_CHAR) {
+                moveOnMine(p, map);
+                //return numCase * map->width;
+            }
+            map->content[numCase] = SOL_CHAR;
+            map->content[numCase - map->width] = PLAYER_CHAR;
+            p->x--;
+            return 1;
         }
-        map->content[numCase] = SOL_CHAR;
-        map->content[numCase - map->width] = PLAYER_CHAR;
         // down
     } else if (!strcmp(move, "down")) {
         carac = map->content[numCase + map->width];
-        TEST_MOVE(carac);
-        if (carac == MINE_CHAR) {
-            moveOnMine(p, map);
-            return numCase + map->width;
+        if (testMove(carac)){
+            if (carac == MINE_CHAR) {
+                moveOnMine(p, map);
+                //return numCase + map->width;
+            }
+            map->content[numCase] = SOL_CHAR;
+            map->content[numCase +map->width] = PLAYER_CHAR;
+            p->x++;
+            return 1;
         }
-        map->content[numCase] = SOL_CHAR;
-        map->content[numCase +map->width] = PLAYER_CHAR;
         // left
     } else if (!strcmp(move, "left")) {
         carac = map->content[numCase - 1];
-        TEST_MOVE(carac);
-        if (carac == MINE_CHAR) {
-            moveOnMine(p, map);
-            return numCase - 1;
+        if (testMove(carac)){
+            if (carac == MINE_CHAR) {
+                moveOnMine(p, map);
+                //return numCase - 1;
+            }
+            map->content[numCase] = SOL_CHAR;
+            map->content[numCase - 1] = PLAYER_CHAR;
+            p->y--;
+            return 1;
         }
-        map->content[numCase] = SOL_CHAR;
-        map->content[numCase - 1] = PLAYER_CHAR;
         // right
     } else {
         carac = map->content[numCase + 1];
-        TEST_MOVE(carac);
-        if (carac == MINE_CHAR) {
-            moveOnMine(p, map);
-            return numCase + 1;
+        if (testMove(carac)){
+            if (carac == MINE_CHAR) {
+                moveOnMine(p, map);
+                //return numCase + 1;
+            }
+            map->content[numCase] = SOL_CHAR;
+            map->content[numCase + 1] = PLAYER_CHAR;
+            p->y++;
+            return 1;
         }
-        map->content[numCase] = SOL_CHAR;
-        map->content[numCase + 1] = PLAYER_CHAR;
     }
 
     return ERR;
