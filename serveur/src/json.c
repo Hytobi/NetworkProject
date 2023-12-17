@@ -35,7 +35,7 @@ cJSON *sendMapListe(Maps *mapsInfo) {
     cJSON_AddNumberToObject(mapJson, "nbMapsList", nbMaps);
 
     // Création d'un tableau JSON pour "Games"
-    cJSON *gamesArray = cJSON_AddArrayToObject(mapJson, "Maps");
+    cJSON *gamesArray = cJSON_AddArrayToObject(mapJson, "maps");
 
     for (int i = 0; i < nbMaps; i++) {
         Map *mapI = mapsInfo->mapListe[i];
@@ -89,7 +89,7 @@ cJSON *sendPartieListe(Games *gameInfo) {
     cJSON_AddNumberToObject(gameListe, "nbGamesList", gameInfo->nbGames);
 
     // Création d'un tableau JSON pour "Games"
-    cJSON *gamesArray = cJSON_AddArrayToObject(gameListe, "Games");
+    cJSON *gamesArray = cJSON_AddArrayToObject(gameListe, "games");
 
     int i = 0;
     while (i < gameInfo->nbGames) {

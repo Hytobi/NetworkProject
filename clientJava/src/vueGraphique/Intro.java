@@ -173,12 +173,12 @@ public class Intro extends JFrame implements ActionListener {
                 clear();
                 System.out.println("Envoie demande liste des Maps");
                 tcp.post(JsonConnection.getMapList());
-                String Maps = tcp.get();
+                String maps = tcp.get();
                 if (Maps == null){
                     closeAll();
                     return;
                 }
-                ResMapList res = MapperRes.fromJson(Maps, ResMapList.class);
+                ResMapList res = MapperRes.fromJson(maps, ResMapList.class);
                 if (res != null && res.getStatut().equals("200")){
                     setGridBag(1, 20, 0.5, 1, 0);
                     publishMessage(res.getNbMapsList() + " map(s) trouvée(s) :", true, Color.GREEN);

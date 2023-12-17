@@ -173,6 +173,7 @@ public class Carte{
             plateau[p.getX()][p.getY()].setCarac(" ");
         }
         int speed = p.getSpeed();
+        // On met a jour les coordonnées du joueur
         if (ppu.getDir().equals("up")){
             if (p.getX() - speed < 0){
                 p.setX(0);
@@ -202,7 +203,9 @@ public class Carte{
             }
             p.setDirection(3);
         }
+        // On met a jour la case ou il se trouve maintenant
         mesMAJ.add(new Point(p.getX(),p.getY()));
+        // s'il y a un item il le ramasse
         String item = null;
         if (plateau[p.getX()][p.getY()].getAItem()){
             item = plateau[p.getX()][p.getY()].getItem().randomItem();
