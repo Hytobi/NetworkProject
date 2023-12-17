@@ -18,6 +18,16 @@
 #define NB_MINE 1
 #define INVINCIBLE 0
 
+#define SOL " "
+#define MUR "#"
+#define MUR_INCA "X"
+#define VIDE "/"
+#define CLASSIC_BOMB "B"
+#define REMOTE_BOMB "R"
+#define MINE "M"
+#define ITEM "I"
+#define PLAYER "@"
+
 #define BUFFER_SIZE 4096
 #define MAX_CLIENTS 2048
 #define PORT 42069
