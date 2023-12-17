@@ -64,6 +64,27 @@ int joinGame(game *g, client *cl, map *m) {
 
 }
 
+int movePlayer(map *map, cJSON *info){
+    char *move = malloc(sizeof(char) * 7); // "(XX,XX)"
+    if (move == NULL) {
+        perror("Erreur allocation mémoire du mouvement");
+        return ERR;
+    }
+    strcpy(move,cJSON_GetObjectItemCaseSensitive(info,"move")->valuestring);
+    int x = atoi(strtok(move, ","));
+    int y = atoi(strtok(NULL, ","));
+    if (x < 0 || x > map->width || y < 0 || y > map->height) {
+        // Ne peut pas se déplacer
+        return 0;
+    }
+    char carac = map->content[x+y*map->width];
+    if (!strcmp(carac,MUR_INCA) || !strcmp(carac,MUR) || !strcmp(carac,VIDE)) { // # / ou X
+        // Ne peut pas se déplacer
+        return 0;
+    }
+    return 1;
+}
+
 void destroyGame(game *g) {
     if (g != NULL) {
         free(g);

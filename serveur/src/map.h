@@ -5,6 +5,16 @@
 #ifndef PROJECT_MAP_H
 #define PROJECT_MAP_H
 
+#define SOL " "
+#define MUR "#"
+#define MUR_INCA "X"
+#define VIDE "/"
+#define CLASSIC_BOMB "B"
+#define REMOTE_BOMB "R"
+#define MINE "M"
+#define ITEM "I"
+#define PLAYER "@"
+
 #include "struct.h"
 
 void setMapInfo(maps *mapInfo);

@@ -87,27 +87,3 @@ int nextPosX(int i, int mapId){
 int nextPosY(int i, int mapId){
     return nextY[mapId][i];
 }
-
-/*
-Je trouve pas de structure pour avec les infos de la partie en cours
-int movePlayer(map *map, cJSON *info){
-    char *move = malloc(sizeof(char) * 7); // "(XX,XX)"
-    if (move == NULL) {
-        perror("Erreur allocation mémoire du mouvement");
-        return ERR;
-    }
-    strcpy(move,cJSON_GetObjectItemCaseSensitive(info,"move")->valuestring);
-    int x = atoi(strtok(move, ","));
-    int y = atoi(strtok(NULL, ","));
-    if (x < 0 || x > map->width || y < 0 || y > map->height) {
-        // Ne peut pas se déplacer
-        return 0;
-    }
-    char carac = map->content[x+y*map->width];
-    if (!strcmp(carac,MUR_INCA) || !strcmp(carac,MUR) || !strcmp(carac,VIDE)) { // # / ou X
-        // Ne peut pas se déplacer
-        return 0;
-    }
-    return 1;
-}
-*/
