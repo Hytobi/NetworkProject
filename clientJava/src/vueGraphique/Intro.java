@@ -13,6 +13,7 @@ import java.util.List;
 public class Intro extends JFrame implements ActionListener {
 
     public static final ImageIcon BOMBER = new ImageIcon("img/bomber.png");
+    private static final Integer MAX_RETRY = 3;
 
     private boolean commencer = false;
     private String myName;
@@ -367,12 +368,17 @@ public class Intro extends JFrame implements ActionListener {
         } catch (Exception e) {
             System.out.println("Erreur lors de la fermeture du socket");
         } finally {
-            while (true) {
-                UdpBroadcastClient.retryconnection(tcp.getServer());
-                try {
-                    tcp.tcpConnect();
-                    break;
-                } catch (Exception e) {
+            int i=0;
+            while (i < MAX_RETRY) {
+                System.out.println("Tentative de reconnexion au serveur...");
+                if (UdpBroadcastClient.retryconnection(tcp.getServer())){
+                    try {
+                        tcp.tcpConnect();
+                        break;
+                    } catch (Exception e) {}
+                }
+                i++;
+                if (i < MAX_RETRY){
                     try {
                         Thread.sleep(10000);
                     } catch (Exception ex) {
@@ -380,8 +386,10 @@ public class Intro extends JFrame implements ActionListener {
                     }
                 }
             }
-            //UdpBroadcastClient.retryconnection(tcp.getServer());
-            //tcp.post(JsonConnection.msgConnect());
+            if (i == MAX_RETRY) {
+                JOptionPane.showMessageDialog(this,"Impossible de se reconnecter au serveur");
+                System.exit(0);
+            }
         }
     }
 }

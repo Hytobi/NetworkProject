@@ -196,14 +196,11 @@ void receiveSend(client_map_games *clientMap, char *recu) {
     else {
         printf("Requête inconnue : %s\n", recu);
         sprintf(buffer2, "%s", cJSON_Print(badRequest()));
-        //sprintf(buffer2,"yes");
         int n = sendto(cl->socket, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &cl->addr, clientAddrLen);
-        //n = send(cl->socket,buffer2,BUFFER_SIZE,0);
         if (n == ERR) {
             perror("Erreur envoie du message");
             return;
         }
-
     }
 }
 

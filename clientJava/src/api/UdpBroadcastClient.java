@@ -83,12 +83,11 @@ public class UdpBroadcastClient {
         return null;
     }
 
-    public static void retryconnection(String serveur){
+    public static boolean retryconnection(String serveur){
         // Port sur lequel le serveur écoute
         int serverPort = 42069;
 
         try {
-            System.out.println("En attente du serveur...");
             // Création du socket UDP
             DatagramSocket socket = new DatagramSocket();
 
@@ -114,20 +113,17 @@ public class UdpBroadcastClient {
             byte[] receiveData = new byte[bufferSize];
 
             try {
-                while (respondingServers.size() < 1) {
-                    DatagramPacket receivePacket = new DatagramPacket(receiveData, bufferSize);
-                    socket.receive(receivePacket);
+                DatagramPacket receivePacket = new DatagramPacket(receiveData, bufferSize);
+                socket.receive(receivePacket);
 
-                    // Traitement de la réponse
-                    String serverResponse = new String(receivePacket.getData(), 0, receivePacket.getLength());
-                    if (serverResponse.split("\0")[0].equals(JsonConnection.RES_ATTENDU)) {
-                        System.out.println("Serveur trouvé");
-                        respondingServers.add(receivePacket.getAddress().getHostAddress());
-                    }
+                // Traitement de la réponse
+                String serverResponse = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                if (serverResponse.split("\0")[0].equals(JsonConnection.RES_ATTENDU)) {
+                    System.out.println("Serveur trouvé");
+                    respondingServers.add(receivePacket.getAddress().getHostAddress());
+                    return true;
                 }
-            } catch (SocketTimeoutException e) {
-                System.out.println("Fin de la recherche de serveurs.");
-            }
+            } catch (SocketTimeoutException e) {}
 
             // Fermeture du socket
             socket.close();
@@ -135,5 +131,6 @@ public class UdpBroadcastClient {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 }
