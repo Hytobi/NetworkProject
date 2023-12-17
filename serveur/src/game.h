@@ -17,7 +17,7 @@ void initGames(games *gameInfo);
  * @param info
  * @return
  */
-int createGame(games *gameInfo, cJSON *info);
+int createGame(games *gameInfo, cJSON *info, struct sockaddr_in);
 
 /**
  * Fais rejoindre la game au client choisis,

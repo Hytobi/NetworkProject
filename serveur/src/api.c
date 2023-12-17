@@ -134,7 +134,6 @@ cJSON *errInconnue() {
 void receiveSend(client_map_games *clientMap, char *recu) {
     client *cl = clientMap->cl; // structure contenant toutes les infos necessaire
     socklen_t clientAddrLen = sizeof(cl->addr); // adresse du client
-    map *m; // la map sur laquelle on travaille (à initialiser)
     char buffer2[BUFFER_SIZE];
     if (!strcmp(recu, messageClientAttendue)) {
         ENVOI_MESSAGE(notifClientServeurUp);
@@ -146,7 +145,7 @@ void receiveSend(client_map_games *clientMap, char *recu) {
         recu += POST_CREATE_GAME_SIZE;
         printf("Demande de création de game: %s\n", recu);
         printf("Création de la partie...\n");
-        int indiceGame = createGame(clientMap->gameInfo, cJSON_Parse(recu));
+        int indiceGame = createGame(clientMap->gameInfo, cJSON_Parse(recu), cl->addr);
         if (indiceGame == ERR) {
             printf("erreur lors de la création de la game\n");
             ENVOI_MESSAGE(cJSON_Print(errInconnue()));
@@ -154,6 +153,7 @@ void receiveSend(client_map_games *clientMap, char *recu) {
         }
         ENVOI_MESSAGE(cJSON_Print(sendGameCreation(clientMap->gameInfo->gameListe[indiceGame],
                                                    clientMap->mapInfo->mapListe[clientMap->gameInfo->gameListe[indiceGame]->mapId])));
+        map *m;
         GET_MAP(m, indiceGame);
         joinGame(clientMap->gameInfo->gameListe[indiceGame], cl, m);
         printf("Partie créer !\n");
@@ -166,6 +166,7 @@ void receiveSend(client_map_games *clientMap, char *recu) {
         game *g;
         int i = 0;
         char *name;
+        printf("%s Veut rejoindre une game...\n", inet_ntoa(cl->addr.sin_addr));
         strcpy(name, cJSON_GetObjectItemCaseSensitive(cJSON_Parse(recu), "name")->valuestring);
         while (i < MAX_GAMES) {
             if (clientMap->gameInfo->gameListe[i] == NULL) {
@@ -175,10 +176,24 @@ void receiveSend(client_map_games *clientMap, char *recu) {
             if (!strcmp(clientMap->gameInfo->gameListe[i]->name, name)) {
                 g = clientMap->gameInfo->gameListe[i];
             }
+            i++;
         }
+        map *m;
         GET_MAP(m, g->mapId);
         joinGame(g, cl, m);
-    } else {
+        //TODO
+    } else if (!strncmp(recu,postPlayerMove,POST_PLAYER_MOVE_SIZE)){
+        recu+=POST_PLAYER_MOVE_SIZE;
+        printf("Tentative de déplacement du joueur %s\n", inet_ntoa(cl->addr.sin_addr));
+
+        game *g;
+        map *m;
+        for (int i=0;i<MAX_GAMES;i++){
+
+        }
+
+    }
+    else {
         printf("Requête inconnue : %s\n", recu);
         sprintf(buffer2, "%s", cJSON_Print(badRequest()));
         //sprintf(buffer2,"yes");
