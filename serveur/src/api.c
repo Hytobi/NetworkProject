@@ -96,13 +96,17 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         recu+=POST_PLAYER_MOVE_SIZE;
         printf("Tentative de déplacement du joueur %s\n", inet_ntoa(cl->addr.sin_addr));
 
-        if (movePlayer(cl->player,cl->clientGame,recu)==ERR){
+        if (movePlayer(cl->player,cl->clientGame, cJSON_Parse(recu))==ERR){
             ENVOIE_ERR_INCONNUE;
             return;
         }
+        printf("1\n");
         char postMove[BUFFER_SIZE];
+        printf("2\n");
         sprintf(postMove,"%s\n%s",POST_POSITION_PLAYER_UPDATE, cJSON_Print(sendMove(cl->player,recu)));
+        printf("3\n");
         ENVOI_MESSAGE(postMove);
+        printf("Mouvement Réussie !\n");
     }
     else {
         printf("Requête inconnue : %s\n", recu);

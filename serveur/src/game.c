@@ -91,7 +91,6 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
     Map *map = game->map;
     char move[5];
     strcpy(move, cJSON_GetObjectItemCaseSensitive(info, "move")->valuestring);
-
     int actual_x = p->x, actual_y = p->y;
     int numCase = map->height * actual_x + actual_y;
     // si le joueur n'a pas la bonne place sur la map
