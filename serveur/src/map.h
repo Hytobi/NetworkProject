@@ -15,6 +15,10 @@
 #define ITEM_CHAR 'I'
 #define PLAYER_CHAR '@'
 
+#define PLAYER_MINE_CHAR '-'
+#define PLAYER_BOMB_CHAR '('
+#define PLAYER_REMOTE_BOMB_CHAR ')'
+
 #include "struct.h"
 
 void setMapInfo(Maps *mapInfo);

@@ -10,7 +10,8 @@
 #include "player.h"
 #include "map.h"
 
-#define TEST_MOVES(carac) (carac!=MUR_INCA_CHAR && carac!=MUR_CHAR && carac!=VIDE_CHAR && carac!=PLAYER_CHAR && carac!=CLASSIC_BOMB_CHAR && carac!=REMOTE_BOMB_CHAR)
+#define TEST_MOVES(carac) (carac!=MUR_INCA_CHAR && carac!=MUR_CHAR && carac!=VIDE_CHAR && carac!=PLAYER_CHAR && carac!=CLASSIC_BOMB_CHAR && carac!=REMOTE_BOMB_CHAR \
+&& carac!=PLAYER_BOMB_CHAR && carac!=PLAYER_REMOTE_BOMB_CHAR && carac!=PLAYER_MINE_CHAR)
 
 int createGame(Games *gameInfo, Maps *maps, cJSON *info, Client *cl) {
     int i = 0;
@@ -82,6 +83,17 @@ int moveOnMine(Player *p, Map *m) {
     //TODO
 }
 
+char moveAfterAttack(char maCase) {
+    if (maCase == PLAYER_MINE_CHAR) {
+        return MINE_CHAR;
+    } else if (maCase == PLAYER_REMOTE_BOMB_CHAR) {
+        return REMOTE_BOMB_CHAR;
+    } else if (maCase == PLAYER_BOMB_CHAR) {
+        return CLASSIC_BOMB_CHAR;
+    }
+    return SOL_CHAR;
+}
+
 int movePlayer(Player *p, Game *game, cJSON *info) {
     Map *map = game->map;
     char move[5];
@@ -96,12 +108,12 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
     // up
     if (!strcmp(move, "up")) {
         carac = map->content[numCase - map->width];
-        if (TEST_MOVES(carac)){
+        if (TEST_MOVES(carac)) {
             if (carac == MINE_CHAR) {
                 moveOnMine(p, map);
                 //return numCase * map->width;
             }
-            map->content[numCase] = SOL_CHAR;
+            map->content[numCase] = moveAfterAttack(map->content[numCase]);
             map->content[numCase - map->width] = PLAYER_CHAR;
             p->x--;
             return 1;
@@ -109,25 +121,25 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
         // down
     } else if (!strcmp(move, "down")) {
         carac = map->content[numCase + map->width];
-        if (TEST_MOVES(carac)){
+        if (TEST_MOVES(carac)) {
             if (carac == MINE_CHAR) {
                 moveOnMine(p, map);
                 //return numCase + map->width;
             }
-            map->content[numCase] = SOL_CHAR;
-            map->content[numCase +map->width] = PLAYER_CHAR;
+            map->content[numCase] = moveAfterAttack(map->content[numCase]);
+            map->content[numCase + map->width] = PLAYER_CHAR;
             p->x++;
             return 1;
         }
         // left
     } else if (!strcmp(move, "left")) {
         carac = map->content[numCase - 1];
-        if (TEST_MOVES(carac)){
+        if (TEST_MOVES(carac)) {
             if (carac == MINE_CHAR) {
                 moveOnMine(p, map);
                 //return numCase - 1;
             }
-            map->content[numCase] = SOL_CHAR;
+            map->content[numCase] = moveAfterAttack(map->content[numCase]);
             map->content[numCase - 1] = PLAYER_CHAR;
             p->y--;
             return 1;
@@ -135,12 +147,12 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
         // right
     } else {
         carac = map->content[numCase + 1];
-        if (TEST_MOVES(carac)){
+        if (TEST_MOVES(carac)) {
             if (carac == MINE_CHAR) {
                 moveOnMine(p, map);
                 //return numCase + 1;
             }
-            map->content[numCase] = SOL_CHAR;
+            map->content[numCase] = moveAfterAttack(map->content[numCase]);
             map->content[numCase + 1] = PLAYER_CHAR;
             p->y++;
             return 1;
@@ -150,7 +162,7 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
     return ERR;
 }
 
-int attackPlayer(Player* p , Game* g, cJSON* info){
+int attackPlayer(Player *p, Game *g, cJSON *info) {
     char move[5];
     strcpy(move, cJSON_GetObjectItemCaseSensitive(info, "pos")->valuestring);
     int x = atoi(strtok(move, ","));
@@ -158,21 +170,19 @@ int attackPlayer(Player* p , Game* g, cJSON* info){
     Map *map = g->map;
     int numCase = y + map->width * x;
     char carac = map->content[numCase];
-    if (carac == PLAYER_CHAR){
-        // peut etre changer content en une liste de structure 'case' coup set des champ tel que "a bombe" 
-        /*
-        map->content[numCase]->aBombe = 1;
-        char* type = cJSON_GetObjectItemCaseSensitive(info, "type")->valuestring;
-        if (!strcmp(type, "classic")){
+    if (carac == PLAYER_CHAR) {
+        // peut etre changer content en une liste de structure 'case' coup set des champ tel que "a bombe"
+        char *type = cJSON_GetObjectItemCaseSensitive(info, "type")->valuestring;
+        if (!strcmp(type, "classic")) {
             p->nbClassicBomb--;
-            map->content[numCase]->charBomb = CLASSIC_BOMB_CHAR;
-        } else if (!strcmp(type, "remote")){
+            map->content[numCase] = PLAYER_BOMB_CHAR;
+        } else if (!strcmp(type, "remote")) {
             p->nbRemoteBomb--;
-            map->content[numCase]->charBomb = REMOTE_BOMB_CHAR;
-        } else if (!strcmp(type, "mine")){
+            map->content[numCase] = PLAYER_REMOTE_BOMB_CHAR;
+        } else if (!strcmp(type, "mine")) {
             p->nbMine--;
-            map->content[numCase]->charBomb = MINE_CHAR;
-        }*/
+            map->content[numCase] = PLAYER_MINE_CHAR;
+        }
         return 1;
 
     }

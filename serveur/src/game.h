@@ -37,6 +37,8 @@ int joinGame(Game *g, Client *cl, Map *m);
  */
 int movePlayer(Player *p, Game *game, cJSON *info);
 
+int attackPlayer(Player* p , Game* g, cJSON* info);
+
 void destroyGame(Game *g);
 
 #endif //PROJECT_GAME_H
