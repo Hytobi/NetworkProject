@@ -10,7 +10,7 @@
 #include "player.h"
 #include "map.h"
 
-
+#define TEST_MOVES(carac) (carac!=MUR_INCA_CHAR && carac!=MUR_CHAR && carac!=VIDE_CHAR && carac!=PLAYER_CHAR && carac!=CLASSIC_BOMB_CHAR && carac!=REMOTE_BOMB_CHAR)
 
 int createGame(Games *gameInfo, Maps *maps, cJSON *info, Client *cl) {
     int i = 0;
@@ -82,10 +82,6 @@ int moveOnMine(Player *p, Map *m) {
     //TODO
 }
 
-int testMove(char carac) {
-    return (carac!=MUR_INCA_CHAR && carac!=MUR_CHAR && carac!=VIDE_CHAR && carac!=PLAYER_CHAR && carac!=CLASSIC_BOMB_CHAR && carac!=REMOTE_BOMB_CHAR);
-}
-
 int movePlayer(Player *p, Game *game, cJSON *info) {
     Map *map = game->map;
     char move[5];
@@ -100,7 +96,7 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
     // up
     if (!strcmp(move, "up")) {
         carac = map->content[numCase - map->width];
-        if (testMove(carac)){
+        if (TEST_MOVES(carac)){
             if (carac == MINE_CHAR) {
                 moveOnMine(p, map);
                 //return numCase * map->width;
@@ -113,7 +109,7 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
         // down
     } else if (!strcmp(move, "down")) {
         carac = map->content[numCase + map->width];
-        if (testMove(carac)){
+        if (TEST_MOVES(carac)){
             if (carac == MINE_CHAR) {
                 moveOnMine(p, map);
                 //return numCase + map->width;
@@ -126,7 +122,7 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
         // left
     } else if (!strcmp(move, "left")) {
         carac = map->content[numCase - 1];
-        if (testMove(carac)){
+        if (TEST_MOVES(carac)){
             if (carac == MINE_CHAR) {
                 moveOnMine(p, map);
                 //return numCase - 1;
@@ -139,7 +135,7 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
         // right
     } else {
         carac = map->content[numCase + 1];
-        if (testMove(carac)){
+        if (TEST_MOVES(carac)){
             if (carac == MINE_CHAR) {
                 moveOnMine(p, map);
                 //return numCase + 1;
