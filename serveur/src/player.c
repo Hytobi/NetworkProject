@@ -1,11 +1,12 @@
 #include "player.h"
 
-Player *createPlayer(int id, int x, int y, struct sockaddr_in addr) {
+Player *createPlayer(int id, int x, int y, struct sockaddr_in addr, int socket) {
     Player *p = malloc(sizeof(Player));
     p->id = id;
     p->x = x;
     p->y = y;
     p->addr = addr;
+    p->socket=socket;
     p->life = LIFE;
     p->speed = SPEED;
     p->direction = 0; //TODO jsp a quoi ce sert ?

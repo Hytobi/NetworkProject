@@ -45,10 +45,4 @@
 
 void *clientCommunication(void *args);
 
-cJSON *sendMapListe(Maps *mapListe);
-
-cJSON *badRequest();
-
-cJSON *errInconnue();
-
 #endif //PROJECT_API_H

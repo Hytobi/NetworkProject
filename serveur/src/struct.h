@@ -32,6 +32,7 @@ typedef struct player {
     int x; /**< pos x du joueur */
     int y; /**< pos y du joueur */
     struct sockaddr_in addr; /**< adresse du player */
+    int socket; /**< socket associe au player */
     int life; /**< nombre de points de vie du joueur */
     int speed; /**< vitesse du joueur (1 correspond à la vitesse de base) */
     int direction; /**< TODO, jsp a quoi ca sert ? */

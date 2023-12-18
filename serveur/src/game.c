@@ -9,6 +9,7 @@
 #include "err.h"
 #include "player.h"
 #include "map.h"
+#include "json.h"
 
 #define TEST_MOVES(carac) (carac!=MUR_INCA_CHAR && carac!=MUR_CHAR && carac!=VIDE_CHAR && carac!=PLAYER_CHAR && carac!=CLASSIC_BOMB_CHAR && carac!=REMOTE_BOMB_CHAR \
 && carac!=PLAYER_BOMB_CHAR && carac!=PLAYER_REMOTE_BOMB_CHAR && carac!=PLAYER_MINE_CHAR)
@@ -37,7 +38,7 @@ int createGame(Games *gameInfo, Maps *maps, cJSON *info, Client *cl) {
         return ERR;
     }
     g->map = getMap(maps, g->mapId);
-    g->defaultPlayer = createPlayer(0, 1, 1, cl->addr);
+    g->defaultPlayer = createPlayer(0, 1, 1, cl->addr, cl->socket);
     g->startPos[0] = 1;
     g->startPos[1] = 1;
 
@@ -79,8 +80,20 @@ int joinGame(Game *g, Client *cl, Map *m) {
  * @param m
  * @return
  */
-int moveOnMine(Player *p, Map *m) {
-    //TODO
+void moveOnMine(Player *p, Map *m) {
+    if (p->invincible) {
+        return;
+    }
+    char buffer[BUFFER_SIZE];
+    p->life-=30;
+    int n = ERR;
+    int i=0;
+    do {
+        sprintf(buffer, "%s", cJSON_Print(playerToJSON(*p)));
+        socklen_t clientAddrLen = sizeof(p->addr);
+        n = (int) sendto(p->socket, buffer, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &p->addr, clientAddrLen);
+        i++;
+    } while (n == ERR && i<50);
 }
 
 char moveAfterAttack(char maCase) {
@@ -107,55 +120,59 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
     char carac;
     // up
     if (!strcmp(move, "up")) {
-        carac = map->content[numCase - map->width];
+        int nextCase = numCase - map->width;
+        carac = map->content[nextCase];
         if (TEST_MOVES(carac)) {
             if (carac == MINE_CHAR) {
                 moveOnMine(p, map);
                 //return numCase * map->width;
             }
             map->content[numCase] = moveAfterAttack(map->content[numCase]);
-            map->content[numCase - map->width] = PLAYER_CHAR;
+            map->content[nextCase] = PLAYER_CHAR;
             p->x--;
-            return 1;
+            return nextCase;
         }
         // down
     } else if (!strcmp(move, "down")) {
-        carac = map->content[numCase + map->width];
+        int nextCase = numCase + map->width;
+        carac = map->content[nextCase];
         if (TEST_MOVES(carac)) {
             if (carac == MINE_CHAR) {
                 moveOnMine(p, map);
                 //return numCase + map->width;
             }
             map->content[numCase] = moveAfterAttack(map->content[numCase]);
-            map->content[numCase + map->width] = PLAYER_CHAR;
+            map->content[nextCase] = PLAYER_CHAR;
             p->x++;
-            return 1;
+            return nextCase;
         }
         // left
     } else if (!strcmp(move, "left")) {
-        carac = map->content[numCase - 1];
+        int nextCase = numCase - 1;
+        carac = map->content[nextCase];
         if (TEST_MOVES(carac)) {
             if (carac == MINE_CHAR) {
                 moveOnMine(p, map);
                 //return numCase - 1;
             }
             map->content[numCase] = moveAfterAttack(map->content[numCase]);
-            map->content[numCase - 1] = PLAYER_CHAR;
+            map->content[nextCase] = PLAYER_CHAR;
             p->y--;
-            return 1;
+            return nextCase;
         }
         // right
     } else {
-        carac = map->content[numCase + 1];
+        int nextCase = numCase + 1;
+        carac = map->content[nextCase];
         if (TEST_MOVES(carac)) {
             if (carac == MINE_CHAR) {
                 moveOnMine(p, map);
                 //return numCase + 1;
             }
             map->content[numCase] = moveAfterAttack(map->content[numCase]);
-            map->content[numCase + 1] = PLAYER_CHAR;
+            map->content[nextCase] = PLAYER_CHAR;
             p->y++;
-            return 1;
+            return nextCase;
         }
     }
 

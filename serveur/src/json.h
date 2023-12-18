@@ -12,6 +12,8 @@
 #include "cJSON/cJSON.h"
 #include "struct.h"
 
+cJSON *playerToJSON(Player p);
+
 cJSON *sendMapListe(Maps *mapsInfo);
 
 cJSON *sendGameCreation(Game *g, Map *map);

@@ -12,7 +12,7 @@
  * @param y
  * @return
  */
-Player *createPlayer(int id, int x, int y, struct sockaddr_in);
+Player *createPlayer(int id, int x, int y, struct sockaddr_in, int socket);
 
 /**
  * Détruit le joueur passe en paramètre
