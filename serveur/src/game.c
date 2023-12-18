@@ -62,7 +62,7 @@ int joinGame(Game *g, Client *cl, Map *m) {
         }
         *g->players[i] = *g->defaultPlayer;
         g->players[i]->id = g->nbPlayers;
-        m->content[g->players[i]->x + m->width * g->players[i]->y] = '@'; // place le joueur sur la map
+        m->content[g->players[i]->y + m->width * g->players[i]->x] = '@'; // place le joueur sur la map
         g->defaultPlayer->x = nextPosX(i, g->mapId);
         g->defaultPlayer->y = nextPosY(i, g->mapId);
         cl->clientGame = g;
@@ -151,6 +151,35 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
         }
     }
 
+    return ERR;
+}
+
+int attackPlayer(Player* p , Game* g, cJSON* info){
+    char move[5];
+    strcpy(move, cJSON_GetObjectItemCaseSensitive(info, "pos")->valuestring);
+    int x = atoi(strtok(move, ","));
+    int y = atoi(strtok(NULL, ","));
+    Map *map = g->map;
+    int numCase = y + map->width * x;
+    char carac = map->content[numCase];
+    if (carac == PLAYER_CHAR){
+        // peut etre changer content en une liste de structure 'case' coup set des champ tel que "a bombe" 
+        /*
+        map->content[numCase]->aBombe = 1;
+        char* type = cJSON_GetObjectItemCaseSensitive(info, "type")->valuestring;
+        if (!strcmp(type, "classic")){
+            p->nbClassicBomb--;
+            map->content[numCase]->charBomb = CLASSIC_BOMB_CHAR;
+        } else if (!strcmp(type, "remote")){
+            p->nbRemoteBomb--;
+            map->content[numCase]->charBomb = REMOTE_BOMB_CHAR;
+        } else if (!strcmp(type, "mine")){
+            p->nbMine--;
+            map->content[numCase]->charBomb = MINE_CHAR;
+        }*/
+        return 1;
+
+    }
     return ERR;
 }
 

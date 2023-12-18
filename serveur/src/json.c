@@ -158,6 +158,25 @@ cJSON *sendMove(Player *p, char move[5]){
     return moveJSON;
 }
 
+cJSON* sendPosBomb(cJSON *b,Player *p){
+    cJSON *posBombJSON = cJSON_CreateObject();
+
+    cJSON_AddStringToObject(posBombJSON, "action", "attack/bomb");
+    cJSON_AddStringToObject(posBombJSON, "statut", "201");
+    char* message = malloc(sizeof(char)*256);
+    strcpy(message,cJSON_GetObjectItemCaseSensitive(b, "type")->valuestring);
+    strcat(message," bomb is armed at pos ");
+    strcpy(message,cJSON_GetObjectItemCaseSensitive(b, "pos")->valuestring);
+    cJSON_AddStringToObject(posBombJSON, "message", message);
+    
+
+    cJSON *playerInfo = playerToJSON(*p);
+    cJSON_AddItemToObject(posBombJSON, "player", playerInfo);
+
+
+    return posBombJSON;
+}
+
 cJSON *badRequest() {
     cJSON *json = cJSON_CreateObject();
     cJSON_AddNumberToObject(json, "statut", 400);

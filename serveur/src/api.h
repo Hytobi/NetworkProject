@@ -40,6 +40,9 @@
 #define POST_POSITION_PLAYER_UPDATE "POST player/position/update"
 #define POST_POSITION_PLAYER_UPDATE_SIZE strlen(POST_POSITION_PLAYER_UPDATE)
 
+#define postAttackNewbomb "POST attack/newbomb"
+#define POST_ATTACK_NEWBOMB_SIZE strlen(POST_ATTACK_NEWBOMB)
+
 void *clientCommunication(void *args);
 
 cJSON *sendMapListe(Maps *mapListe);
