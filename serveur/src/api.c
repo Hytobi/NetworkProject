@@ -59,7 +59,7 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
             return;
         }
         ENVOI_MESSAGE(cJSON_Print(sendGameCreation(cl->clientGame,
-                                                   clientMap->mapInfo->mapListe[cl->clientGame->mapId])));
+                                                   clientMap->mapInfo->mapListe[cJSON_GetObjectItemCaseSensitive(cJSON_Parse(recu), "mapId")->valueint])));
         printf("Partie créer !\n");
     } else if (!strncmp(recu, getPartieListe, GET_PARTIE_LISTE_SIZE)) {
         printf("Envoie de la liste des parties...\n");

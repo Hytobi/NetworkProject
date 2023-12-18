@@ -48,11 +48,12 @@ public class Game {
         StringBuffer sb = new StringBuffer();
         sb.append("{\"name\":\"");
         sb.append(name);
+        sb.append("\"");
         if (mapId != null) {
-            sb.append("\",\"mapId\":\"");
+            sb.append(",\"mapId\":");
             sb.append(mapId);
         }
-        sb.append("\"}");
+        sb.append("}");
         return sb.toString();
     }
 }
