@@ -76,7 +76,7 @@ void *serveurUdp(void *args) {
         struct sockaddr_in clientAddr;
         socklen_t clientAddrLen = sizeof(clientAddr);
 
-        n = recvfrom(sockfd, buffer, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *) &clientAddr, &clientAddrLen);
+        n = (int) recvfrom(sockfd, buffer, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *) &clientAddr, &clientAddrLen);
         if (n == ERR) {
             perror("Erreur reception du message");
             continue;
@@ -91,7 +91,8 @@ void *serveurUdp(void *args) {
                 printf("Refusé !\n");
                 printf("Message non reconnue : %s\n", buffer);
                 sprintf(buffer2, "%s", cJSON_Print(badRequest()));
-                n = sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &clientAddr, clientAddrLen);
+                n = (int) sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &clientAddr,
+                                 clientAddrLen);
                 CONTINUE_IF_FAIL(n, "Erreur envoie du message");
                 continue;
             } else {
@@ -103,7 +104,7 @@ void *serveurUdp(void *args) {
 
         sprintf(buffer2, "%s", notifClientServeurUp);
         //sprintf(buffer2,"yes");
-        n = sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &clientAddr, clientAddrLen);
+        n = (int) sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &clientAddr, clientAddrLen);
         CONTINUE_IF_FAIL(n, "Erreur envoie du message");
 
         // Block le mutex

@@ -67,8 +67,8 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         }
         pthread_mutex_unlock(&clientMap->gameInfo->gameListe[indiceGame]->mutex);
         char *json = cJSON_Print(sendGameCreation(cl->clientGame,
-                                                   clientMap->mapInfo->mapListe[cJSON_GetObjectItemCaseSensitive(
-                                                           cJSON_Parse(recu), "mapId")->valueint]));
+                                                  clientMap->mapInfo->mapListe[cJSON_GetObjectItemCaseSensitive(
+                                                          cJSON_Parse(recu), "mapId")->valueint]));
         ENVOI_MESSAGE(json, strlen(json));
         printf("Partie créer !\n");
     } else if (!strncmp(recu, getPartieListe, GET_PARTIE_LISTE_SIZE)) {
@@ -144,11 +144,12 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         pthread_mutex_lock(&cl->clientGame->mutex);
         for (int i = 0; i < MAX_PLAYER; i++) {
             Player *player = cl->clientGame->players[i];
-            if(player==NULL){
+            if (player == NULL) {
                 continue;
             }
             clientAddrLen = sizeof(player->addr);
-            n = (int) sendto(player->socket, postMove, strlen(postMove), MSG_CONFIRM, (struct sockaddr *) &player->addr, clientAddrLen);
+            n = (int) sendto(player->socket, postMove, strlen(postMove), MSG_CONFIRM, (struct sockaddr *) &player->addr,
+                             clientAddrLen);
             if (n == ERR) {
                 perror("Erreur envoie du message");
                 return;
@@ -174,13 +175,14 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         pthread_mutex_lock(&cl->clientGame->mutex);
         for (int i = 0; i < MAX_PLAYER; i++) {
             Player *player = cl->clientGame->players[i];
-            if(player==NULL){
+            if (player == NULL) {
                 continue;
             }
             char *postAll = malloc(sizeof(char) * BUFFER_SIZE);
             sprintf(postAll, "%s\n%sEOJ", postAttackNewbomb, cJSON_Print(cJSON_Parse(recu)));
             clientAddrLen = sizeof(player->addr);
-            n = (int) sendto(player->socket, postAll, strlen(postAll), MSG_CONFIRM, (struct sockaddr *) &player->addr, clientAddrLen);
+            n = (int) sendto(player->socket, postAll, strlen(postAll), MSG_CONFIRM, (struct sockaddr *) &player->addr,
+                             clientAddrLen);
             if (n == ERR) {
                 perror("Erreur envoie du message");
                 return;
@@ -216,17 +218,17 @@ void *clientCommunication(void *args) {
         } else if (n == 0) {
             printf("Connexion à %s perdu !\n", inet_ntoa(cl->addr.sin_addr));
             pthread_mutex_lock(&cl->clientGame->mutex);
-            int inGame=0;
-            for (int i=0;i<MAX_PLAYER;i++){
-                if (cl->clientGame->players[i]!=NULL){
-                    if(cl->clientGame->players[i]->socket==cl->socket){
+            int inGame = 0;
+            for (int i = 0; i < MAX_PLAYER; i++) {
+                if (cl->clientGame->players[i] != NULL) {
+                    if (cl->clientGame->players[i]->socket == cl->socket) {
                         pthread_mutex_unlock(&cl->clientGame->mutex);
-                        inGame=1;
+                        inGame = 1;
                         break;
                     }
                 }
             }
-            if (!inGame){
+            if (!inGame) {
                 destroyGame(cl->clientGame);
             }
             pthread_mutex_unlock(&cl->clientGame->mutex);
