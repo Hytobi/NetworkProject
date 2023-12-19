@@ -13,6 +13,7 @@
 #include <pthread.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include "struct.h"
 #include "api.h"
@@ -20,6 +21,15 @@
 #include "cJSON/cJSON.h"
 #include "map.h"
 #include "game.h"
+#include "json.h"
+
+/*
+void serveurSIGINT(int signal, siginfo_t *info, void *context) {
+    AllStruct *allStruc = (AllStruct *)info->si_value.sival_ptr;
+    free(allStruc);
+    exit(EXIT_SUCCESS);
+}
+*/
 
 void *serveurUdp(void *args) {
     Thread_Info *threadInfo = (Thread_Info *) args;
@@ -66,7 +76,7 @@ void *serveurUdp(void *args) {
         struct sockaddr_in clientAddr;
         socklen_t clientAddrLen = sizeof(clientAddr);
 
-        n = recvfrom(sockfd, buffer, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *) &clientAddr, &clientAddrLen);
+        n = (int) recvfrom(sockfd, buffer, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *) &clientAddr, &clientAddrLen);
         if (n == ERR) {
             perror("Erreur reception du message");
             continue;
@@ -81,7 +91,8 @@ void *serveurUdp(void *args) {
                 printf("Refusé !\n");
                 printf("Message non reconnue : %s\n", buffer);
                 sprintf(buffer2, "%s", cJSON_Print(badRequest()));
-                n = sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &clientAddr, clientAddrLen);
+                n = (int) sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &clientAddr,
+                                 clientAddrLen);
                 CONTINUE_IF_FAIL(n, "Erreur envoie du message");
                 continue;
             } else {
@@ -93,7 +104,7 @@ void *serveurUdp(void *args) {
 
         sprintf(buffer2, "%s", notifClientServeurUp);
         //sprintf(buffer2,"yes");
-        n = sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &clientAddr, clientAddrLen);
+        n = (int) sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &clientAddr, clientAddrLen);
         CONTINUE_IF_FAIL(n, "Erreur envoie du message");
 
         // Block le mutex
@@ -141,11 +152,20 @@ void *serveurUdp(void *args) {
 void *tcpConnect(void *args) {
     Thread_Info *threadInfo = (Thread_Info *) args;
 
-    Games * gameInfo;
+    Games *gameInfo;
     gameInfo = malloc(sizeof(Games));
-    if (gameInfo == NULL){
+    if (gameInfo == NULL) {
         perror("Erreur allocation gameInfo");
         exit(2);
+    }
+
+    if (pthread_mutex_init(&(gameInfo->mutex), NULL) != 0) {
+        perror("Erreur initialisation du mutex");
+        exit(2);
+    }
+
+    for (int i = 0; i < MAX_GAMES; i++) {
+        gameInfo->gameListe[i] = NULL;
     }
     gameInfo->nbGames = 0;
 
@@ -177,18 +197,16 @@ void *tcpConnect(void *args) {
 
 
                 Client_Map_Games *cm = malloc(sizeof(Client_Map_Games));
-                cm->gameInfo=gameInfo;
-                cm->cl=&threadInfo->clients[i];
+                cm->gameInfo = gameInfo;
+                cm->cl = &threadInfo->clients[i];
                 cm->mapInfo = threadInfo->mapInfo;
+
                 pthread_create(&clientThreads[threadCount], NULL, clientCommunication, cm);
                 threadCount++;
             }
         }
         pthread_mutex_unlock(&threadInfo->mutex);
-
-        for (int i = 0; i < threadCount; i++) {
-            pthread_join(clientThreads[i], NULL);
-        }
+        pthread_join(clientThreads[threadCount], NULL);
     }
     pthread_exit(NULL);
 }
@@ -196,13 +214,31 @@ void *tcpConnect(void *args) {
 int main(int arvc, char **argv) {
     Thread_Info *threadInfo = malloc(sizeof(Thread_Info));
 
-    threadInfo->mapInfo=malloc(sizeof(Maps));
+    threadInfo->mapInfo = malloc(sizeof(Maps));
     setMapInfo(threadInfo->mapInfo);
 
     if (pthread_mutex_init(&(threadInfo->mutex), NULL) != 0) {
         perror("Erreur initialisation du mutex");
         exit(2);
     }
+
+    /*
+    struct sigaction sa;
+    sa.sa_sigaction = serveurSIGINT;
+    sa.sa_flags = SA_SIGINFO;
+    sigemptyset(&sa.sa_mask);
+
+    // Configuration de sigaction
+    if (sigaction(SIGINT, &sa, NULL) == -1) {
+        perror("Erreur lors de la configuration de sigaction");
+        exit(EXIT_FAILURE);
+    }
+
+    // Utilisez si_value pour passer AllStruct
+    union sigval value;
+    value.sival_ptr = allStruct;
+    */
+
     pthread_t daemon, tcpThread;
 
     pthread_create(&daemon, NULL, serveurUdp, threadInfo);

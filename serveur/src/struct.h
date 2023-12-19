@@ -57,11 +57,13 @@ typedef struct map {
     int width; /**<largeur de la map en nombre de cases*/
     int height; /**<hauteur de la map en nombre de cases*/
     char content[MAX_MAP_SIZE]; /** descriptif de la map*/
+    pthread_mutex_t mutex;
 } Map;
 
 typedef struct maps {
     int nbMap;
     Map *mapListe[MAX_MAP];
+    pthread_mutex_t mutex;
 } Maps;
 
 typedef struct game {
@@ -72,11 +74,13 @@ typedef struct game {
     int startPos[2]; /**< position initiale d’un nouveau joueur */
     Player *defaultPlayer; /**< objet JSON décrivant les caractéristiques d’un nouveau joueur */
     Player *players[MAX_PLAYER]; /**< Joueurs de la partie */
+    pthread_mutex_t mutex;
 } Game;
 
 typedef struct games {
     int nbGames;
     Game *gameListe[MAX_GAMES];
+    pthread_mutex_t mutex;
 } Games;
 
 typedef struct client {

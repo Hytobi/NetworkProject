@@ -38,6 +38,7 @@ cJSON *sendMapListe(Maps *mapsInfo) {
     // Création d'un tableau JSON pour "Games"
     cJSON *gamesArray = cJSON_AddArrayToObject(mapJson, "maps");
 
+    pthread_mutex_lock(&mapsInfo->mutex);
     for (int i = 0; i < nbMaps; i++) {
         Map *mapI = mapsInfo->mapListe[i];
         cJSON *game = cJSON_CreateObject();
@@ -47,6 +48,7 @@ cJSON *sendMapListe(Maps *mapsInfo) {
         cJSON_AddStringToObject(game, "content", mapI->content);
         cJSON_AddItemToArray(gamesArray, game);
     }
+    pthread_mutex_unlock(&mapsInfo->mutex);
     return mapJson;
 }
 
@@ -93,34 +95,40 @@ cJSON *sendPartieListe(Games *gameInfo) {
     cJSON *gamesArray = cJSON_AddArrayToObject(gameListe, "games");
 
     int i = 0;
-    while (i < gameInfo->nbGames) {
+    pthread_mutex_lock(&gameInfo->mutex);
+    while (i < MAX_GAMES) {
         Game *gameI = gameInfo->gameListe[i];
         if (gameI == NULL) {
+            i++;
             continue;
         }
         cJSON *game = cJSON_CreateObject();
         cJSON_AddStringToObject(game, "name", gameI->name);
+        char mapId[3];
+        sprintf(mapId,"%d",gameI->mapId);
+        cJSON_AddStringToObject(game, "mapId", mapId);
         cJSON_AddNumberToObject(game, "nbPlayer", gameI->nbPlayers);
-        cJSON_AddNumberToObject(game, "mapId", gameI->mapId);
         cJSON_AddItemToArray(gamesArray, game);
         i++;
     }
+    pthread_mutex_unlock(&gameInfo->mutex);
     return gameListe;
 }
 
 cJSON *sendJoinGame(Game *g, Player *p) {
+    pthread_mutex_lock(&g->mutex);
     cJSON *joinGame = cJSON_CreateObject();
     cJSON_AddStringToObject(joinGame, "action", "game/join");
     cJSON_AddStringToObject(joinGame, "statut", "201");
     cJSON_AddStringToObject(joinGame, "message", "game joined");
-    cJSON_AddNumberToObject(joinGame, "nbPlayers", g->nbPlayers);
+    cJSON_AddNumberToObject(joinGame, "nbPlayers", g->nbPlayers-1);
     cJSON_AddNumberToObject(joinGame, "mapId", g->mapId);
 
     cJSON *playerListeJson = cJSON_AddArrayToObject(joinGame, "players");
     //Liste des players
     int i = 0;
     while (i < MAX_PLAYER) {
-        if (g->players[i] == NULL) {
+        if (g->players[i] == NULL || g->players[i]==p) {
             i++;
             continue;
         }
@@ -132,6 +140,7 @@ cJSON *sendJoinGame(Game *g, Player *p) {
 
         char pos[8];
         sprintf(pos, "%d,%d", g->players[i]->x, g->players[i]->y);
+        cJSON_AddStringToObject(playerIJSON,"pos",pos);
         cJSON_AddItemToArray(playerListeJson, playerIJSON);
         i++;
     }
@@ -144,6 +153,11 @@ cJSON *sendJoinGame(Game *g, Player *p) {
     cJSON *playerInfo = playerToJSON(*p);
     cJSON_AddItemToObject(joinGame, "player", playerInfo);
 
+    pthread_mutex_lock(&g->map->mutex);
+    cJSON_AddStringToObject(joinGame, "startingMap", g->map->content);
+    pthread_mutex_unlock(&g->map->mutex);
+
+    pthread_mutex_unlock(&g->mutex);
     return joinGame;
 }
 

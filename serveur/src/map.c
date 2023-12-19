@@ -19,6 +19,11 @@ void setMapInfo(Maps *mapInfo) {
     mapInfo->nbMap = 0;
     int i = 0;
 
+    if (pthread_mutex_init(&(mapInfo->mutex), NULL) != 0) {
+        perror("Erreur initialisation du mutex");
+        exit(2);
+    }
+
     DIR *dir = opendir(DIR_PATH);
     if (dir == NULL) {
         perror("Erreur lors de l'ouverture du répertoire");
@@ -102,4 +107,12 @@ int nextPosX(int i, int mapId){
 
 int nextPosY(int i, int mapId){
     return nextY[mapId][i];
+}
+
+void destroyMap(Map *map){
+    if (map != NULL){
+        return;
+    }
+    pthread_mutex_destroy(&map->mutex);
+    free(map);
 }
