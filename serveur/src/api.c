@@ -170,12 +170,24 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         ENVOI_MESSAGE(postAttack, strlen(postAttack));
 
         //TODO, Envoyer a tout les autres joueurs la position de la bombe
-        if (1) {
+
+        pthread_mutex_lock(&cl->clientGame->mutex);
+        for (int i = 0; i < MAX_PLAYER; i++) {
+            Player *player = cl->clientGame->players[i];
+            if(player==NULL){
+                continue;
+            }
             char *postAll = malloc(sizeof(char) * BUFFER_SIZE);
             sprintf(postAll, "%s\n%sEOJ", postAttackNewbomb, cJSON_Print(cJSON_Parse(recu)));
-            ENVOI_MESSAGE(postAll, strlen(postAll));
+            clientAddrLen = sizeof(player->addr);
+            n = sendto(player->socket, postAll, strlen(postAll), MSG_CONFIRM, (struct sockaddr *) &player->addr, clientAddrLen);
+            if (n == ERR) {
+                perror("Erreur envoie du message");
+                return;
+            }
             free(postAll);
         }
+        pthread_mutex_unlock(&cl->clientGame->mutex);
     } else if (!strncmp(recu, postAttackRemoteGo, POST_ATTACK_REMOTE_GO_SIZE)) {
         printf("Explosion des remotes bomb de %s\n", inet_ntoa(cl->addr.sin_addr));
         if (exploseBomb(cl->clientGame, cl->player) == ERR) {
