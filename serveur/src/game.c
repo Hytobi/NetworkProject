@@ -89,7 +89,7 @@ void moveOnMine(Player *p, Map *m) {
     int n = ERR;
     int i=0;
     do {
-        sprintf(buffer, "%s", cJSON_Print(playerToJSON(*p)));
+        sprintf(buffer, "%s", sendAttackAffect(p));
         socklen_t clientAddrLen = sizeof(p->addr);
         n = (int) sendto(p->socket, buffer, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &p->addr, clientAddrLen);
         i++;
