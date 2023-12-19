@@ -1,7 +1,5 @@
 package vueGraphique;
 
-import modele.Carte;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -174,6 +172,7 @@ public class Intro extends JFrame implements ActionListener {
                 System.out.println("Envoie demande liste des Maps");
                 tcp.post(JsonConnection.getMapList());
                 String maps = tcp.get();
+                System.out.println("maps recu : " + maps);
                 if (Maps == null){
                     closeAll();
                     return;
@@ -230,6 +229,7 @@ public class Intro extends JFrame implements ActionListener {
                 System.out.println("Envoie demande liste des Games");
                 tcp.post(JsonConnection.getGameList());
                 String gameslist = tcp.get();
+                System.out.println("games recu : " + gameslist);
                 if (gameslist == null){
                     closeAll();
                     return;
@@ -357,6 +357,7 @@ public class Intro extends JFrame implements ActionListener {
                 Game game = new Game(nom.getText(), id.getText());
                 tcp.post(JsonConnection.postGameCreate(game));
                 String create = tcp.get();
+                System.out.println("create recu : " + create);
                 if (create == null){
                     closeAll();
                     return;
@@ -373,6 +374,45 @@ public class Intro extends JFrame implements ActionListener {
                 infoPanel.revalidate();
                 infoPanel.repaint();
             }
+        });
+
+        id.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if (e.getKeyChar() == KeyEvent.VK_ENTER){
+                    System.out.println("Envoie demande creation de game");
+                    if (nom.getText().equals("Nom de la game") || id.getText().equals("Id de la map") || nom.getText().equals("") || id.getText().equals("")){
+                        publishMessage("Veuillez remplir les champs", true, Color.RED);
+                        return;
+                    }
+                    id.setText(String.valueOf(Integer.parseInt(id.getText())-1));
+                    Game game = new Game(nom.getText(), id.getText());
+                    tcp.post(JsonConnection.postGameCreate(game));
+                    String create = tcp.get();
+                    System.out.println("create recu : " + create);
+                    if (create == null){
+                        closeAll();
+                        return;
+                    }
+                    ResGameJoin res = MapperRes.fromJson(create, ResGameJoin.class);
+                    if (res != null && res.getStatut().equals("201")){
+                        publishMessage(" creation reussi", true, Color.GREEN);
+                        myName = "player" + res.getNbPlayers();
+                        resGameJoin = res;
+                        commencer=true;
+                    }else{
+                        publishMessage("Erreur lors de la creation de game", true, Color.RED);
+                    }
+                    infoPanel.revalidate();
+                    infoPanel.repaint();
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {}
+
+            @Override
+            public void keyReleased(KeyEvent e) {}
         });
 
         JLabel cg = new JLabel("Zone de création de partie", JLabel.CENTER);
@@ -406,6 +446,7 @@ public class Intro extends JFrame implements ActionListener {
                     Game join = new Game(game.getName());
                     tcp.post(JsonConnection.postGameJoin(join));
                     String resJoin = tcp.get();
+                    System.out.println("join recu : " + resJoin);
                     if (join == null){
                         closeAll();
                         return;

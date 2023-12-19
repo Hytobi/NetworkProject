@@ -27,63 +27,75 @@ public class Bomber {
 
         Carte jeu = new Carte(intro.getMyName(), intro.getResGameJoin());
         VueBomber vs = new VueBomber(jeu, intro.getTcp());
-        String msg = null;
+        String recu = null;
         while ((!jeu.finDePartie())) {
-            msg = intro.getTcp().get();
-            System.out.println("Message reçu : " + msg);
-            if (msg != null && !msg.isBlank()){
-                // si le message commence par POST, on split le message pour récupérer les infos
-                if (msg.startsWith("POST")) {
-                    String json = "{" + msg.split("\\{")[1];
-                    if (msg.contains("player/position/update")){
-                        Update update = MapperRes.fromJson(json, Update.class);
-                        if (update != null){
-                            String item = jeu.robotSeDeplace(update);
-                            if (item != null){
-                                intro.getTcp().post(JsonJouer.postObjectNew(item));
+            recu = intro.getTcp().get();
+            //System.out.println("Message reçu : " + recu);
+            if (recu != null && !recu.isBlank()){
+                String[] msgs = recu.split("EOJ");
+                for (String msg: msgs){
+                    System.out.println("Message : " + msg);
+                    // si le message commence par POST, on split le message pour récupérer les infos
+                    if (msg.startsWith("POST")) {
+                        String json = "{" + msg.split("\\{")[1];
+                        if (msg.contains("player/position/update")){
+                            Update update = MapperRes.fromJson(json, Update.class);
+                            if (update != null){
+                                String item = jeu.robotSeDeplace(update);
+                                if (item != null){
+                                    intro.getTcp().post(JsonJouer.postObjectNew(item));
+                                }
+                            } else {
+                                System.out.println("Erreur lors de la récupération du move");
                             }
-                        } else {
-                            System.out.println("Erreur lors de la récupération du move");
+                        } else if (msg.contains("attack/newbomb")){
+                            AttackNewBomb anb = MapperRes.fromJson(json, AttackNewBomb.class);
+                            if (anb != null){
+                                jeu.setABomb(anb);
+                            } else {
+                                System.out.println("Erreur lors de la récupération du move");
+                            }
+                        } else if (msg.contains("attack/explose")){
+                            AttackExplose ae = MapperRes.fromJson(json, AttackExplose.class);
+                            if (ae != null){
+                                jeu.explose(ae);
+                            } else {
+                                System.out.println("Erreur lors de la récupération du move");
+                            }
+                        } else if (msg.contains("attack/affect")){
+                            Player p = MapperRes.fromJson(json, Player.class);
+                            if (p != null){
+                                jeu.updateMyPlayer(p);
+                            } else {
+                                System.out.println("Erreur lors de la récupération du move");
+                            }
+                        } else if (msg.contains("attack/mineExplose")){
+                            MineExplose me = MapperRes.fromJson(json, MineExplose.class);
+                            if (me != null){
+                                jeu.exploseMine(me);
+                            } else {
+                                System.out.println("Erreur lors de la récupération du move");
+                            }
                         }
-                    } else if (msg.contains("attack/newbomb")){
-                        AttackNewBomb anb = MapperRes.fromJson(json, AttackNewBomb.class);
-                        if (anb != null){
-                            jeu.setABomb(anb);
-                        } else {
-                            System.out.println("Erreur lors de la récupération du move");
-                        }
-                    } else if (msg.contains("attack/explose")){
-                        AttackExplose ae = MapperRes.fromJson(json, AttackExplose.class);
-                        if (ae != null){
-                            jeu.explose(ae);
-                        } else {
-                            System.out.println("Erreur lors de la récupération du move");
-                        }
-                    } else if (msg.contains("attack/affect")){
-                        Player p = MapperRes.fromJson(json, Player.class);
-                        if (p != null){
-                            jeu.updateMyPlayer(p);
-                        } else {
-                            System.out.println("Erreur lors de la récupération du move");
-                        }
-                    }
-                } else {
-                    if (msg.contains("attack/bomb")){
-                        AttackBomb res = MapperRes.fromJson(msg, AttackBomb.class);
-                        if (res != null){
-                            jeu.updateMyPlayer(res.getPlayer());
-                        } else {
-                            System.out.println("Erreur lors de la récupération du move");
-                        }
-                    } else if (msg.contains("object/new")){
-                        ObjectNew res = MapperRes.fromJson(msg, ObjectNew.class);
-                        if (res != null){
-                            jeu.updateMyPlayer(res.getPlayer());
-                        } else {
-                            System.out.println("Erreur lors de la récupération du move");
+                    } else {
+                        if (msg.contains("attack/bomb")){
+                            AttackBomb res = MapperRes.fromJson(msg, AttackBomb.class);
+                            if (res != null){
+                                jeu.updateMyPlayer(res.getPlayer());
+                            } else {
+                                System.out.println("Erreur lors de la récupération du move");
+                            }
+                        } else if (msg.contains("object/new")){
+                            ObjectNew res = MapperRes.fromJson(msg, ObjectNew.class);
+                            if (res != null){
+                                jeu.updateMyPlayer(res.getPlayer());
+                            } else {
+                                System.out.println("Erreur lors de la récupération du move");
+                            }
                         }
                     }
                 }
+                
                 // Info du joueur mis a jour
                 vs.updateGameInfos();
                 //On met à jour la vue

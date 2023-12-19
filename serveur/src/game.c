@@ -10,6 +10,7 @@
 #include "player.h"
 #include "map.h"
 #include "json.h"
+#include "api.h"
 
 #define TEST_MOVES(carac) (carac!=MUR_INCA_CHAR && carac!=MUR_CHAR && carac!=VIDE_CHAR && carac!=PLAYER_CHAR && carac!=CLASSIC_BOMB_CHAR && carac!=REMOTE_BOMB_CHAR \
 && carac!=PLAYER_BOMB_CHAR && carac!=PLAYER_REMOTE_BOMB_CHAR && carac!=PLAYER_MINE_CHAR)
@@ -84,7 +85,7 @@ void moveOnMine(Player *p, Map *m) {
     if (p->invincible) {
         return;
     }
-    char buffer[BUFFER_SIZE];
+    char *buffer = malloc(sizeof(char) * BUFFER_SIZE);
     p->life-=30;
     int n = ERR;
     int i=0;
@@ -94,6 +95,7 @@ void moveOnMine(Player *p, Map *m) {
         n = (int) sendto(p->socket, buffer, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &p->addr, clientAddrLen);
         i++;
     } while (n == ERR && i<50); // essaye d'envoyer jusqu'a 50 fois si ca marche pas
+    free(buffer);
 }
 
 char moveAfterAttack(char maCase) {
@@ -105,6 +107,40 @@ char moveAfterAttack(char maCase) {
         return CLASSIC_BOMB_CHAR;
     }
     return SOL_CHAR;
+}
+
+void envoieMineExplose(Game *g, int x, int y, Player *p) {
+    char *buffer = malloc(sizeof(char) * BUFFER_SIZE);
+    int n;
+    cJSON* json = cJSON_CreateObject();
+    char pos[8];
+    sprintf(pos, "%d,%d", x, y);
+    cJSON_AddStringToObject(json, "pos", pos);
+    sprintf(buffer, "%s\n%s", attackMineExplose, cJSON_Print(json));
+    socklen_t clientAddrLen = sizeof(p->addr);
+    n = (int) sendto(p->socket, buffer, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &p->addr, clientAddrLen);
+    if (n == ERR) {
+        perror("Erreur envoie du message");
+        return;
+    }
+
+
+    /* TODO
+    for (int i=0; i<MAX_PLAYER; i++){
+
+        if (g->players[i]!=NULL){
+            
+            printf("Envoie de %s\n", buffer);
+            printf("addr : %s\n", inet_ntoa(g->players[i]->addr.sin_addr));
+            socklen_t clientAddrLen = sizeof(g->players[i]->addr);
+            n = (int) sendto(g->players[i]->socket, buffer, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &g->players[i]->addr, clientAddrLen);
+            if (n == ERR) {
+                perror("Erreur envoie du message");
+                return;
+            }
+        }
+    }*/
+    free(buffer);
 }
 
 int movePlayer(Player *p, Game *game, cJSON *info) {
@@ -125,6 +161,7 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
         if (TEST_MOVES(carac)) {
             if (carac == MINE_CHAR) {
                 moveOnMine(p, map);
+                envoieMineExplose(game, p->x-1, p->y,p);
                 //return numCase * map->width;
             }
             map->content[numCase] = moveAfterAttack(map->content[numCase]);
@@ -139,6 +176,7 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
         if (TEST_MOVES(carac)) {
             if (carac == MINE_CHAR) {
                 moveOnMine(p, map);
+                envoieMineExplose(game, p->x+1, p->y,p);
                 //return numCase + map->width;
             }
             map->content[numCase] = moveAfterAttack(map->content[numCase]);
@@ -153,6 +191,7 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
         if (TEST_MOVES(carac)) {
             if (carac == MINE_CHAR) {
                 moveOnMine(p, map);
+                envoieMineExplose(game, p->x, p->y-1,p);
                 //return numCase - 1;
             }
             map->content[numCase] = moveAfterAttack(map->content[numCase]);
@@ -167,6 +206,7 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
         if (TEST_MOVES(carac)) {
             if (carac == MINE_CHAR) {
                 moveOnMine(p, map);
+                envoieMineExplose(game, p->x, p->y+1,p);
                 //return numCase + 1;
             }
             map->content[numCase] = moveAfterAttack(map->content[numCase]);
