@@ -45,7 +45,11 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         recu += POST_CREATE_GAME_SIZE;
         printf("Demande de création de game: %s\n", recu);
         printf("Création de la partie...\n");
+        printf("AVANT:\n%s\n", cJSON_Print(sendPartieListe(clientMap->gameInfo)));
+        pthread_mutex_lock(&clientMap->gameInfo->mutex);
         int indiceGame = createGame(clientMap->gameInfo, clientMap->mapInfo, cJSON_Parse(recu), cl);
+        pthread_mutex_unlock(&clientMap->gameInfo->mutex);
+        printf("APRES:\n%s\n", cJSON_Print(sendPartieListe(clientMap->gameInfo)));
         if (indiceGame == ERR) {
             printf("erreur lors de la création de la game\n");
             ENVOI_MESSAGE(cJSON_Print(errInconnue()));
@@ -53,11 +57,14 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         }
         Map *m;
         GET_MAP(m, indiceGame);
+        pthread_mutex_lock(&clientMap->gameInfo->gameListe[indiceGame]->mutex);
         if (joinGame(clientMap->gameInfo->gameListe[indiceGame], cl, m) == ERR) {
             printf("Erreur join game\n");
             ENVOIE_ERR_INCONNUE;
+            pthread_mutex_unlock(&clientMap->gameInfo->gameListe[indiceGame]->mutex);
             return;
         }
+        pthread_mutex_unlock(&clientMap->gameInfo->gameListe[indiceGame]->mutex);
         ENVOI_MESSAGE(cJSON_Print(sendGameCreation(cl->clientGame,
                                                    clientMap->mapInfo->mapListe[cJSON_GetObjectItemCaseSensitive(
                                                            cJSON_Parse(recu), "mapId")->valueint])));
@@ -85,7 +92,9 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         }
         Map *m;
         GET_MAP(m, g->mapId);
+        pthread_mutex_lock(&g->mutex);
         int playerIndex = joinGame(g, cl, m);
+        pthread_mutex_unlock(&g->mutex);
         if (playerIndex == ERR) {
             printf("Erreur joinGame\n");
             ENVOIE_ERR_INCONNUE;
@@ -98,7 +107,10 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         printf("Tentative de déplacement du joueur %s\n", inet_ntoa(cl->addr.sin_addr));
 
         afficheMap(*cl->clientGame->map);
-        if (movePlayer(cl->player, cl->clientGame, cJSON_Parse(recu)) == ERR) {
+        pthread_mutex_lock(&cl->clientGame->mutex);
+        int caseMove=movePlayer(cl->player, cl->clientGame, cJSON_Parse(recu));
+        pthread_mutex_unlock(&cl->clientGame->mutex);
+        if (caseMove == ERR) {
             ENVOIE_ERR_INCONNUE;
             return;
         }

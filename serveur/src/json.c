@@ -38,6 +38,7 @@ cJSON *sendMapListe(Maps *mapsInfo) {
     // Création d'un tableau JSON pour "Games"
     cJSON *gamesArray = cJSON_AddArrayToObject(mapJson, "maps");
 
+    pthread_mutex_lock(&mapsInfo->mutex);
     for (int i = 0; i < nbMaps; i++) {
         Map *mapI = mapsInfo->mapListe[i];
         cJSON *game = cJSON_CreateObject();
@@ -47,6 +48,7 @@ cJSON *sendMapListe(Maps *mapsInfo) {
         cJSON_AddStringToObject(game, "content", mapI->content);
         cJSON_AddItemToArray(gamesArray, game);
     }
+    pthread_mutex_unlock(&mapsInfo->mutex);
     return mapJson;
 }
 
@@ -93,9 +95,11 @@ cJSON *sendPartieListe(Games *gameInfo) {
     cJSON *gamesArray = cJSON_AddArrayToObject(gameListe, "games");
 
     int i = 0;
-    while (i < gameInfo->nbGames) {
+    pthread_mutex_lock(&gameInfo->mutex);
+    while (i < MAX_GAMES) {
         Game *gameI = gameInfo->gameListe[i];
         if (gameI == NULL) {
+            i++;
             continue;
         }
         cJSON *game = cJSON_CreateObject();
@@ -105,6 +109,7 @@ cJSON *sendPartieListe(Games *gameInfo) {
         cJSON_AddItemToArray(gamesArray, game);
         i++;
     }
+    pthread_mutex_unlock(&gameInfo->mutex);
     return gameListe;
 }
 

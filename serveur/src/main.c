@@ -20,6 +20,7 @@
 #include "cJSON/cJSON.h"
 #include "map.h"
 #include "game.h"
+#include "json.h"
 
 void *serveurUdp(void *args) {
     Thread_Info *threadInfo = (Thread_Info *) args;
@@ -141,11 +142,20 @@ void *serveurUdp(void *args) {
 void *tcpConnect(void *args) {
     Thread_Info *threadInfo = (Thread_Info *) args;
 
-    Games * gameInfo;
+    Games *gameInfo;
     gameInfo = malloc(sizeof(Games));
-    if (gameInfo == NULL){
+    if (gameInfo == NULL) {
         perror("Erreur allocation gameInfo");
         exit(2);
+    }
+
+    if (pthread_mutex_init(&(gameInfo->mutex), NULL) != 0) {
+        perror("Erreur initialisation du mutex");
+        exit(2);
+    }
+
+    for (int i = 0; i < MAX_GAMES; i++) {
+        gameInfo->gameListe[i] = NULL;
     }
     gameInfo->nbGames = 0;
 
@@ -177,18 +187,15 @@ void *tcpConnect(void *args) {
 
 
                 Client_Map_Games *cm = malloc(sizeof(Client_Map_Games));
-                cm->gameInfo=gameInfo;
-                cm->cl=&threadInfo->clients[i];
+                cm->gameInfo = gameInfo;
+                cm->cl = &threadInfo->clients[i];
                 cm->mapInfo = threadInfo->mapInfo;
                 pthread_create(&clientThreads[threadCount], NULL, clientCommunication, cm);
                 threadCount++;
             }
         }
         pthread_mutex_unlock(&threadInfo->mutex);
-
-        for (int i = 0; i < threadCount; i++) {
-            pthread_join(clientThreads[i], NULL);
-        }
+        pthread_join(clientThreads[threadCount], NULL);
     }
     pthread_exit(NULL);
 }
@@ -196,7 +203,7 @@ void *tcpConnect(void *args) {
 int main(int arvc, char **argv) {
     Thread_Info *threadInfo = malloc(sizeof(Thread_Info));
 
-    threadInfo->mapInfo=malloc(sizeof(Maps));
+    threadInfo->mapInfo = malloc(sizeof(Maps));
     setMapInfo(threadInfo->mapInfo);
 
     if (pthread_mutex_init(&(threadInfo->mutex), NULL) != 0) {

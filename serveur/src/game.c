@@ -16,12 +16,15 @@
 
 int createGame(Games *gameInfo, Maps *maps, cJSON *info, Client *cl) {
     int i = 0;
-    while (i < gameInfo->nbGames) {
-        printf("yes\n");
+    while (i < MAX_GAMES) {
         if (gameInfo->gameListe[i] == NULL) {
             break;
         }
         i++;
+    }
+    if (i >= MAX_GAMES) {
+        printf("Impossible de créer une nouvelle game, nombre maximum atteint !\n");
+        return ERR;
     }
     Game *g;
     g = malloc(sizeof(Game));
@@ -37,12 +40,19 @@ int createGame(Games *gameInfo, Maps *maps, cJSON *info, Client *cl) {
         perror("erreur malloc map in createGame");
         return ERR;
     }
+    pthread_mutex_lock(&maps->mutex);
     *g->map = *getMap(maps, g->mapId);
+    pthread_mutex_unlock(&maps->mutex);
     g->defaultPlayer = createPlayer(0, 1, 1, cl->addr, cl->socket);
     g->startPos[0] = 1;
     g->startPos[1] = 1;
+    if (pthread_mutex_init(&(g->mutex), NULL) != 0) {
+        perror("Erreur initialisation du mutex");
+        exit(2);
+    }
 
     gameInfo->gameListe[i] = g;
+    gameInfo->nbGames++;
     return i;
 }
 
@@ -85,15 +95,15 @@ void moveOnMine(Player *p, Map *m) {
         return;
     }
     char buffer[BUFFER_SIZE];
-    p->life-=30;
+    p->life -= 30;
     int n = ERR;
-    int i=0;
+    int i = 0;
     do {
         sprintf(buffer, "%s", sendAttackAffect(p));
         socklen_t clientAddrLen = sizeof(p->addr);
         n = (int) sendto(p->socket, buffer, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &p->addr, clientAddrLen);
         i++;
-    } while (n == ERR && i<50); // essaye d'envoyer jusqu'a 50 fois si ca marche pas
+    } while (n == ERR && i < 50); // essaye d'envoyer jusqu'a 50 fois si ca marche pas
 }
 
 char moveAfterAttack(char maCase) {

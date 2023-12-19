@@ -19,6 +19,11 @@ void setMapInfo(Maps *mapInfo) {
     mapInfo->nbMap = 0;
     int i = 0;
 
+    if (pthread_mutex_init(&(mapInfo->mutex), NULL) != 0) {
+        perror("Erreur initialisation du mutex");
+        exit(2);
+    }
+
     DIR *dir = opendir(DIR_PATH);
     if (dir == NULL) {
         perror("Erreur lors de l'ouverture du répertoire");
