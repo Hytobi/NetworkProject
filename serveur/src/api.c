@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <malloc.h>
 #include "api.h"
 #include "struct.h"
 #include "err.h"
@@ -201,8 +202,22 @@ void *clientCommunication(void *args) {
             perror("Erreur reception du message");
             continue;
         } else if (n == 0) {
-            //TODO si c'est un joueur qui host une partie il faut déplacer la partie à un autre joueur
             printf("Connexion à %s perdu !\n", inet_ntoa(cl->addr.sin_addr));
+            pthread_mutex_lock(&cl->clientGame->mutex);
+            int inGame=0;
+            for (int i=0;i<MAX_PLAYER;i++){
+                if (cl->clientGame->players[i]!=NULL){
+                    if(cl->clientGame->players[i]->socket==cl->socket){
+                        pthread_mutex_unlock(&cl->clientGame->mutex);
+                        inGame=1;
+                        break;
+                    }
+                }
+            }
+            if (!inGame){
+                destroyGame(cl->clientGame);
+            }
+            pthread_mutex_unlock(&cl->clientGame->mutex);
             break;
         }
         buffer[n] = '\0';
