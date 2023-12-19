@@ -13,7 +13,7 @@
 #include "json.h"
 
 #define ENVOI_MESSAGE(x, len) sprintf(buffer2, "%s", x); \
-int n = sendto(cl->socket, buffer2, len, MSG_CONFIRM, (struct sockaddr *) &cl->addr, clientAddrLen); \
+n = sendto(cl->socket, buffer2, len, MSG_CONFIRM, (struct sockaddr *) &cl->addr, clientAddrLen); \
 if (n == ERR) { \
 perror("Erreur envoie du message"); \
 return; \
@@ -32,6 +32,7 @@ if (m==NULL){ \
  * @param recu
  */
 void receiveSend(Client_Map_Games *clientMap, char *recu) {
+    int n=0;
     Client *cl = clientMap->cl; // structure contenant toutes les infos necessaire
     socklen_t clientAddrLen = sizeof(cl->addr); // adresse du Client
     char buffer2[BUFFER_SIZE];
@@ -113,9 +114,9 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
                 printf("Player %d -> Absent\n", i);
             }
         }
-        printf("PLAYER 1:%s\n", inet_ntoa(g->players[0]->addr.sin_addr));
-        printf("PLAYER 2:%s\n", inet_ntoa(g->players[1]->addr.sin_addr));
-        ENVOI_MESSAGE(cJSON_Print(sendJoinGame(g, g->players[playerIndex])));
+        char joinGame[BUFFER_SIZE];
+        sprintf(joinGame,"%s",cJSON_Print(sendJoinGame(g, g->players[playerIndex])));
+        ENVOI_MESSAGE(joinGame, strlen(joinGame));
         printf("Partie Rejoint avec succès !\n");
     } else if (!strncmp(recu, postPlayerMove, POST_PLAYER_MOVE_SIZE)) {
         recu += POST_PLAYER_MOVE_SIZE;
