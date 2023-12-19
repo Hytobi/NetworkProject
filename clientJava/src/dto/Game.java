@@ -11,6 +11,9 @@ public class Game {
     private String mapId;
     private int nbPlayer;
 
+    public Game() {
+    }
+
     public Game(String name) {
         this.name = name;
     }
