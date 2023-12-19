@@ -209,26 +209,30 @@ int attackPlayer(Player *p, Game *g, cJSON *info) {
     return ERR;
 }
 
-int exploseBomb(Game *g, Player *p) {
+int processExplose(Game *g, int x, int y) {
     Map *map = g->map;
-    int i = 0;
-    while (i < p->nbRemoteBombSet) {
-        int x = p->remoteSet[i].x;
-        int y = p->remoteSet[i].y;
-        int numCase = y + map->width * x;
-        char carac = map->content[numCase];
-        if (carac == PLAYER_REMOTE_BOMB_CHAR) {
-            map->content[numCase] = SOL_CHAR;
-            processExploseDist(g, x, y, p->remoteSet[i].dist);
-            p->nbRemoteBombSet--;
-            p->remoteSet[i] = p->remoteSet[p->nbRemoteBombSet];
-            p->remoteSet[p->nbRemoteBombSet].x = 0;
-            p->remoteSet[p->nbRemoteBombSet].y = 0;
-            i--;
-        }
-        i++;
+    int numCase = y + map->width * x;
+    char carac = map->content[numCase];
+    if (carac == MUR_CHAR) {
+        map->content[numCase] = SOL_CHAR;
+        //todo : peut drop un item
+        return 1;
+    } else if (carac == MUR_INCA_CHAR) {
+        return 1;
+    } else if (carac == PLAYER_CHAR) {
+        //TODO : le joueur prend des dégats
+        return 1;
+    } else if (carac == PLAYER_BOMB_CHAR) {
+        //processExploseDist();
+        return 1;
+    } else if (carac == PLAYER_REMOTE_BOMB_CHAR) {
+        //TODO : la bombe explose
+        return 1;
+    } else if (carac == PLAYER_MINE_CHAR) {
+        //TODO : la mine explose
+        return 1;
     }
-    return 1;
+    return 0;
 }
 
 int processExploseDist(Game *g, int x, int y, int dist) {
@@ -257,30 +261,26 @@ int processExploseDist(Game *g, int x, int y, int dist) {
     }
 }
 
-int processExplose(Game *g, int x, int y) {
+int exploseBomb(Game *g, Player *p) {
     Map *map = g->map;
-    int numCase = y + map->width * x;
-    char carac = map->content[numCase];
-    if (carac == MUR_CHAR) {
-        map->content[numCase] = SOL_CHAR;
-        //todo : peut drop un item
-        return 1;
-    } else if (carac == MUR_INCA_CHAR) {
-        return 1;
-    } else if (carac == PLAYER_CHAR) {
-        //TODO : le joueur prend des dégats
-        return 1;
-    } else if (carac == PLAYER_BOMB_CHAR) {
-        //processExploseDist();
-        return 1;
-    } else if (carac == PLAYER_REMOTE_BOMB_CHAR) {
-        //TODO : la bombe explose
-        return 1;
-    } else if (carac == PLAYER_MINE_CHAR) {
-        //TODO : la mine explose
-        return 1;
+    int i = 0;
+    while (i < p->nbRemoteBombSet) {
+        int x = p->remoteSet[i].x;
+        int y = p->remoteSet[i].y;
+        int numCase = y + map->width * x;
+        char carac = map->content[numCase];
+        if (carac == PLAYER_REMOTE_BOMB_CHAR) {
+            map->content[numCase] = SOL_CHAR;
+            processExploseDist(g, x, y, p->remoteSet[i].dist);
+            p->nbRemoteBombSet--;
+            p->remoteSet[i] = p->remoteSet[p->nbRemoteBombSet];
+            p->remoteSet[p->nbRemoteBombSet].x = 0;
+            p->remoteSet[p->nbRemoteBombSet].y = 0;
+            i--;
+        }
+        i++;
     }
-    return 0;
+    return 1;
 }
 
 

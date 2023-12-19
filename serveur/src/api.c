@@ -45,7 +45,7 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         recu += POST_CREATE_GAME_SIZE;
         printf("Demande de création de game: %s\n", recu);
         printf("Création de la partie...\n");
-        int indiceGame = createGame(clientMap->gameInfo, clientMap->mapInfo,cJSON_Parse(recu), cl);
+        int indiceGame = createGame(clientMap->gameInfo, clientMap->mapInfo, cJSON_Parse(recu), cl);
         if (indiceGame == ERR) {
             printf("erreur lors de la création de la game\n");
             ENVOI_MESSAGE(cJSON_Print(errInconnue()));
@@ -53,13 +53,14 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         }
         Map *m;
         GET_MAP(m, indiceGame);
-        if (joinGame(clientMap->gameInfo->gameListe[indiceGame], cl, m)==ERR){
+        if (joinGame(clientMap->gameInfo->gameListe[indiceGame], cl, m) == ERR) {
             printf("Erreur join game\n");
             ENVOIE_ERR_INCONNUE;
             return;
         }
         ENVOI_MESSAGE(cJSON_Print(sendGameCreation(cl->clientGame,
-                                                   clientMap->mapInfo->mapListe[cJSON_GetObjectItemCaseSensitive(cJSON_Parse(recu), "mapId")->valueint])));
+                                                   clientMap->mapInfo->mapListe[cJSON_GetObjectItemCaseSensitive(
+                                                           cJSON_Parse(recu), "mapId")->valueint])));
         printf("Partie créer !\n");
     } else if (!strncmp(recu, getPartieListe, GET_PARTIE_LISTE_SIZE)) {
         printf("Envoie de la liste des parties...\n");
@@ -85,19 +86,19 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         Map *m;
         GET_MAP(m, g->mapId);
         int playerIndex = joinGame(g, cl, m);
-        if (playerIndex==ERR){
+        if (playerIndex == ERR) {
             printf("Erreur joinGame\n");
             ENVOIE_ERR_INCONNUE;
             return;
         }
-        ENVOI_MESSAGE(cJSON_Print(sendJoinGame(g,g->players[playerIndex])));
+        ENVOI_MESSAGE(cJSON_Print(sendJoinGame(g, g->players[playerIndex])));
         printf("Partie Rejoint avec succès !\n");
-    } else if (!strncmp(recu,postPlayerMove,POST_PLAYER_MOVE_SIZE)){
-        recu+=POST_PLAYER_MOVE_SIZE;
+    } else if (!strncmp(recu, postPlayerMove, POST_PLAYER_MOVE_SIZE)) {
+        recu += POST_PLAYER_MOVE_SIZE;
         printf("Tentative de déplacement du joueur %s\n", inet_ntoa(cl->addr.sin_addr));
 
         afficheMap(*cl->clientGame->map);
-        if (movePlayer(cl->player,cl->clientGame, cJSON_Parse(recu))==ERR){
+        if (movePlayer(cl->player, cl->clientGame, cJSON_Parse(recu)) == ERR) {
             ENVOIE_ERR_INCONNUE;
             return;
         }
@@ -105,37 +106,38 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         afficheMap(*cl->clientGame->map);
         char postMove[BUFFER_SIZE];
         //TODO: envoyer la position du joueur à tous les autres joueurs
-        sprintf(postMove,"%s\n%s",POST_POSITION_PLAYER_UPDATE, cJSON_Print(sendMove(cl->player,cJSON_GetObjectItemCaseSensitive(cJSON_Parse(recu), "move")->valuestring)));
+        sprintf(postMove, "%s\n%s", POST_POSITION_PLAYER_UPDATE, cJSON_Print(
+                sendMove(cl->player, cJSON_GetObjectItemCaseSensitive(cJSON_Parse(recu), "move")->valuestring)));
         ENVOI_MESSAGE(postMove);
         printf("Mouvement Réussie !\n");
-    } else if (!strncmp(recu,postPlayerAttack,POST_PLAYER_ATTACK_SIZE)){
+    } else if (!strncmp(recu, postPlayerAttack, POST_PLAYER_ATTACK_SIZE)) {
         recu += POST_PLAYER_ATTACK_SIZE;
         printf("Tentative d'attaque du joueur %s\n", inet_ntoa(cl->addr.sin_addr));
-        if (attackPlayer(cl->player,cl->clientGame, cJSON_Parse(recu))==ERR){
+        if (attackPlayer(cl->player, cl->clientGame, cJSON_Parse(recu)) == ERR) {
             ENVOIE_ERR_INCONNUE;
             return;
         }
         // reponse vers le client
         //int playerIndex = 0; // TODO: Le recuperer correctement ici
         char postAttack[BUFFER_SIZE];
-        sprintf(postAttack,"%s", cJSON_Print(sendPosBomb(cJSON_Parse(recu),cl->player)));
+        sprintf(postAttack, "%s", cJSON_Print(sendPosBomb(cJSON_Parse(recu), cl->player)));
         ENVOI_MESSAGE(postAttack);
 
         //TODO, Envoyer a tout les autres joueurs la position de la bombe
-        if (1){
+        if (1) {
             char postAll[BUFFER_SIZE];
-            sprintf(postAll,"%s\n%s",postAttackNewbomb, cJSON_Print(cJSON_Parse(recu)));
+            sprintf(postAll, "%s\n%s", postAttackNewbomb, cJSON_Print(cJSON_Parse(recu)));
             ENVOI_MESSAGE(postAll);
         }
-    } else if (!strncmp(recu,postAttackRemoteGo, POST_ATTACK_REMOTE_GO_SIZE)){
+    } else if (!strncmp(recu, postAttackRemoteGo, POST_ATTACK_REMOTE_GO_SIZE)) {
         printf("Explosion des remotes bomb de %s\n", inet_ntoa(cl->addr.sin_addr));
-        if (exploseBomb(cl->clientGame,cl->player)==ERR){
+        if (exploseBomb(cl->clientGame, cl->player) == ERR) {
             ENVOIE_ERR_INCONNUE;
             return;
+        } else {
+            printf("Requête inconnue : %s\n", recu);
+            ENVOIE_BAD_REQUEST;
         }
-    else {
-        printf("Requête inconnue : %s\n", recu);
-        ENVOIE_BAD_REQUEST;
     }
 }
 
