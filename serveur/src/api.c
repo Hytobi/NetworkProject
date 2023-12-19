@@ -32,7 +32,7 @@ if (m==NULL){ \
  * @param recu
  */
 void receiveSend(Client_Map_Games *clientMap, char *recu) {
-    int n=0;
+    int n = 0;
     Client *cl = clientMap->cl; // structure contenant toutes les infos necessaire
     socklen_t clientAddrLen = sizeof(cl->addr); // adresse du Client
     char buffer2[BUFFER_SIZE];
@@ -115,7 +115,7 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
             }
         }
         char joinGame[BUFFER_SIZE];
-        sprintf(joinGame,"%s",cJSON_Print(sendJoinGame(g, g->players[playerIndex])));
+        sprintf(joinGame, "%s", cJSON_Print(sendJoinGame(g, g->players[playerIndex])));
         ENVOI_MESSAGE(joinGame, strlen(joinGame));
         printf("Partie Rejoint avec succès !\n");
     } else if (!strncmp(recu, postPlayerMove, POST_PLAYER_MOVE_SIZE)) {
@@ -137,10 +137,23 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
 
         afficheMap(*cl->clientGame->map);
         char postMove[BUFFER_SIZE];
-        //TODO: envoyer la position du joueur à tous les autres joueurs
         sprintf(postMove, "%s\n%s", POST_POSITION_PLAYER_UPDATE, cJSON_Print(
                 sendMove(cl->player, cJSON_GetObjectItemCaseSensitive(cJSON_Parse(recu), "move")->valuestring)));
-        ENVOI_MESSAGE(postMove, strlen(postMove));
+
+        pthread_mutex_lock(&cl->clientGame->mutex);
+        for (int i = 0; i < MAX_PLAYER; i++) {
+            Player *player = cl->clientGame->players[i];
+            if(player==NULL){
+                continue;
+            }
+            clientAddrLen = sizeof(player->addr);
+            n = sendto(player->socket, postMove, strlen(postMove), MSG_CONFIRM, (struct sockaddr *) &player->addr, clientAddrLen);
+            if (n == ERR) {
+                perror("Erreur envoie du message");
+                return;
+            }
+        }
+        pthread_mutex_unlock(&cl->clientGame->mutex);
         printf("Mouvement Réussie !\n");
     } else if (!strncmp(recu, postPlayerAttack, POST_PLAYER_ATTACK_SIZE)) {
         recu += POST_PLAYER_ATTACK_SIZE;
