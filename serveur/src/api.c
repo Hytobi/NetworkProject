@@ -66,7 +66,7 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
             return;
         }
         pthread_mutex_unlock(&clientMap->gameInfo->gameListe[indiceGame]->mutex);
-        cJSON *json = cJSON_Print(sendGameCreation(cl->clientGame,
+        char *json = cJSON_Print(sendGameCreation(cl->clientGame,
                                                    clientMap->mapInfo->mapListe[cJSON_GetObjectItemCaseSensitive(
                                                            cJSON_Parse(recu), "mapId")->valueint]));
         ENVOI_MESSAGE(json, strlen(json));
@@ -148,7 +148,7 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
                 continue;
             }
             clientAddrLen = sizeof(player->addr);
-            n = sendto(player->socket, postMove, strlen(postMove), MSG_CONFIRM, (struct sockaddr *) &player->addr, clientAddrLen);
+            n = (int) sendto(player->socket, postMove, strlen(postMove), MSG_CONFIRM, (struct sockaddr *) &player->addr, clientAddrLen);
             if (n == ERR) {
                 perror("Erreur envoie du message");
                 return;
@@ -180,7 +180,7 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
             char *postAll = malloc(sizeof(char) * BUFFER_SIZE);
             sprintf(postAll, "%s\n%sEOJ", postAttackNewbomb, cJSON_Print(cJSON_Parse(recu)));
             clientAddrLen = sizeof(player->addr);
-            n = sendto(player->socket, postAll, strlen(postAll), MSG_CONFIRM, (struct sockaddr *) &player->addr, clientAddrLen);
+            n = (int) sendto(player->socket, postAll, strlen(postAll), MSG_CONFIRM, (struct sockaddr *) &player->addr, clientAddrLen);
             if (n == ERR) {
                 perror("Erreur envoie du message");
                 return;
@@ -209,7 +209,7 @@ void *clientCommunication(void *args) {
     for (;;) {
         strcpy(buffer, "");
         //n = recvfrom(cl->socket, buffer, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *) &cl->addr, &clientAddrLen);
-        n = read(cl->socket, buffer, BUFFER_SIZE);
+        n = (int) read(cl->socket, buffer, BUFFER_SIZE);
         if (n == ERR) {
             perror("Erreur reception du message");
             continue;
