@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include "json.h"
+#include "api.h"
 
 /**
  * retourne le player en format cJSON
@@ -146,35 +147,41 @@ cJSON *sendJoinGame(Game *g, Player *p) {
     return joinGame;
 }
 
-cJSON *sendMove(Player *p, char move[5]){
+cJSON *sendMove(Player *p, char move[5]) {
     cJSON *moveJSON = cJSON_CreateObject();
 
     char playerX[8];
-    sprintf(playerX,"player%d",p->id);
+    sprintf(playerX, "player%d", p->id);
 
-    cJSON_AddStringToObject(moveJSON,"player",playerX);
-    cJSON_AddStringToObject(moveJSON,"dir",move);
+    cJSON_AddStringToObject(moveJSON, "player", playerX);
+    cJSON_AddStringToObject(moveJSON, "dir", move);
 
     return moveJSON;
 }
 
-cJSON* sendPosBomb(cJSON *b,Player *p){
+cJSON *sendPosBomb(cJSON *b, Player *p) {
     cJSON *posBombJSON = cJSON_CreateObject();
 
     cJSON_AddStringToObject(posBombJSON, "action", "attack/bomb");
     cJSON_AddStringToObject(posBombJSON, "statut", "201");
-    char* message = malloc(sizeof(char)*256);
-    strcpy(message,cJSON_GetObjectItemCaseSensitive(b, "type")->valuestring);
-    strcat(message," bomb is armed at pos ");
-    strcpy(message,cJSON_GetObjectItemCaseSensitive(b, "pos")->valuestring);
+    char *message = malloc(sizeof(char) * 256);
+    strcpy(message, cJSON_GetObjectItemCaseSensitive(b, "type")->valuestring);
+    strcat(message, " bomb is armed at pos ");
+    strcpy(message, cJSON_GetObjectItemCaseSensitive(b, "pos")->valuestring);
     cJSON_AddStringToObject(posBombJSON, "message", message);
-    
+
 
     cJSON *playerInfo = playerToJSON(*p);
     cJSON_AddItemToObject(posBombJSON, "player", playerInfo);
 
 
     return posBombJSON;
+}
+
+char *sendAttackAffect(Player *p) {
+    char *buffer = malloc(sizeof(char) * BUFFER_SIZE);
+    sprintf(buffer, "%s\n%s", postAttackAffect, cJSON_Print(playerToJSON(*p)));
+    return buffer;
 }
 
 cJSON *badRequest() {

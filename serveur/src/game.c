@@ -37,7 +37,7 @@ int createGame(Games *gameInfo, Maps *maps, cJSON *info, Client *cl) {
         perror("erreur malloc map in createGame");
         return ERR;
     }
-    g->map = getMap(maps, g->mapId);
+    *g->map = *getMap(maps, g->mapId);
     g->defaultPlayer = createPlayer(0, 1, 1, cl->addr, cl->socket);
     g->startPos[0] = 1;
     g->startPos[1] = 1;

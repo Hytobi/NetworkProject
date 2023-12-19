@@ -24,6 +24,8 @@ cJSON *sendJoinGame(Game *g, Player *p);
 
 cJSON *sendMove(Player *p,char move[5]);
 
+char *sendAttackAffect(Player *p);
+
 cJSON *badRequest();
 
 cJSON *errInconnue();

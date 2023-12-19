@@ -43,6 +43,8 @@
 #define postAttackNewbomb "POST attack/newbomb"
 #define POST_ATTACK_NEWBOMB_SIZE strlen(POST_ATTACK_NEWBOMB)
 
+#define postAttackAffect "POST attack/affect"
+
 void *clientCommunication(void *args);
 
 #endif //PROJECT_API_H
