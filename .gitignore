@@ -11,10 +11,6 @@
 /serveur/doc/
 /serveur/obj/
 
-/Client/bin/
-/Client/doc/
-/Client/obj/
-
 /clientJava/myapp.mf
 /clientJava/bin/
 /clientJava/bin/myapp.jar
