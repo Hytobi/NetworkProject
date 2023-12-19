@@ -13,6 +13,7 @@
 #include <pthread.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include "struct.h"
 #include "api.h"
@@ -21,6 +22,14 @@
 #include "map.h"
 #include "game.h"
 #include "json.h"
+
+/*
+void serveurSIGINT(int signal, siginfo_t *info, void *context) {
+    AllStruct *allStruc = (AllStruct *)info->si_value.sival_ptr;
+    free(allStruc);
+    exit(EXIT_SUCCESS);
+}
+*/
 
 void *serveurUdp(void *args) {
     Thread_Info *threadInfo = (Thread_Info *) args;
@@ -190,6 +199,7 @@ void *tcpConnect(void *args) {
                 cm->gameInfo = gameInfo;
                 cm->cl = &threadInfo->clients[i];
                 cm->mapInfo = threadInfo->mapInfo;
+
                 pthread_create(&clientThreads[threadCount], NULL, clientCommunication, cm);
                 threadCount++;
             }
@@ -210,6 +220,24 @@ int main(int arvc, char **argv) {
         perror("Erreur initialisation du mutex");
         exit(2);
     }
+
+    /*
+    struct sigaction sa;
+    sa.sa_sigaction = serveurSIGINT;
+    sa.sa_flags = SA_SIGINFO;
+    sigemptyset(&sa.sa_mask);
+
+    // Configuration de sigaction
+    if (sigaction(SIGINT, &sa, NULL) == -1) {
+        perror("Erreur lors de la configuration de sigaction");
+        exit(EXIT_FAILURE);
+    }
+
+    // Utilisez si_value pour passer AllStruct
+    union sigval value;
+    value.sival_ptr = allStruct;
+    */
+
     pthread_t daemon, tcpThread;
 
     pthread_create(&daemon, NULL, serveurUdp, threadInfo);

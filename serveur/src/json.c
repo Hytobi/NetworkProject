@@ -121,14 +121,14 @@ cJSON *sendJoinGame(Game *g, Player *p) {
     cJSON_AddStringToObject(joinGame, "action", "game/join");
     cJSON_AddStringToObject(joinGame, "statut", "201");
     cJSON_AddStringToObject(joinGame, "message", "game joined");
-    cJSON_AddNumberToObject(joinGame, "nbPlayers", g->nbPlayers);
+    cJSON_AddNumberToObject(joinGame, "nbPlayers", g->nbPlayers-1);
     cJSON_AddNumberToObject(joinGame, "mapId", g->mapId);
 
     cJSON *playerListeJson = cJSON_AddArrayToObject(joinGame, "players");
     //Liste des players
     int i = 0;
     while (i < MAX_PLAYER) {
-        if (g->players[i] == NULL) {
+        if (g->players[i] == NULL || g->players[i]==p) {
             i++;
             continue;
         }
@@ -140,6 +140,7 @@ cJSON *sendJoinGame(Game *g, Player *p) {
 
         char pos[8];
         sprintf(pos, "%d,%d", g->players[i]->x, g->players[i]->y);
+        cJSON_AddStringToObject(playerIJSON,"pos",pos);
         cJSON_AddItemToArray(playerListeJson, playerIJSON);
         i++;
     }
