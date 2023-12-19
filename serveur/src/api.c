@@ -117,9 +117,13 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         printf("Tentative de déplacement du joueur %s\n", inet_ntoa(cl->addr.sin_addr));
 
         afficheMap(*cl->clientGame->map);
+
         pthread_mutex_lock(&cl->clientGame->mutex);
+        pthread_mutex_lock(&cl->clientGame->map->mutex);
         int caseMove = movePlayer(cl->player, cl->clientGame, cJSON_Parse(recu));
+        pthread_mutex_unlock(&cl->clientGame->map->mutex);
         pthread_mutex_unlock(&cl->clientGame->mutex);
+
         if (caseMove == ERR) {
             ENVOIE_ERR_INCONNUE;
             return;

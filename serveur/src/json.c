@@ -153,6 +153,10 @@ cJSON *sendJoinGame(Game *g, Player *p) {
     cJSON *playerInfo = playerToJSON(*p);
     cJSON_AddItemToObject(joinGame, "player", playerInfo);
 
+    pthread_mutex_lock(&g->map->mutex);
+    cJSON_AddStringToObject(joinGame, "startingMap", g->map->content);
+    pthread_mutex_unlock(&g->map->mutex);
+
     pthread_mutex_unlock(&g->mutex);
     return joinGame;
 }
