@@ -93,7 +93,7 @@ void moveOnMine(Player *p, Map *m) {
         socklen_t clientAddrLen = sizeof(p->addr);
         n = (int) sendto(p->socket, buffer, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &p->addr, clientAddrLen);
         i++;
-    } while (n == ERR && i<50);
+    } while (n == ERR && i<50); // essaye d'envoyer jusqu'a 50 fois si ca marche pas
 }
 
 char moveAfterAttack(char maCase) {
