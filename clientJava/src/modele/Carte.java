@@ -154,6 +154,15 @@ public class Carte{
         return null;
     }
 
+    public void exploseMine(MineExplose me){
+        int x = Integer.parseInt(me.getPos().split(",")[0]);
+        int y = Integer.parseInt(me.getPos().split(",")[1]);
+        plateau[x][y].setABombe(false);
+        plateau[x][y].setItem(null);
+        plateau[x][y].setCarac("@");
+        mesMAJ.add(new Point(x,y));
+    }
+
     /**
      * Méthode qui gère le séplacement du joueur
      * @param ppu : l'objet qui contient les informations de déplacement
@@ -219,39 +228,10 @@ public class Carte{
         return item;
     }
 
-    private void recupItem(String carac){ //a faire
-        switch (carac){
-            case "B":
-                myPlayer.setNbClassicBomb(myPlayer.getNbClassicBomb()+1);
-                break;
-            case "R":
-                myPlayer.setNbRemoteBomb(myPlayer.getNbRemoteBomb()+1);
-                break;
-            case "M":
-                myPlayer.setNbMine(myPlayer.getNbMine()+1);
-                break;
-            case "I":
-                myPlayer.setInvincible(true);
-                break;
-            case "S":
-                myPlayer.setSpeed(myPlayer.getSpeed()+1);
-                break;
-            case "L":
-                myPlayer.setLife(myPlayer.getLife()+1);
-                break;
-            case "D":
-                myPlayer.setImpactDist(myPlayer.getImpactDist()+1);
-                break;
-            default:
-                System.out.println("Erreur dans le type d'item");
-                break;
-        }
-    }
-
-    public void updateMyPlayer(Player p){
+    public void updateMyPlayer(Player p){        
         if (p.getLife() < myPlayer.getLife()){
             if (!myPlayer.getInvincible()){
-                myPlayer.setLife(myPlayer.getLife());
+                myPlayer.setLife(p.getLife());
             }
         } else {
             myPlayer.setLife(p.getLife());

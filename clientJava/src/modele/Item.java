@@ -20,4 +20,11 @@ public class Item {
         int i = (int)(Math.random() * ITEMS.length);
         return ITEMS[i];
     }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "carac='" + carac + '\'' +
+                '}';
+    }
 }

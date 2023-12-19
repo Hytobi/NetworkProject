@@ -45,6 +45,8 @@
 
 #define postAttackAffect "POST attack/affect"
 
+#define attackMineExplose "POST attack/mineExplose"
+
 void *clientCommunication(void *args);
 
 #endif //PROJECT_API_H

@@ -10,21 +10,21 @@ import java.util.List;
 
 public class ResGameList extends ResponseApi {
     private int nbGamesList;
-    private List<Game> Games;
+    private List<Game> games;
 
     public int getNbGamesList() {
         return nbGamesList;
     }
 
     public List<Game> getGames() {
-        return Games;
+        return games;
     }
 
     public void setNbGamesList(int nbGamesList) {
         this.nbGamesList = nbGamesList;
     }
 
-    public void setGames(List<Game> Games) {
-        this.Games = Games;
+    public void setGames(List<Game> games) {
+        this.games = games;
     }
 }

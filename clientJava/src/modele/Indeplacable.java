@@ -82,10 +82,25 @@ public class Indeplacable{
 
     /**Méthode qui affiche le carac selon aCaisse et aJoueur
      */
-    public String toString(){
-        if ((carac == ".") && aItem) return "*";
-        if ((carac == ".") && aJoueur) return "+";
-        return carac;
+    @Override
+public String toString() {
+    String description = "Indeplacable {";
+    description += "carac: '" + carac + "'";
+    
+    if (aJoueur) {
+        description += ", aJoueur: " + aJoueur;
     }
+    if (aItem) {
+        description += ", aItem: " + aItem;
+        description += ", item: " + (item != null ? item.toString() : "null");
+    }
+    if (aBombe) {
+        description += ", aBombe: " + aBombe;
+    }
+
+    description += "}";
+    return description;
+}
+
 
 }
