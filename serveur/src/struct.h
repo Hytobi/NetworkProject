@@ -26,6 +26,13 @@
 
 #define STRING_SIZE 256
 #define MAX_GAMES 16
+#define MAX_REMOTE_BOMB 32
+
+typedef struct point {
+    int x;
+    int y;
+    int dist;
+} Point;
 
 typedef struct player {
     int id; /**< player id */
@@ -41,17 +48,15 @@ typedef struct player {
     int nbMine; /**< nombre de mines possédées par le joueur */
     int impactDist; /**< nombre de cases impactées par une explosion (pour une direction donnée) */
     int invincible; /**<  indique si le joueur est en mode invincible */
+    int nbRemoteBombSet; /**< nombre de bombes posées par le joueur */
+    Point remoteSet[MAX_REMOTE_BOMB]; /**< liste des positions des bombes posées par le joueur */
 } Player;
 
 typedef struct map {
     int id; /**< id de la map concernée*/
     int width; /**<largeur de la map en nombre de cases*/
     int height; /**<hauteur de la map en nombre de cases*/
-    char content[MAX_MAP_SIZE]; /** descriptif de la map
- * La map est décrite au moyen des caractères suivants :
- * = correspond à un mur cassable par une explosion de bombe
- * * correspond à un mur incassable
- * - correspond à une case libre */
+    char content[MAX_MAP_SIZE]; /** descriptif de la map*/
 } Map;
 
 typedef struct maps {
