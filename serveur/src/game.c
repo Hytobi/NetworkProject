@@ -41,9 +41,15 @@ int createGame(Games *gameInfo, Maps *maps, cJSON *info, Client *cl) {
         perror("erreur malloc map in createGame");
         return ERR;
     }
+
     pthread_mutex_lock(&maps->mutex);
     *g->map = *getMap(maps, g->mapId);
+    if (pthread_mutex_init(&(g->map->mutex), NULL) != 0) {
+        perror("Erreur initialisation du mutex");
+        exit(2);
+    }
     pthread_mutex_unlock(&maps->mutex);
+
     g->defaultPlayer = createPlayer(0, 1, 1, cl->addr, cl->socket);
     g->startPos[0] = 1;
     g->startPos[1] = 1;
@@ -346,6 +352,12 @@ int exploseBomb(Game *g, Player *p) {
 
 void destroyGame(Game *g) {
     if (g != NULL) {
+        for (int i=0;i<MAX_PLAYER;i++){
+            destroyPlayer(g->players[i]);
+        }
+        destroyPlayer(g->defaultPlayer);
+        destroyMap(g->map);
+        pthread_mutex_destroy(&g->mutex);
         free(g);
     }
 }

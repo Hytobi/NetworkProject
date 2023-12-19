@@ -37,4 +37,6 @@ void afficheMap(Map m);
 int nextPosX(int i, int mapId);
 int nextPosY(int i, int mapId);
 
+void destroyMap(Map *);
+
 #endif //PROJECT_MAP_H

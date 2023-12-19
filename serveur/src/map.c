@@ -108,3 +108,11 @@ int nextPosX(int i, int mapId){
 int nextPosY(int i, int mapId){
     return nextY[mapId][i];
 }
+
+void destroyMap(Map *map){
+    if (map != NULL){
+        return;
+    }
+    pthread_mutex_destroy(&map->mutex);
+    free(map);
+}
