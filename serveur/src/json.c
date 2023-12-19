@@ -104,8 +104,10 @@ cJSON *sendPartieListe(Games *gameInfo) {
         }
         cJSON *game = cJSON_CreateObject();
         cJSON_AddStringToObject(game, "name", gameI->name);
+        char mapId[3];
+        sprintf(mapId,"%d",gameI->mapId);
+        cJSON_AddStringToObject(game, "mapId", mapId);
         cJSON_AddNumberToObject(game, "nbPlayer", gameI->nbPlayers);
-        cJSON_AddNumberToObject(game, "mapId", gameI->mapId);
         cJSON_AddItemToArray(gamesArray, game);
         i++;
     }
@@ -114,6 +116,7 @@ cJSON *sendPartieListe(Games *gameInfo) {
 }
 
 cJSON *sendJoinGame(Game *g, Player *p) {
+    pthread_mutex_lock(&g->mutex);
     cJSON *joinGame = cJSON_CreateObject();
     cJSON_AddStringToObject(joinGame, "action", "game/join");
     cJSON_AddStringToObject(joinGame, "statut", "201");
@@ -149,6 +152,7 @@ cJSON *sendJoinGame(Game *g, Player *p) {
     cJSON *playerInfo = playerToJSON(*p);
     cJSON_AddItemToObject(joinGame, "player", playerInfo);
 
+    pthread_mutex_unlock(&g->mutex);
     return joinGame;
 }
 

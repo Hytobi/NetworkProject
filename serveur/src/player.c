@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "player.h"
 
 Player *createPlayer(int id, int x, int y, struct sockaddr_in addr, int socket) {
