@@ -116,14 +116,23 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
             return;
         }
         // reponse vers le client
-        //int playerIndex = 0; // TODO: Le recuperer correctement
-        //ENVOI_MESSAGE(cJSON_Print(sendPosBomb(cJSON_Parse(recu),g->players[playerIndex])));
+        //int playerIndex = 0; // TODO: Le recuperer correctement ici
+        char postAttack[BUFFER_SIZE];
+        sprintf(postAttack,"%s", cJSON_Print(sendPosBomb(cJSON_Parse(recu),cl->player)));
+        ENVOI_MESSAGE(postAttack);
 
         //TODO, Envoyer a tout les autres joueurs la position de la bombe
-        char postAll[BUFFER_SIZE];
-        sprintf(postAll,"%s\n%s",postAttackNewbomb, cJSON_Print(cJSON_Parse(recu)));
-        ENVOI_MESSAGE(postAll);
-    }
+        if (1){
+            char postAll[BUFFER_SIZE];
+            sprintf(postAll,"%s\n%s",postAttackNewbomb, cJSON_Print(cJSON_Parse(recu)));
+            ENVOI_MESSAGE(postAll);
+        }
+    } else if (!strncmp(recu,postAttackRemoteGo, POST_ATTACK_REMOTE_GO_SIZE)){
+        printf("Explosion des remotes bomb de %s\n", inet_ntoa(cl->addr.sin_addr));
+        if (exploseBomb(cl->clientGame,cl->player)==ERR){
+            ENVOIE_ERR_INCONNUE;
+            return;
+        }
     else {
         printf("Requête inconnue : %s\n", recu);
         ENVOIE_BAD_REQUEST;

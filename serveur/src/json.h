@@ -26,6 +26,8 @@ cJSON *sendMove(Player *p,char move[5]);
 
 char *sendAttackAffect(Player *p);
 
+cJSON* sendPosBomb(cJSON *b, Player *p);
+
 cJSON *badRequest();
 
 cJSON *errInconnue();
