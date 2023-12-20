@@ -39,8 +39,6 @@ int movePlayer(Player *p, Game *game, cJSON *info);
 
 int attackPlayer(Player* p , Game* g, cJSON* info);
 
-int exploseBomb(Game *g, Player *p);
-
 int updatePlayer(Player *p, cJSON* info);
 
 void destroyGame(Game *g);

@@ -31,6 +31,17 @@
 #define MAX_REMOTE_BOMB 32
 #define MOVE_INVINCIBLE 7
 
+/**
+ * Structure qui definie une bombe
+ * (Elle est incassable, meme une explosion la fera pas exploser avant la fin de son timer)
+ */
+typedef struct Bombe {
+    int id;
+    int x;
+    int y;
+    int dist;
+    int *nbBombes; /**< pointeur du nombre de bombes posées par le joueur */
+} Bombe;
 typedef struct player {
     int id; /**< player id */
     int x; /**< pos x du joueur */
@@ -47,20 +58,8 @@ typedef struct player {
     int invincible; /**<  indique si le joueur est en mode invincible */
     int nbMoveInvincible; /**< nombre de déplacements restants en mode invincible */
     int nbRemoteBombSet; /**< nombre de bombes posées par le joueur */
-    Point remoteSet[MAX_REMOTE_BOMB]; /**< liste des positions des bombes posées par le joueur */
+    Bombe remoteSet[MAX_REMOTE_BOMB]; /**< liste des positions des bombes posées par le joueur */
 } Player;
-
-/**
- * Structure qui definie une bombe
- * (Elle est incassable, meme une explosion la fera pas exploser avant la fin de son timer)
- */
-typedef struct Bombe {
-    int id;
-    int x;
-    int y;
-    int dist;
-    Player * player;
-} Bombe;
 
 typedef struct Bombes {
     int nbBombe;

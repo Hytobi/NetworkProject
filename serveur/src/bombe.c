@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <malloc.h>
 #include "bombe.h"
+#include "map.h"
 
 void* bombeThread(void* arg) {
     Game* game = (Game*)arg;
