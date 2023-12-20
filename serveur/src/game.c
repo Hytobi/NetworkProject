@@ -58,6 +58,17 @@ int createGame(Games *gameInfo, Maps *maps, cJSON *info, Client *cl) {
         exit(2);
     }
 
+    g->bombesListe = malloc(sizeof(Bombes));
+    if (g->bombesListe==NULL){
+        perror("Erreur malloc Bombes liste");
+        return ERR;
+    }
+
+    if (pthread_mutex_init(&(g->bombesListe->mutex), NULL) != 0) {
+        perror("Erreur initialisation du mutex");
+        exit(2);
+    }
+
     for (int i=0;i<MAX_PLAYER;i++){
         g->players[i]=NULL;
     }
