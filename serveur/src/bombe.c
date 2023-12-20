@@ -41,7 +41,7 @@ sendModifiedMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int dist,
     int n;
     cJSON *json = sendModifMap(g, propagation, nbItem, x, y, dist, type);
     sprintf(buffer, "%s\n%s", postAttackExplose, cJSON_Print(json));
-    
+
     for (int i=0;i<MAX_PLAYER;i++){
         Player *player = g->players[i];
         if (!player){
@@ -82,11 +82,11 @@ int processExploseDist(Game *g, int x, int y, int dist, char* type) {
     int nbItem = 0;
     Bombe propagation[dist*4];
     // La case de la bombe explose et devient un sol
-    int numCase = y + map->width * x;
-    map->content[numCase] = SOL_CHAR;
+    //int numCase = y + map->width * x;
+    //map->content[numCase] = SOL_CHAR;
 
     // Les cases autour de la bombe explosent
-    for (int i = 1; i <= dist; i++) {
+    for (int i = 0; i <= dist; i++) {
         if (x - i > 0) {
             if (explosion = processExplose(g, x - i, y)) {
                 if (explosion == 2) {
@@ -145,7 +145,7 @@ int exploseBomb(Game *g, Player *p) {
         int y = p->remoteSet[i].y;
         int numCase = y + map->width * x;
         char carac = map->content[numCase];
-        if (carac == PLAYER_REMOTE_BOMB_CHAR) {
+        if (carac == REMOTE_BOMB_CHAR || carac == PLAYER_REMOTE_BOMB_CHAR) {
             processExploseDist(g, x, y, p->remoteSet[i].dist, "remoteBomb");
             p->nbRemoteBombSet--;
             p->remoteSet[i] = p->remoteSet[p->nbRemoteBombSet];

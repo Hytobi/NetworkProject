@@ -212,9 +212,6 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         if (exploseBomb(cl->clientGame, cl->player) == ERR) {
             ENVOIE_ERR_INCONNUE;
             return;
-        } else {
-            printf("Requête inconnue : %s\n", recu);
-            ENVOIE_BAD_REQUEST;
         }
     } else if (!strncmp(recu, postObjectNew, POST_OBJECT_NEW_SIZE)) {
         printf("Mise à jour du joueur %s\n", inet_ntoa(cl->addr.sin_addr));
