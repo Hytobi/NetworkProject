@@ -49,7 +49,7 @@ void *bombeThreadExplose(void *arg) {
 
 
     //faire exploser la bombe
-    processExploseDist(game, b->x, b->y, b->dist);
+    processExploseDist(game, b->x, b->y, b->dist, "classic");
 
     b->nbBombes--;
 
@@ -60,7 +60,7 @@ void *bombeThreadExplose(void *arg) {
     pthread_exit(NULL);
 }
 
-sendModifiedMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int dist, char* type) {
+int sendModifiedMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int dist, char* type) {
     char *buffer = malloc(sizeof(char) * BUFFER_SIZE);
     int n;
     cJSON *json = sendModifMap(g, propagation, nbItem, x, y, dist, type);
@@ -75,7 +75,7 @@ sendModifiedMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int dist,
         n = (int) sendto(player->socket, buffer, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &player->addr, clientAddrLen);
         if (n == ERR) {
             perror("Erreur envoie du message");
-            return;
+            return ERR;
         }
     }
     free(buffer);
@@ -104,7 +104,16 @@ int processExploseDist(Game *g, int x, int y, int dist, char* type) {
     Map *map = g->map;
     int explosion;
     int nbItem = 0;
-    Bombe propagation[dist*4];
+    pthread_mutex_t mutex;
+    if (pthread_mutex_init(&mutex, NULL) != 0) {
+        perror("Erreur initialisation du mutex");
+        exit(2);
+    }
+
+    pthread_mutex_lock(&mutex);
+    printf("1\n");
+    Bombe propagation[5];
+    printf("2\n");
     // La case de la bombe explose et devient un sol
     //int numCase = y + map->width * x;
     //map->content[numCase] = SOL_CHAR;
@@ -159,6 +168,7 @@ int processExploseDist(Game *g, int x, int y, int dist, char* type) {
         }
     }
     sendModifiedMap(g, propagation, nbItem, x, y, dist, type);
+    pthread_mutex_unlock(&mutex);
 }
 
 int exploseBomb(Game *g, Player *p) {

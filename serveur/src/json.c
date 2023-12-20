@@ -3,6 +3,7 @@
 //
 
 #include <stdio.h>
+#include <malloc.h>
 #include "json.h"
 #include "api.h"
 
@@ -227,7 +228,7 @@ cJSON *sendModifMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int d
     sprintf(pos, "%d,%d", x, y);
     cJSON_AddStringToObject(json, "pos", pos);
     cJSON_AddStringToObject(json, "type", type);
-    cJSON_AddStringToObject(json, "impactDist", dist);
+    cJSON_AddNumberToObject(json, "impactDist", dist);
 
     cJSON *casesMofifies = cJSON_AddArrayToObject(json, "casesMofifies");
     //Liste des players
@@ -237,7 +238,7 @@ cJSON *sendModifMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int d
         cJSON *caseJSON = cJSON_CreateObject();
         cJSON_AddNumberToObject(caseJSON, "x", propagation[i].x);
         cJSON_AddNumberToObject(caseJSON, "y", propagation[i].y);
-        cJSON_AddStringToObject(caseJSON, "carac", map.content[propagation[i].y + map.width * propagation[i].x]);
+        cJSON_AddStringToObject(caseJSON, "carac", &map.content[propagation[i].y + map.width * propagation[i].x]);
         cJSON_AddItemToArray(casesMofifies, caseJSON);
         i++;
     }

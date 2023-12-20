@@ -208,16 +208,19 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
             free(postAll);
         }
 
-        if (createBombe(cl->clientGame->bombesListe, cl->player->x, cl->player->y, cl->player->impactDist,
-                        &cl->player->nbClassicBomb) == ERR) {
-            printf("Erreur lors de la pose de la bombe\n");
-            return;
+        if (!strncmp(cJSON_GetObjectItemCaseSensitive(cJSON_Parse(recu),"type")->valuestring,CLASSIC,CLASSIC_SIZE)) {
+
+            if (createBombe(cl->clientGame->bombesListe, cl->player->x, cl->player->y, cl->player->impactDist,
+                            &cl->player->nbClassicBomb) == ERR) {
+                printf("Erreur lors de la pose de la bombe\n");
+                return;
+            }
+
+            pthread_t bombeThread;
+            pthread_create(&bombeThread, NULL, bombeThreadExplose, (void *) cl->clientGame);
+
+            //pthread_join(bombeThread, NULL);
         }
-
-        pthread_t bombeThread;
-        pthread_create(&bombeThread, NULL, bombeThreadExplose, (void*) cl->clientGame);
-
-        //pthread_join(bombeThread, NULL);
 
         printf("Bombe posée !\n");
 
