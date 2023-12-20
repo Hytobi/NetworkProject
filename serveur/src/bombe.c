@@ -10,6 +10,7 @@
 #include "cJSON/cJSON.h"
 #include "json.h"
 #include "err.h"
+#include "player.h"
 
 #define isBombe(carac) (carac==CLASSIC_BOMB_CHAR || carac==REMOTE_BOMB_CHAR || carac==MINE_CHAR)
 
@@ -42,7 +43,7 @@ void *bombeThreadExplose(void *arg) {
         }
     }
 
-    if (b==NULL){
+    if (b == NULL) {
         pthread_mutex_unlock(&(game->bombesListe->mutex));
         pthread_exit(NULL);
     }
@@ -60,19 +61,20 @@ void *bombeThreadExplose(void *arg) {
     pthread_exit(NULL);
 }
 
-int sendModifiedMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int dist, char* type) {
+int sendModifiedMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int dist, char *type) {
     char *buffer = malloc(sizeof(char) * BUFFER_SIZE);
     int n;
     cJSON *json = sendModifMap(g, propagation, nbItem, x, y, dist, type);
     sprintf(buffer, "%s\n%s", postAttackExplose, cJSON_Print(json));
 
-    for (int i=0;i<MAX_PLAYER;i++){
+    for (int i = 0; i < MAX_PLAYER; i++) {
         Player *player = g->players[i];
-        if (!player){
+        if (!player) {
             continue;
         }
         socklen_t clientAddrLen = sizeof(player->addr);
-        n = (int) sendto(player->socket, buffer, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &player->addr, clientAddrLen);
+        n = (int) sendto(player->socket, buffer, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &player->addr,
+                         clientAddrLen);
         if (n == ERR) {
             perror("Erreur envoie du message");
             return ERR;
@@ -96,29 +98,22 @@ int processExplose(Game *g, int x, int y) {
         return (map->content[numCase] == ITEM_CHAR) ? 2 : 1;
     } else if (carac == MUR_INCA_CHAR || isBombe(carac)) {
         return 1;
-    } else if (carac == PLAYER_REMOTE_BOMB_CHAR || carac == PLAYER_BOMB_CHAR ) {
+    } // si c'est un joueur
+    else if (carac == PLAYER_CHAR || carac == PLAYER_BOMB_CHAR || carac == PLAYER_REMOTE_BOMB_CHAR ||
+             carac == PLAYER_MINE_CHAR) {
         for (int i = 0; i < MAX_PLAYER; i++) {
-            Player *p = g->players[i];
-            if (p == NULL) {
+            if (g->players[i] == NULL) {
                 continue;
             }
-            if (p->x == x && p->y == y) {
-                p->life -= 30;
-                if (p->life <= 0) {
-                    p->life = 0;
-                    map->content[numCase] = SOL_CHAR;
-                    //TODO : suppression de joueur
-                } else {
-                    map->content[numCase] = PLAYER_CHAR;
-                }
-                return 1;
+            if (g->players[i]->x == x && g->players[i]->y == y) {
+                damagePlayer(g->players[i],g->map);
             }
         }
     }
     return 0;
 }
 
-int processExploseDist(Game *g, int x, int y, int dist, char* type) {
+int processExploseDist(Game *g, int x, int y, int dist, char *type) {
     Map *map = g->map;
     int explosion;
     int nbItem = 0;
@@ -129,7 +124,6 @@ int processExploseDist(Game *g, int x, int y, int dist, char* type) {
     }
 
     pthread_mutex_lock(&mutex);
-    printf("dist : %d\n", dist);
     Bombe propagation[5];
     // La case de la bombe explose et devient un sol
     int numCase = y + map->width * x;
@@ -155,7 +149,7 @@ int processExploseDist(Game *g, int x, int y, int dist, char* type) {
         }
     }
     for (int i = 1; i <= dist; i++) {
-        if (x + i < map->width-1) {
+        if (x + i < map->width - 1) {
             if (explosion = processExplose(g, x + i, y)) {
                 if (explosion == 2) {
                     propagation[nbItem].x = x - i;
@@ -179,7 +173,7 @@ int processExploseDist(Game *g, int x, int y, int dist, char* type) {
         }
     }
     for (int i = 1; i <= dist; i++) {
-        if (y + i < map->height-1) {
+        if (y + i < map->height - 1) {
             if (explosion = processExplose(g, x, y + i)) {
                 if (explosion == 2) {
                     propagation[nbItem].x = x - i;
@@ -227,11 +221,11 @@ int createBombe(Bombes *bombesInfo, int x, int y, int dist, int *nbBombe) {
             perror("Erreur malloc Bombe");
             return ERR;
         }
-        b->x=x;
-        b->y=y;
-        b->dist=dist;
-        b->nbBombes=nbBombe;
-        b->id=bombesInfo->nextId;
+        b->x = x;
+        b->y = y;
+        b->dist = dist;
+        b->nbBombes = nbBombe;
+        b->id = bombesInfo->nextId;
         return b->id;
 
     }
@@ -239,7 +233,7 @@ int createBombe(Bombes *bombesInfo, int x, int y, int dist, int *nbBombe) {
 }
 
 void destroyBombe(Bombe *b) {
-    if (b!=NULL){
+    if (b != NULL) {
         free(b);
     }
 }

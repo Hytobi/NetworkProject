@@ -125,17 +125,10 @@ void moveOnMine(Player *p, Map *m) {
     if (p->invincible) {
         return;
     }
-    char *buffer = malloc(sizeof(char) * BUFFER_SIZE);
     p->life -= 30;
     int n = ERR;
     int i = 0;
-    do {
-        sprintf(buffer, "%s", sendAttackAffect(p));
-        socklen_t clientAddrLen = sizeof(p->addr);
-        n = (int) sendto(p->socket, buffer, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &p->addr, clientAddrLen);
-        i++;
-    } while (n == ERR && i < 50); // essaye d'envoyer jusqu'a 50 fois si ca marche pas
-    free(buffer);
+    damagePlayer(p,m);
 }
 
 char moveAfterAttack(char maCase) {
