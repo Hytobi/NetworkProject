@@ -62,7 +62,7 @@ typedef struct player {
 } Player;
 
 typedef struct Bombes {
-    int nbBombe;
+    int nextId;
     Bombe * bombes[MAX_BOMBES];
     pthread_mutex_t mutex;
 } Bombes;

@@ -7,7 +7,7 @@
 
 #include "struct.h"
 
-void* bombeThread(void* arg);
+void *bombeThreadExplose(void *arg);
 
 char getRandomChar();
 
@@ -17,8 +17,18 @@ int processExploseDist(Game *g, int x, int y, int dist, char* type);
 
 int exploseBomb(Game *g, Player *p);
 
-int createBombe(Bombes * bombesInfo);
+/**
+ * Créer une bombe normal, retourne l'id si tous se passe bien
+ * ERR si une erreur
+ * @param bombesInfo
+ * @param x
+ * @param y
+ * @param dist
+ * @param nbBombe
+ * @return
+ */
+int createBombe(Bombes *bombesInfo, int x, int y, int dist, int *nbBombe);
 
-void destroyBombe(Bombe * b);
+void destroyBombe(Bombe *b);
 
 #endif //PROJECT_BOMBE_H

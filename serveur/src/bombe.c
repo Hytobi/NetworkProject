@@ -4,6 +4,7 @@
 
 #include <unistd.h>
 #include <malloc.h>
+#include <stdlib.h>
 #include "bombe.h"
 #include "map.h"
 #include "cJSON/cJSON.h"
@@ -15,22 +16,45 @@
 #define postAttackExplose "POST attack/explose"
 #define POST_ATTACK_EXPLOSE_SIZE strlen(postAttackExplose)
 
-void* bombeThread(void* arg) {
-    Game* game = (Game*)arg;
+void *bombeThreadExplose(void *arg) {
+    Game *game = (Game *) arg;
 
     sleep(3);  // Attendre 3 secondes
 
-    // Créer et déclencher la bombe
-    Bombe* nouvelleBombe = malloc(sizeof(Bombe));
-    nouvelleBombe->dist = 0;  // Valeur de distance à définir
-    nouvelleBombe->x = 0;     // Valeur de coordonnée x à définir
-    nouvelleBombe->y = 0;     // Valeur de coordonnée y à définir
+    Bombe *b = game->bombesListe->bombes[0];
 
     pthread_mutex_lock(&(game->bombesListe->mutex));
-    if (game->bombesListe->nbBombe < MAX_BOMBES) {
-        game->bombesListe->bombes[game->bombesListe->nbBombe] = nouvelleBombe;
-        game->bombesListe->nbBombe++;
+
+    int i = 1;
+    while (b != NULL && i < MAX_BOMBES) {
+        b = game->bombesListe->bombes[i];
+        i++;
     }
+
+    // Récupérer la prochaine bombe à exploser
+    for (; i < MAX_BOMBES; i++) {
+        Bombe *nextBomb = game->bombesListe->bombes[i];
+        if (nextBomb == NULL) {
+            continue;
+        }
+        if (b->id > nextBomb->id) {
+            b = nextBomb;
+        }
+    }
+
+    if (b==NULL){
+        pthread_mutex_unlock(&(game->bombesListe->mutex));
+        pthread_exit(NULL);
+    }
+
+
+    //faire exploser la bombe
+    processExploseDist(game, b->x, b->y, b->dist);
+
+    b->nbBombes--;
+
+    destroyBombe(game->bombesListe->bombes[i]);
+
     pthread_mutex_unlock(&(game->bombesListe->mutex));
 
     pthread_exit(NULL);
@@ -158,10 +182,31 @@ int exploseBomb(Game *g, Player *p) {
     return 1;
 }
 
-int createBombe(Bombes * bombesInfo){
+int createBombe(Bombes *bombesInfo, int x, int y, int dist, int *nbBombe) {
+    Bombe *b;
+    for (int i = 0; i < MAX_BOMBES; i++) {
+        if ((b = bombesInfo->bombes[i]) == NULL) {
+            continue;
+        }
 
+        b = malloc(sizeof(Bombe));
+        if (b == NULL) {
+            perror("Erreur malloc Bombe");
+            return ERR;
+        }
+        b->x=x;
+        b->y=y;
+        b->dist=dist;
+        b->nbBombes=nbBombe;
+        b->id=bombesInfo->nextId;
+        return b->id;
+
+    }
+    return ERR;
 }
 
-void destroyBombe(Bombe * b){
-
+void destroyBombe(Bombe *b) {
+    if (b!=NULL){
+        free(b);
+    }
 }

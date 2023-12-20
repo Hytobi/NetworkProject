@@ -12,6 +12,7 @@
 #include "err.h"
 #include "game.h"
 #include "json.h"
+#include "bombe.h"
 
 #define ENVOI_MESSAGE(x, len) sprintf(buffer2, "%s", x); \
 n = sendto(cl->socket, buffer2, len, MSG_CONFIRM, (struct sockaddr *) &cl->addr, clientAddrLen); \
@@ -206,6 +207,20 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
             }
             free(postAll);
         }
+
+        if (createBombe(cl->clientGame->bombesListe, cl->player->x, cl->player->y, cl->player->impactDist,
+                        &cl->player->nbClassicBomb) == ERR) {
+            printf("Erreur lors de la pose de la bombe\n");
+            return;
+        }
+
+        pthread_t bombeThread;
+        pthread_create(&bombeThread, NULL, bombeThreadExplose, (void*) cl->clientGame);
+
+        //pthread_join(bombeThread, NULL);
+
+        printf("Bombe posée !\n");
+
         pthread_mutex_unlock(&cl->clientGame->mutex);
     } else if (!strncmp(recu, postAttackRemoteGo, POST_ATTACK_REMOTE_GO_SIZE)) {
         printf("Explosion des remotes bomb de %s\n", inet_ntoa(cl->addr.sin_addr));
