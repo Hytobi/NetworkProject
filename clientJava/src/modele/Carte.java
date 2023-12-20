@@ -113,7 +113,7 @@ public class Carte{
         }
 
         // Si c'est une connection a une game en cours, il faut ajouter les autres joueurs
-        if (resGameJoin.getPlayers().size() > 0){
+        if (resGameJoin.getPlayers() != null && !resGameJoin.getPlayers().isEmpty()){
             for (Player player : resGameJoin.getPlayers()){
                 // player.getPos() = "x,y", on recupere x et y en on les transforment en integer
                 int x = Integer.parseInt(player.getPos().split(",")[0]);
