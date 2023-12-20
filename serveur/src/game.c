@@ -353,13 +353,18 @@ int attackPlayer(Player *p, Game *g, cJSON *info) {
     return ERR;
 }
 
+char getRandomChar() {
+    srand(time(NULL));
+    int randomNumber = (rand() % 100) + 1;
+    return (randomNumber < 30) ? ITEM_CHAR : SOL_CHAR;
+}
+
 int processExplose(Game *g, int x, int y) {
     Map *map = g->map;
     int numCase = y + map->width * x;
     char carac = map->content[numCase];
     if (carac == MUR_CHAR) {
-        map->content[numCase] = SOL_CHAR;
-        //todo : peut drop un item
+        map->content[numCase] = getRandomChar();
         return 1;
     } else if (carac == MUR_INCA_CHAR) {
         return 1;

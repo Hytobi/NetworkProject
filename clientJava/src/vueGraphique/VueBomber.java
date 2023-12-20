@@ -135,7 +135,7 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
                 cartePanel.add(new JLabel(REMOTE), index); //remote
             } else if (c == "$") { //pas encore fait
                 cartePanel.remove(index);
-                cartePanel.add(new JLabel(PERSO[1]), index);
+                cartePanel.add(new JLabel(PERSO[2]), index); // todo regardé du bon coté
             } else if (c == "@") {
                 cartePanel.remove(index);
                 cartePanel.add(new JLabel(PERSO[jeu.getMyPlayer().getDirection()]), index); // jeu.getRobot().getDirection()

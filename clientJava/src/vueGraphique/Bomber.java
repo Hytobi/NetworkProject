@@ -51,7 +51,7 @@ public class Bomber {
                                     System.out.println("Erreur lors de la récupération du move");
                                 }
                             } catch (Exception e) {
-                                System.out.println("Erreur lors du mapper de l'update");
+                                System.out.println("Erreur lors du mapper de l'update" + e);
                             }
                         } else if (msg.contains("attack/newbomb")) {
                             try {
@@ -96,6 +96,17 @@ public class Bomber {
                                 }
                             } catch (Exception e) {
                                 System.out.println("Erreur lors du mapper de MineExplose");
+                            }
+                        } else if (msg.contains("player/new")) {
+                            try {
+                                PlayerNew playerNew = MapperRes.fromJson(json, PlayerNew.class);
+                                if (playerNew != null) {
+                                    jeu.setNewPlayer(playerNew);
+                                } else {
+                                    System.out.println("Erreur lors de la récupération du nouveau player");
+                                }
+                            } catch (Exception e) {
+                                System.out.println("Erreur lors du mapper de PlayerNew");
                             }
                         }
                     } else {

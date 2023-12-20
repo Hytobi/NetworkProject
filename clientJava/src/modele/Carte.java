@@ -113,13 +113,15 @@ public class Carte{
         }
 
         // Si c'est une connection a une game en cours, il faut ajouter les autres joueurs
-        if (resGameJoin.getNbPlayers() > 1){
+        if (resGameJoin.getPlayers().size() > 0){
             for (Player player : resGameJoin.getPlayers()){
                 // player.getPos() = "x,y", on recupere x et y en on les transforment en integer
                 int x = Integer.parseInt(player.getPos().split(",")[0]);
                 int y = Integer.parseInt(player.getPos().split(",")[1]);
                 player.setX(x);
                 player.setY(y);
+                player.setSpeed(1);
+                player.setDirection(2);
                 robots.add(player);
                 plateau[x][y] = new Sol("$");
             }
@@ -234,6 +236,20 @@ public class Carte{
             }
         }
         return item;
+    }
+
+    public void setNewPlayer(PlayerNew pn){
+        Player p = new Player();
+        p.setName(pn.getName());
+
+        int x = Integer.parseInt(pn.getPos().split(",")[0]);
+        int y = Integer.parseInt(pn.getPos().split(",")[1]);
+        p.setX(x);
+        p.setY(y);
+        p.setSpeed(1);
+        p.setDirection(2);
+        robots.add(p);
+        plateau[x][y] = new Sol("$");
     }
 
     public void updateMyPlayer(Player p){        

@@ -453,7 +453,7 @@ public class Intro extends JFrame implements ActionListener {
                     }
                     ResGameJoin res = MapperRes.fromJson(resJoin, ResGameJoin.class);
                     if (res != null && res.getStatut().equals("201")){
-                        myName = "player" + res.getNbPlayers()+1;
+                        myName = "player" + (res.getNbPlayers()+1);
                         resGameJoin = res;
                         commencer=true;
                     }else{
