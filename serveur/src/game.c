@@ -125,9 +125,6 @@ void moveOnMine(Player *p, Map *m) {
     if (p->invincible) {
         return;
     }
-    p->life -= 30;
-    int n = ERR;
-    int i = 0;
     damagePlayer(p,m);
 }
 
