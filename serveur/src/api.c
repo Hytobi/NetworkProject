@@ -41,8 +41,9 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         ENVOI_MESSAGE(notifClientServeurUp, strlen(notifClientServeurUp));
     } else if (!strncmp(recu, getMapListe, GET_MAP_LISTE_SIZE)) {
         printf("Envoie des informations concernant les Maps à : %s ...\n", inet_ntoa(cl->addr.sin_addr));
-        ENVOI_MESSAGE(cJSON_Print(sendMapListe(clientMap->mapInfo)),
-                      strlen(cJSON_Print(sendMapListe(clientMap->mapInfo))));
+        char* json = cJSON_Print(sendMapListe(clientMap->mapInfo));
+        ENVOI_MESSAGE(json, strlen(json));
+        free(json);
         printf("Map envoyé avec Succès\n");
     } else if (!strncmp(recu, postCreateGame, POST_CREATE_GAME_SIZE)) {
         recu += POST_CREATE_GAME_SIZE;
@@ -70,11 +71,13 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
                                                   clientMap->mapInfo->mapListe[cJSON_GetObjectItemCaseSensitive(
                                                           cJSON_Parse(recu), "mapId")->valueint]));
         ENVOI_MESSAGE(json, strlen(json));
+        free(json);
         printf("Partie créer !\n");
     } else if (!strncmp(recu, getPartieListe, GET_PARTIE_LISTE_SIZE)) {
         printf("Envoie de la liste des parties...\n");
-        ENVOI_MESSAGE(cJSON_Print(sendPartieListe(clientMap->gameInfo)),
-                      strlen(cJSON_Print(sendPartieListe(clientMap->gameInfo))));
+        char* json = cJSON_Print(sendPartieListe(clientMap->gameInfo));
+        ENVOI_MESSAGE(json, strlen(json));
+        free(json);
         printf("Envoie efectué !\n");
     } else if (!strncmp(recu, postJoinGame, POST_JOIN_GAME_SIZE)) {
         recu += POST_JOIN_GAME_SIZE;
