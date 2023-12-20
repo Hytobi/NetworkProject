@@ -17,6 +17,8 @@
 #define NB_MINE 1
 #define INVINCIBLE 0
 
+#define MAX_BOMBES 32
+
 #define MAX_MAP 16
 #define MAX_MAP_SIZE 2048
 
@@ -28,12 +30,6 @@
 #define MAX_GAMES 16
 #define MAX_REMOTE_BOMB 32
 #define MOVE_INVINCIBLE 7
-
-typedef struct point {
-    int x;
-    int y;
-    int dist;
-} Point;
 
 typedef struct player {
     int id; /**< player id */
@@ -53,6 +49,24 @@ typedef struct player {
     int nbRemoteBombSet; /**< nombre de bombes posées par le joueur */
     Point remoteSet[MAX_REMOTE_BOMB]; /**< liste des positions des bombes posées par le joueur */
 } Player;
+
+/**
+ * Structure qui definie une bombe
+ * (Elle est incassable, meme une explosion la fera pas exploser avant la fin de son timer)
+ */
+typedef struct Bombe {
+    int id;
+    int x;
+    int y;
+    int dist;
+    Player * player;
+} Bombe;
+
+typedef struct Bombes {
+    int nbBombe;
+    Bombe * bombes[MAX_BOMBES];
+    pthread_mutex_t mutex;
+} Bombes;
 
 typedef struct map {
     int id; /**< id de la map concernée*/
@@ -76,6 +90,7 @@ typedef struct game {
     int startPos[2]; /**< position initiale d’un nouveau joueur */
     Player *defaultPlayer; /**< objet JSON décrivant les caractéristiques d’un nouveau joueur */
     Player *players[MAX_PLAYER]; /**< Joueurs de la partie */
+    Bombes * bombesListe;
     pthread_mutex_t mutex;
 } Game;
 

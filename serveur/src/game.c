@@ -58,6 +58,17 @@ int createGame(Games *gameInfo, Maps *maps, cJSON *info, Client *cl) {
         exit(2);
     }
 
+    g->bombesListe = malloc(sizeof(Bombes));
+    if (g->bombesListe==NULL){
+        perror("Erreur malloc Bombes liste");
+        return ERR;
+    }
+
+    if (pthread_mutex_init(&(g->bombesListe->mutex), NULL) != 0) {
+        perror("Erreur initialisation du mutex");
+        exit(2);
+    }
+
     for (int i=0;i<MAX_PLAYER;i++){
         g->players[i]=NULL;
     }
@@ -230,107 +241,6 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
     }
 }
 
-/*
-int movePlayer(Player *p, Game *game, cJSON *info) {
-    Map *map = game->map;
-    char move[5];
-    strcpy(move, cJSON_GetObjectItemCaseSensitive(info, "move")->valuestring);
-    int actual_x = p->x, actual_y = p->y;
-    int numCase = actual_y + map->width * actual_x;
-    // si le joueur n'a pas la bonne place sur la map
-    if (map->content[numCase] != PLAYER_CHAR) {
-        //TODO
-    }
-    char carac;
-    // up
-    if (!strcmp(move, "up")) {
-        int nextCase = numCase - map->width;
-        carac = map->content[nextCase];
-        if (TEST_MOVES(carac)) {
-            if (carac == MINE_CHAR) {
-                moveOnMine(p, map);
-                envoieMineExplose(game, p->x - 1, p->y, p);
-                //return numCase * map->width;
-            }
-            map->content[numCase] = moveAfterAttack(map->content[numCase]);
-            map->content[nextCase] = PLAYER_CHAR;
-            p->x--;
-            if (p->invincible) {
-                p->nbMoveInvincible--;
-                if (p->nbMoveInvincible == 0) {
-                    p->invincible = 0;
-                }
-            }
-            return nextCase;
-        }
-        // down
-    } else if (!strcmp(move, "down")) {
-        int nextCase = numCase + map->width;
-        carac = map->content[nextCase];
-        if (TEST_MOVES(carac)) {
-            if (carac == MINE_CHAR) {
-                moveOnMine(p, map);
-                envoieMineExplose(game, p->x + 1, p->y, p);
-                //return numCase + map->width;
-            }
-            map->content[numCase] = moveAfterAttack(map->content[numCase]);
-            map->content[nextCase] = PLAYER_CHAR;
-            p->x++;
-            if (p->invincible) {
-                p->nbMoveInvincible--;
-                if (p->nbMoveInvincible == 0) {
-                    p->invincible = 0;
-                }
-            }
-            return nextCase;
-        }
-        // left
-    } else if (!strcmp(move, "left")) {
-        int nextCase = numCase - 1;
-        carac = map->content[nextCase];
-        if (TEST_MOVES(carac)) {
-            if (carac == MINE_CHAR) {
-                moveOnMine(p, map);
-                envoieMineExplose(game, p->x, p->y - 1, p);
-                //return numCase - 1;
-            }
-            map->content[numCase] = moveAfterAttack(map->content[numCase]);
-            map->content[nextCase] = PLAYER_CHAR;
-            p->y--;
-            if (p->invincible) {
-                p->nbMoveInvincible--;
-                if (p->nbMoveInvincible == 0) {
-                    p->invincible = 0;
-                }
-            }
-            return nextCase;
-        }
-        // right
-    } else {
-        int nextCase = numCase + 1;
-        carac = map->content[nextCase];
-        if (TEST_MOVES(carac)) {
-            if (carac == MINE_CHAR) {
-                moveOnMine(p, map);
-                envoieMineExplose(game, p->x, p->y + 1, p);
-                //return numCase + 1;
-            }
-            map->content[numCase] = moveAfterAttack(map->content[numCase]);
-            map->content[nextCase] = PLAYER_CHAR;
-            p->y++;
-            if (p->invincible) {
-                p->nbMoveInvincible--;
-                if (p->nbMoveInvincible == 0) {
-                    p->invincible = 0;
-                }
-            }
-            return nextCase;
-        }
-    }
-
-    return ERR;
-}*/
-
 int attackPlayer(Player *p, Game *g, cJSON *info) {
     char move[5];
     strcpy(move, cJSON_GetObjectItemCaseSensitive(info, "pos")->valuestring);
@@ -359,85 +269,6 @@ int attackPlayer(Player *p, Game *g, cJSON *info) {
 
     }
     return ERR;
-}
-
-char getRandomChar() {
-    srand(time(NULL));
-    int randomNumber = (rand() % 100) + 1;
-    return (randomNumber < 30) ? ITEM_CHAR : SOL_CHAR;
-}
-
-int processExplose(Game *g, int x, int y) {
-    Map *map = g->map;
-    int numCase = y + map->width * x;
-    char carac = map->content[numCase];
-    if (carac == MUR_CHAR) {
-        map->content[numCase] = getRandomChar();
-        return 1;
-    } else if (carac == MUR_INCA_CHAR) {
-        return 1;
-    } else if (carac == PLAYER_CHAR) {
-        //TODO : le joueur prend des dégats
-        return 1;
-    } else if (carac == PLAYER_BOMB_CHAR) {
-        //processExploseDist();
-        return 1;
-    } else if (carac == PLAYER_REMOTE_BOMB_CHAR) {
-        //TODO : la bombe explose
-        return 1;
-    } else if (carac == PLAYER_MINE_CHAR) {
-        //TODO : la mine explose
-        return 1;
-    }
-    return 0;
-}
-
-int processExploseDist(Game *g, int x, int y, int dist) {
-    Map *map = g->map;
-    for (int i = 1; i <= dist; i++) {
-        if (x - i >= 0) {
-            if (processExplose(g, x - i, y)) {
-                break;
-            }
-        }
-        if (x + i < map->width) {
-            if (processExplose(g, x + i, y)) {
-                break;
-            }
-        }
-        if (y - i >= 0) {
-            if (processExplose(g, x, y - i)) {
-                break;
-            }
-        }
-        if (y + i < map->height) {
-            if (processExplose(g, x, y + i)) {
-                break;
-            }
-        }
-    }
-}
-
-int exploseBomb(Game *g, Player *p) {
-    Map *map = g->map;
-    int i = 0;
-    while (i < p->nbRemoteBombSet) {
-        int x = p->remoteSet[i].x;
-        int y = p->remoteSet[i].y;
-        int numCase = y + map->width * x;
-        char carac = map->content[numCase];
-        if (carac == PLAYER_REMOTE_BOMB_CHAR) {
-            map->content[numCase] = SOL_CHAR;
-            processExploseDist(g, x, y, p->remoteSet[i].dist);
-            p->nbRemoteBombSet--;
-            p->remoteSet[i] = p->remoteSet[p->nbRemoteBombSet];
-            p->remoteSet[p->nbRemoteBombSet].x = 0;
-            p->remoteSet[p->nbRemoteBombSet].y = 0;
-            i--;
-        }
-        i++;
-    }
-    return 1;
 }
 
 int updatePlayer(Player *p, cJSON* info){
