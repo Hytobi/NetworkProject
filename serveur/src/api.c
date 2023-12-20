@@ -231,7 +231,7 @@ void *clientCommunication(void *args) {
             int inGame = 0;
             for (int i = 0; i < MAX_PLAYER; i++) {
                 if (cl->clientGame->players[i] != NULL) {
-                    if (cl->clientGame->players[i]->socket == cl->socket) {
+                    if (cl->clientGame->players[i]->socket != cl->socket) {
                         pthread_mutex_unlock(&cl->clientGame->mutex);
                         inGame = 1;
                         break;
@@ -239,7 +239,9 @@ void *clientCommunication(void *args) {
                 }
             }
             if (!inGame) {
+                printf("Destruction de la partie...\n");
                 destroyGame(cl->clientGame);
+                printf("Partie détruite avec succès\n");
             }
             pthread_mutex_unlock(&cl->clientGame->mutex);
             break;
