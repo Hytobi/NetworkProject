@@ -13,7 +13,7 @@ public class AttackExplose {
     private String pos;
     private String type;
     private int impactDist;
-    private List<Case> casesMofifies;
+    private List<Case> casesModifies;
 
     public String getPos() {
         return pos;
@@ -27,8 +27,8 @@ public class AttackExplose {
         return impactDist;
     }
 
-    public List<Case> getCasesMofifies() {
-        return casesMofifies;
+    public List<Case> getCasesModifies() {
+        return casesModifies;
     }
 
     public void setPos(String pos) {
@@ -43,12 +43,12 @@ public class AttackExplose {
         this.impactDist = impactDist;
     }
 
-    public void setMap(List<Case> casesMofifies) {
-        this.casesMofifies = casesMofifies;
+    public void setMap(List<Case> casesModifies) {
+        this.casesModifies = casesModifies;
     }
 
     public String toString() {
         return "AttackExplose : pos = " + pos + " | type = " + type + " | impactDist = " + impactDist
-                + " | casesMofifies = " + casesMofifies.toString();
+                + " | casesModifies = " + casesModifies.toString();
     }
 }

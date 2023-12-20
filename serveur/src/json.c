@@ -230,7 +230,7 @@ cJSON *sendModifMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int d
     cJSON_AddStringToObject(json, "type", type);
     cJSON_AddNumberToObject(json, "impactDist", dist);
 
-    cJSON *casesMofifies = cJSON_AddArrayToObject(json, "casesMofifies");
+    cJSON *casesModifies = cJSON_AddArrayToObject(json, "casesModifies");
     //Liste des players
     int i = 0;
     Map map = *g->map;
@@ -238,8 +238,10 @@ cJSON *sendModifMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int d
         cJSON *caseJSON = cJSON_CreateObject();
         cJSON_AddNumberToObject(caseJSON, "x", propagation[i].x);
         cJSON_AddNumberToObject(caseJSON, "y", propagation[i].y);
-        cJSON_AddStringToObject(caseJSON, "carac", &map.content[propagation[i].y + map.width * propagation[i].x]);
-        cJSON_AddItemToArray(casesMofifies, caseJSON);
+        char tab[1];
+        sprintf(tab, "%c", map.content[propagation[i].y + map.width * propagation[i].x]);
+        cJSON_AddStringToObject(caseJSON, "carac", tab);
+        cJSON_AddItemToArray(casesModifies, caseJSON);
         i++;
     }
 

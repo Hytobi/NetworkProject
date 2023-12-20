@@ -340,35 +340,18 @@ public class Carte {
         plateau[x][y].setItem(null);
         plateau[x][y].setCarac(" ");
         mesMAJ.add(new Point(x, y));
-        String str;
-        /*
-         * for (int i = 1; i <= ae.getImpactDist(); i++) {
-         * if (x - i > 0) {
-         * str = ae.getMap().charAt((x - i) * maxj + y) + ""; //
-         * String.valueOf(ae.getMap().charAt((x-i)*maxj+y));
-         * plateau[x - i][y].setCarac(str);
-         * mesMAJ.add(new Point(x - i, y));
-         * }
-         * if (x + i < maxi - 1) {
-         * str = ae.getMap().charAt((x + i) * maxj + y) + ""; //
-         * String.valueOf(ae.getMap().charAt((x+i)*maxj+y));
-         * plateau[x + i][y].setCarac(str);
-         * mesMAJ.add(new Point(x + i, y));
-         * }
-         * if (y - i > 0) {
-         * str = ae.getMap().charAt(x * maxj + y - i) + ""; //
-         * String.valueOf(ae.getMap().charAt(x*maxj+y-i));
-         * plateau[x][y - i].setCarac(str);
-         * mesMAJ.add(new Point(x, y - i));
-         * }
-         * if (y + i < maxj - 1) {
-         * str = ae.getMap().charAt(x * maxj + y + i) + ""; //
-         * String.valueOf(ae.getMap().charAt(x*maxj+y+i));
-         * plateau[x][y + i].setCarac(str);
-         * mesMAJ.add(new Point(x, y + i));
-         * }
-         * }
-         */
+        for (int i =0; i<ae.getCasesModifies().size(); i++) {
+            x = ae.getCasesModifies().get(i).getX();
+            y = ae.getCasesModifies().get(i).getY();
+            if (ae.getCasesModifies().get(i).getCarac().equals(" ")) {
+                plateau[x][y].setCarac(" ");
+            } else {
+                plateau[x][y].setCarac("I");
+                plateau[x][y].setAItem(true);
+                plateau[x][y].setItem(new Item("I"));
+            }
+            mesMAJ.add(new Point(x, y));
+        }
     }
 
     /**

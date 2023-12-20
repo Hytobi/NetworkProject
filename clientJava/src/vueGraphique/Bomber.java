@@ -48,7 +48,7 @@ public class Bomber {
                                 if (update != null) {
                                     String item = jeu.robotSeDeplace(update);
                                     if (item != null) {
-                                        System.out.println("Notifie le serveur que le joueur a ramassé un item");
+                                        System.out.println("Notifie le serveur que le joueur a ramassé un item : " + item);
                                         intro.getTcp().post(JsonJouer.postObjectNew(item));
                                     }
                                     namePlayerForMoveNotMe = update.getPlayer();
@@ -70,6 +70,7 @@ public class Bomber {
                                 System.out.println("Erreur lors du mapper de AttackNewBomb");
                             }
                         } else if (msg.contains("attack/explose")) {
+                            json = msg.replace("POST attack/explose\n", "");
                             try {
                                 AttackExplose ae = MapperRes.fromJson(json, AttackExplose.class);
                                 if (ae != null) {
@@ -79,6 +80,7 @@ public class Bomber {
                                 }
                             } catch (Exception e) {
                                 System.out.println("Erreur lors du mapper de AttackExplose");
+                                e.printStackTrace();
                             }
                         } else if (msg.contains("attack/affect")) {
                             try {

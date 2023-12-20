@@ -11,12 +11,6 @@ public class Case {
     private int y;
     private String carac;
 
-    public Case(int x, int y, String carac) {
-        this.x = x;
-        this.y = y;
-        this.carac = carac;
-    }
-
     public int getX() {
         return x;
     }

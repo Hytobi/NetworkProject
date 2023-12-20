@@ -65,7 +65,7 @@ int sendModifiedMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int d
     char *buffer = malloc(sizeof(char) * BUFFER_SIZE);
     int n;
     cJSON *json = sendModifMap(g, propagation, nbItem, x, y, dist, type);
-    sprintf(buffer, "%s\n%s", postAttackExplose, cJSON_Print(json));
+    sprintf(buffer, "%s\n%sEOJ", postAttackExplose, cJSON_Print(json));
 
     for (int i = 0; i < MAX_PLAYER; i++) {
         Player *player = g->players[i];
@@ -95,7 +95,7 @@ int processExplose(Game *g, int x, int y) {
     char carac = map->content[numCase];
     if (carac == MUR_CHAR) {
         map->content[numCase] = getRandomChar();
-        return (map->content[numCase] == ITEM_CHAR) ? 2 : 1;
+        return 2; //(map->content[numCase] == ITEM_CHAR) ? 2 : 1;
     } else if (carac == MUR_INCA_CHAR || isBombe(carac)) {
         return 1;
     } // si c'est un joueur
@@ -152,7 +152,7 @@ int processExploseDist(Game *g, int x, int y, int dist, char *type) {
         if (x + i < map->width - 1) {
             if (explosion = processExplose(g, x + i, y)) {
                 if (explosion == 2) {
-                    propagation[nbItem].x = x - i;
+                    propagation[nbItem].x = x + i;
                     propagation[nbItem].y = y;
                     nbItem++;
                 }
@@ -164,8 +164,8 @@ int processExploseDist(Game *g, int x, int y, int dist, char *type) {
         if (y - i > 0) {
             if (explosion = processExplose(g, x, y - i)) {
                 if (explosion == 2) {
-                    propagation[nbItem].x = x - i;
-                    propagation[nbItem].y = y;
+                    propagation[nbItem].x = x ;
+                    propagation[nbItem].y = y - i;
                     nbItem++;
                 }
                 break;
@@ -176,8 +176,8 @@ int processExploseDist(Game *g, int x, int y, int dist, char *type) {
         if (y + i < map->height - 1) {
             if (explosion = processExplose(g, x, y + i)) {
                 if (explosion == 2) {
-                    propagation[nbItem].x = x - i;
-                    propagation[nbItem].y = y;
+                    propagation[nbItem].x = x;
+                    propagation[nbItem].y = y + i;
                     nbItem++;
                 }
                 break;
