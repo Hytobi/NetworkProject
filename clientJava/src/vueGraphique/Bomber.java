@@ -27,8 +27,8 @@ public class Bomber {
         }
         intro.dispose();
 
-        Carte jeu = new Carte(intro.getMyName(), intro.getResGameJoin(), intro.getConfigTouch());
-        VueBomber vs = new VueBomber(jeu, intro.getTcp());
+        Carte jeu = new Carte(intro.getMyName(), intro.getResGameJoin());
+        VueBomber vs = new VueBomber(jeu, intro.getTcp(), intro.getConfigTouch());
         String recu = null;
         String namePlayerForMoveNotMe;
         while ((!jeu.finDePartie())) {
