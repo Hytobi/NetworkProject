@@ -39,6 +39,45 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
     char buffer2[BUFFER_SIZE];
     if (!strcmp(recu, messageClientAttendue)) {
         ENVOI_MESSAGE(notifClientServeurUp, strlen(notifClientServeurUp));
+    } else if (!strncmp(recu, postPlayerMove, POST_PLAYER_MOVE_SIZE)) {
+        recu += POST_PLAYER_MOVE_SIZE;
+        printf("Tentative de déplacement du joueur %s\n", inet_ntoa(cl->addr.sin_addr));
+
+        //afficheMap(*cl->clientGame->map);
+
+        pthread_mutex_lock(&cl->clientGame->mutex);
+        pthread_mutex_lock(&cl->clientGame->map->mutex);
+        int caseMove = movePlayer(cl->player, cl->clientGame, cJSON_Parse(recu));
+        pthread_mutex_unlock(&cl->clientGame->map->mutex);
+        pthread_mutex_unlock(&cl->clientGame->mutex);
+
+        if (caseMove == ERR) {
+            ENVOIE_ERR_INCONNUE;
+            return;
+        }
+
+        //afficheMap(*cl->clientGame->map);
+        char postMove[BUFFER_SIZE];
+        sprintf(postMove, "%s\n%s", POST_POSITION_PLAYER_UPDATE, cJSON_Print(
+                sendMove(cl->player, cJSON_GetObjectItemCaseSensitive(cJSON_Parse(recu), "move")->valuestring)));
+
+        pthread_mutex_lock(&cl->clientGame->mutex);
+        for (int i = 0; i < MAX_PLAYER; i++) {
+            Player *player = cl->clientGame->players[i];
+            if (player == NULL) {
+                continue;
+            }
+            clientAddrLen = sizeof(player->addr);
+            n = (int) sendto(player->socket, postMove, strlen(postMove), MSG_CONFIRM,
+                             (struct sockaddr *) &player->addr,
+                             clientAddrLen);
+            if (n == ERR) {
+                perror("Erreur envoie du message");
+                return;
+            }
+        }
+        pthread_mutex_unlock(&cl->clientGame->mutex);
+        printf("Mouvement Réussie !\n");
     } else if (!strncmp(recu, getMapListe, GET_MAP_LISTE_SIZE)) {
         printf("Envoie des informations concernant les Maps à : %s ...\n", inet_ntoa(cl->addr.sin_addr));
         char *json = cJSON_Print(sendMapListe(clientMap->mapInfo));
@@ -125,9 +164,10 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
             Player *p = g->players[i];
             if (p && p != cl->player) {
                 char *newP;
-                newP = cJSON_Print(newPlayer(*p));
+                sprintf(newP, "%s\n%s", POST_NEW_PLAYER, cJSON_Print(newPlayer(*p)));
                 clientAddrLen = sizeof(p->addr);
-                n = (int) sendto(p->socket, newP, strlen(newP), MSG_CONFIRM, (struct sockaddr *) &p->addr, clientAddrLen);
+                n = (int) sendto(p->socket, newP, strlen(newP), MSG_CONFIRM, (struct sockaddr *) &p->addr,
+                                 clientAddrLen);
                 free(newP);
                 if (n == ERR) {
                     perror("Erreur envoi message");
@@ -138,48 +178,6 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         pthread_mutex_unlock(&g->mutex);
 
         printf("Partie Rejoint avec succès !\n");
-    } else if (!strncmp(recu, postPlayerMove, POST_PLAYER_MOVE_SIZE)) {
-        recu += POST_PLAYER_MOVE_SIZE;
-        printf("Tentative de déplacement du joueur %s\n", inet_ntoa(cl->addr.sin_addr));
-
-        afficheMap(*cl->clientGame->map);
-
-        pthread_mutex_lock(&cl->clientGame->mutex);
-        pthread_mutex_lock(&cl->clientGame->map->mutex);
-        int caseMove = movePlayer(cl->player, cl->clientGame, cJSON_Parse(recu));
-        pthread_mutex_unlock(&cl->clientGame->map->mutex);
-        pthread_mutex_unlock(&cl->clientGame->mutex);
-
-        if (caseMove == ERR) {
-            ENVOIE_ERR_INCONNUE;
-            return;
-        }
-
-        afficheMap(*cl->clientGame->map);
-        char postMove[BUFFER_SIZE];
-        sprintf(postMove, "%s\n%s", POST_POSITION_PLAYER_UPDATE, cJSON_Print(
-                sendMove(cl->player, cJSON_GetObjectItemCaseSensitive(cJSON_Parse(recu), "move")->valuestring)));
-
-        pthread_mutex_lock(&cl->clientGame->mutex);
-        for (int i = 0; i < MAX_PLAYER; i++) {
-            Player *player = cl->clientGame->players[i];
-            if (player == NULL) {
-                continue;
-            }
-            printf("Player %d\n", i);
-            clientAddrLen = sizeof(player->addr);
-            printf("Adresse: %s\n", inet_ntoa(player->addr.sin_addr));
-            printf("Socket: %d\n\n", player->socket);
-            n = (int) sendto(player->socket, postMove, strlen(postMove), MSG_CONFIRM,
-                             (struct sockaddr *) &player->addr,
-                             clientAddrLen);
-            if (n == ERR) {
-                perror("Erreur envoie du message");
-                return;
-            }
-        }
-        pthread_mutex_unlock(&cl->clientGame->mutex);
-        printf("Mouvement Réussie !\n");
     } else if (!strncmp(recu, postPlayerAttack, POST_PLAYER_ATTACK_SIZE)) {
         recu += POST_PLAYER_ATTACK_SIZE;
         printf("Tentative d'attaque du joueur %s\n", inet_ntoa(cl->addr.sin_addr));
