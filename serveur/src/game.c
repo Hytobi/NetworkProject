@@ -64,13 +64,19 @@ int createGame(Games *gameInfo, Maps *maps, cJSON *info, Client *cl) {
         return ERR;
     }
 
+    for (int j=0;j<MAX_BOMBES;j++){
+        g->bombesListe->bombes[j]=NULL;
+    }
+
+    g->bombesListe->nextId=0;
+
     if (pthread_mutex_init(&(g->bombesListe->mutex), NULL) != 0) {
         perror("Erreur initialisation du mutex");
         exit(2);
     }
 
-    for (int i=0;i<MAX_PLAYER;i++){
-        g->players[i]=NULL;
+    for (int j=0;j<MAX_PLAYER;j++){
+        g->players[j]=NULL;
     }
 
     gameInfo->gameListe[i] = g;
@@ -125,9 +131,6 @@ void moveOnMine(Player *p, Map *m) {
     if (p->invincible) {
         return;
     }
-    p->life -= 30;
-    int n = ERR;
-    int i = 0;
     damagePlayer(p,m);
 }
 

@@ -41,6 +41,9 @@ typedef struct Bombe {
     int y;
     int dist;
     int *nbBombes; /**< pointeur du nombre de bombes posées par le joueur */
+    int playerId;
+    int socket;
+    struct sockaddr_in addr;
 } Bombe;
 typedef struct player {
     int id; /**< player id */

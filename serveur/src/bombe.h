@@ -13,7 +13,7 @@ char getRandomChar();
 
 int processExplose(Game *g, int x, int y);
 
-int processExploseDist(Game *g, int x, int y, int dist, char* type);
+int processExploseDist(Game *g, int x, int y, int dist, char *type);
 
 int exploseBomb(Game *g, Player *p);
 
@@ -27,7 +27,7 @@ int exploseBomb(Game *g, Player *p);
  * @param nbBombe
  * @return
  */
-int createBombe(Bombes *bombesInfo, int x, int y, int dist, int *nbBombe);
+int createBombe(Bombes *bombesInfo, Player *player);
 
 void destroyBombe(Bombe *b);
 

@@ -52,6 +52,9 @@
 #define CLASSIC "classic"
 #define CLASSIC_SIZE strlen(CLASSIC)
 
+#define POST_UPDATE_PLAYER_NB_BOMBE "POST update/player/nbBombe"
+#define POST_UPDATE_PLAYER_NB_BOMBE_SIZE strlen(POST_UPDATE_PLAYER_NB_BOMBE)
+
 void *clientCommunication(void *args);
 
 #endif //PROJECT_API_H
