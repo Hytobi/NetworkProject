@@ -16,6 +16,7 @@ Player *createPlayer(int id, int x, int y, struct sockaddr_in addr, int socket) 
     p->impactDist = DEFAUT_IMPATC_DIST;
     p->invincible = INVINCIBLE;
     p->nbRemoteBombSet = 0;
+    p->nbMoveInvincible = 0;
 
     return p;
 }

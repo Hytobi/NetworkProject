@@ -193,6 +193,12 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
             map->content[numCase] = moveAfterAttack(map->content[numCase]);
             map->content[nextCase] = PLAYER_CHAR;
             p->x--;
+            if (p->invincible) {
+                p->nbMoveInvincible--;
+                if (p->nbMoveInvincible == 0) {
+                    p->invincible = 0;
+                }
+            }
             return nextCase;
         }
         // down
@@ -208,6 +214,12 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
             map->content[numCase] = moveAfterAttack(map->content[numCase]);
             map->content[nextCase] = PLAYER_CHAR;
             p->x++;
+            if (p->invincible) {
+                p->nbMoveInvincible--;
+                if (p->nbMoveInvincible == 0) {
+                    p->invincible = 0;
+                }
+            }
             return nextCase;
         }
         // left
@@ -223,6 +235,12 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
             map->content[numCase] = moveAfterAttack(map->content[numCase]);
             map->content[nextCase] = PLAYER_CHAR;
             p->y--;
+            if (p->invincible) {
+                p->nbMoveInvincible--;
+                if (p->nbMoveInvincible == 0) {
+                    p->invincible = 0;
+                }
+            }
             return nextCase;
         }
         // right
@@ -238,6 +256,12 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
             map->content[numCase] = moveAfterAttack(map->content[numCase]);
             map->content[nextCase] = PLAYER_CHAR;
             p->y++;
+            if (p->invincible) {
+                p->nbMoveInvincible--;
+                if (p->nbMoveInvincible == 0) {
+                    p->invincible = 0;
+                }
+            }
             return nextCase;
         }
     }
@@ -345,6 +369,35 @@ int exploseBomb(Game *g, Player *p) {
             i--;
         }
         i++;
+    }
+    return 1;
+}
+
+int updatePlayer(Player *p, cJSON* info){
+    char type[12];
+    strcpy(type, cJSON_GetObjectItemCaseSensitive(info, "type")->valuestring);
+
+    if (!strcmp(type, "classicBomb")){
+        p->nbClassicBomb++;
+    } else if (!strcmp(type, "remoteBomb")){
+        p->nbRemoteBomb++;
+    } else if (!strcmp(type, "mine")){
+        p->nbMine++;
+    } else if (!strcmp(type, "impactUp")){
+        p->impactDist++;
+    } else if (!strcmp(type, "speedUp")){
+        p->speed++;
+    } else if (!strcmp(type, "impactDown")){
+        p->impactDist--;
+    } else if (!strcmp(type, "speedDown")){
+        p->speed--;
+    } else if (!strcmp(type, "lifeMax")){
+        p->life=100;
+    } else if (!strcmp(type, "invincible")){
+        p->invincible=1;
+        p->nbMoveInvincible=MOVE_INVINCIBLE;
+    } else {
+        return ERR;
     }
     return 1;
 }

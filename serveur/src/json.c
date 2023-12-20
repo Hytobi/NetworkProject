@@ -21,6 +21,7 @@ cJSON *playerToJSON(Player p) {
     cJSON_AddNumberToObject(playerJson, "nbRemoteBomb", p.nbRemoteBomb);
     cJSON_AddNumberToObject(playerJson, "impactDist", p.impactDist);
     cJSON_AddBoolToObject(playerJson, "invincible", p.invincible);
+    cJSON_AddNumberToObject(playerJson, "nbMoveInvincible", p.nbMoveInvincible);
 
     return playerJson;
 }
@@ -195,6 +196,20 @@ char *sendAttackAffect(Player *p) {
     char *buffer = malloc(sizeof(char) * BUFFER_SIZE);
     sprintf(buffer, "%s\n%s", postAttackAffect, cJSON_Print(playerToJSON(*p)));
     return buffer;
+}
+
+cJSON *sendObjNew(Player *p) {
+    cJSON *objNewJSON = cJSON_CreateObject();
+
+    cJSON_AddStringToObject(objNewJSON, "action", "object/new");
+    cJSON_AddStringToObject(objNewJSON, "statut", "201");
+    cJSON_AddStringToObject(objNewJSON, "message", "ok");
+
+    // info du joueur
+    cJSON *playerInfo = playerToJSON(*p);
+    cJSON_AddItemToObject(objNewJSON, "player", playerInfo);
+
+    return objNewJSON;
 }
 
 cJSON *badRequest() {

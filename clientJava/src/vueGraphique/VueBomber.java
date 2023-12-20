@@ -212,28 +212,7 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
         } catch (Exception e) {
             System.out.println("Erreur lors de la fermeture du socket");
         } finally {
-            int i=0;
-            while (i < MAX_RETRY) {
-                System.out.println("Tentative de reconnexion au serveur...");
-                if (UdpBroadcastClient.retryconnection(tcp.getServer())){
-                    try {
-                        tcp.tcpConnect();
-                        break;
-                    } catch (Exception e) {}
-                }
-                i++;
-                if (i < MAX_RETRY){
-                    try {
-                        Thread.sleep(10000);
-                    } catch (Exception ex) {
-                        System.out.println("Erreur lors de la reconnexion au serveur");
-                    }
-                }
-            }
-            if (i == MAX_RETRY) {
-                JOptionPane.showMessageDialog(this,"Impossible de se reconnecter au serveur");
-                System.exit(0);
-            }
+            System.exit(0);
         }
     }
 

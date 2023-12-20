@@ -27,6 +27,7 @@
 #define STRING_SIZE 256
 #define MAX_GAMES 16
 #define MAX_REMOTE_BOMB 32
+#define MOVE_INVINCIBLE 7
 
 typedef struct point {
     int x;
@@ -48,6 +49,7 @@ typedef struct player {
     int nbMine; /**< nombre de mines possédées par le joueur */
     int impactDist; /**< nombre de cases impactées par une explosion (pour une direction donnée) */
     int invincible; /**<  indique si le joueur est en mode invincible */
+    int nbMoveInvincible; /**< nombre de déplacements restants en mode invincible */
     int nbRemoteBombSet; /**< nombre de bombes posées par le joueur */
     Point remoteSet[MAX_REMOTE_BOMB]; /**< liste des positions des bombes posées par le joueur */
 } Player;

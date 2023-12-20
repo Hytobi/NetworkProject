@@ -199,6 +199,16 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
             printf("Requête inconnue : %s\n", recu);
             ENVOIE_BAD_REQUEST;
         }
+    } else if(!strncmp(recu,postObjectNew,POST_OBJECT_NEW_SIZE)){
+        printf("Mise à jour du joueur %s\n", inet_ntoa(cl->addr.sin_addr));
+        recu += POST_OBJECT_NEW_SIZE;
+        if (updatePlayer(cl->player,cJSON_Parse(recu)) == ERR) {
+            ENVOIE_ERR_INCONNUE;
+            return;
+        }
+        char postObject[BUFFER_SIZE];
+        sprintf(postObject, "%s", cJSON_Print(sendObjNew(cl->player)));
+        ENVOI_MESSAGE(postObject, strlen(postObject));
     }
 }
 

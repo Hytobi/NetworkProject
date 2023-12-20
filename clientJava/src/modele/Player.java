@@ -13,6 +13,7 @@ public class Player{
     private int nbMine;
     private int impactDist;
     private boolean invincible;
+    private int nbMoveInvincible;
     private boolean armedRemoteBomb;
 
     private int x;
@@ -89,6 +90,10 @@ public class Player{
         return invincible;
     }
 
+    public int getNbMoveInvincible(){
+        return nbMoveInvincible;
+    }
+
     /**Méthodes permettant de changer les valeur de direction,x et y
      */
     public void setDirection(int d){
@@ -139,6 +144,10 @@ public class Player{
 
     public void setArmedRemoteBomb(boolean b){
         armedRemoteBomb = b;
+    }
+
+    public void setNbMoveInvincible(int i){
+        nbMoveInvincible = i;
     }
 
     public boolean getArmedRemoteBomb(){

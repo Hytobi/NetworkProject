@@ -77,6 +77,8 @@ public class Carte{
         int i,j;
         char carac;
         content = content.replaceAll("\n", "");
+        // Si on rejoin on a les caractères @ qui sont des joueurs
+        content = content.replaceAll("@", " "); 
 
         //Construction du tableau de jeu
         for (i=0;i<maxi;i++){
@@ -216,7 +218,7 @@ public class Carte{
         mesMAJ.add(new Point(p.getX(),p.getY()));
         // s'il y a un item il le ramasse
         String item = null;
-        if (plateau[p.getX()][p.getY()].getAItem()){
+        if (plateau[p.getX()][p.getY()].getAItem() && myPlayer.getX() == p.getX() && myPlayer.getY() == p.getY()){
             item = plateau[p.getX()][p.getY()].getItem().randomItem();
             temp.setAItem(false);
             temp.setItem(null);
@@ -225,6 +227,12 @@ public class Carte{
         }
         // met a jour la map
         plateau[p.getX()][p.getY()].setCarac(carac);
+        if (myPlayer.getInvincible()){
+            myPlayer.setNbMoveInvincible(myPlayer.getNbMoveInvincible()-1);
+            if (myPlayer.getNbMoveInvincible() == 0){
+                myPlayer.setInvincible(false);
+            }
+        }
         return item;
     }
 
@@ -242,9 +250,14 @@ public class Carte{
         if (myPlayer.getNbRemoteBomb() > p.getNbRemoteBomb()){
             myPlayer.setNbRemoteBomb(p.getNbRemoteBomb());
             myPlayer.setArmedRemoteBomb(true);
+        } else {
+            myPlayer.setNbRemoteBomb(p.getNbRemoteBomb());
         }
         myPlayer.setImpactDist(p.getImpactDist());
         myPlayer.setInvincible(p.getInvincible());
+        if (myPlayer.getInvincible()){
+            myPlayer.setNbMoveInvincible(p.getNbMoveInvincible());
+        }
     }
 
     public void setABomb(AttackNewBomb anb){
