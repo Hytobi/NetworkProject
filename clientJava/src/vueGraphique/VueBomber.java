@@ -5,6 +5,8 @@ import java.util.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.ObjectInputFilter.Config;
+
 import javax.swing.*;
 import api.*;
 import dto.*;
@@ -33,6 +35,7 @@ public class VueBomber extends JFrame implements ActionListener, KeyListener {
             new ImageIcon("img/Droite.gif") };
 
     private Carte jeu;
+    private ConfigTouch config;
 
     private JPanel cartePanel;
     private JLabel infoLabel;
@@ -40,11 +43,12 @@ public class VueBomber extends JFrame implements ActionListener, KeyListener {
     private TcpClient tcp;
 
     /** Constructeur de la classe vue */
-    public VueBomber(Carte jeu, TcpClient tcp) {
+    public VueBomber(Carte jeu, TcpClient tcp, ConfigTouch config) {
         // Donne le titre via JFrame
         super("Bomberstudent");
         this.jeu = jeu;
         this.tcp = tcp;
+        this.config = config;
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -191,37 +195,37 @@ public class VueBomber extends JFrame implements ActionListener, KeyListener {
         if (stop)
             return;
         // Selon l'entrée on déplace le robot dans la direction voulue
-        if ((e.getKeyCode() == KeyEvent.VK_RIGHT) || (e.getKeyChar() == 'd')) {
+        if ((e.getKeyCode() == KeyEvent.VK_RIGHT) || (e.getKeyChar() == config.getDirRight())) {
             System.out.println("[POST] deplacement a droite");
             tcp.post(JsonJouer.postPlayerMove("right"));
-        } else if ((e.getKeyCode() == KeyEvent.VK_LEFT) || (e.getKeyChar() == 'q')) {
+        } else if ((e.getKeyCode() == KeyEvent.VK_LEFT) || (e.getKeyChar() == config.getDirLeft())) {
             System.out.println("[POST] deplacement a gauche");
             tcp.post(JsonJouer.postPlayerMove("left"));
-        } else if ((e.getKeyCode() == KeyEvent.VK_DOWN) || (e.getKeyChar() == 's')) {
+        } else if ((e.getKeyCode() == KeyEvent.VK_DOWN) || (e.getKeyChar() == config.getDirDown())) {
             System.out.println("[POST] deplacement en bas");
             tcp.post(JsonJouer.postPlayerMove("down"));
-        } else if ((e.getKeyCode() == KeyEvent.VK_UP) || (e.getKeyChar() == 'z')) {
+        } else if ((e.getKeyCode() == KeyEvent.VK_UP) || (e.getKeyChar() == config.getDirUp())) {
             System.out.println("[POST] deplacement en haut");
             tcp.post(JsonJouer.postPlayerMove("up"));
-        } else if (e.getKeyChar() == 'r') {
+        } else if (e.getKeyChar() == config.getPutRemoteBomb()) {
             if (jeu.getMyPlayer().getNbRemoteBomb() == 0)
                 return;
             System.out.println("[POST] posser une remote bomb");
             String pos = jeu.getMyPlayer().getX() + "," + jeu.getMyPlayer().getY();
             tcp.post(JsonJouer.postAttackBomb(pos, "remote"));
-        } else if (e.getKeyChar() == 'f' || e.getKeyChar() == 'm') {
+        } else if (e.getKeyChar() == config.getPutMine()) {
             if (jeu.getMyPlayer().getNbMine() == 0)
                 return;
             System.out.println("[POST] posser une mine");
             String pos = jeu.getMyPlayer().getX() + "," + jeu.getMyPlayer().getY();
             tcp.post(JsonJouer.postAttackBomb(pos, "mine"));
-        } else if (e.getKeyChar() == 'c') {
+        } else if (e.getKeyChar() == config.getPutClassicBomb()) {
             if (jeu.getMyPlayer().getNbClassicBomb() == 0)
                 return;
             System.out.println("[POST] posser une classic bomb");
             String pos = jeu.getMyPlayer().getX() + "," + jeu.getMyPlayer().getY();
             tcp.post(JsonJouer.postAttackBomb(pos, "classic"));
-        } else if (e.getKeyChar() == 'e') {
+        } else if (e.getKeyChar() == config.getExplodeRemoteBomb()) {
             if (!jeu.getMyPlayer().getArmedRemoteBomb())
                 return;
             System.out.println("[POST] explosion de remote bomb");

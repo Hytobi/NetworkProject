@@ -24,6 +24,7 @@ public class Intro extends JFrame implements ActionListener {
     private boolean commencer = false;
     private String myName;
     private ResGameJoin resGameJoin;
+    private ConfigTouch configTouch = new ConfigTouch();
 
     private JPanel infoPanel;
     private JLabel bomber;
@@ -117,6 +118,10 @@ public class Intro extends JFrame implements ActionListener {
 
     public ResGameJoin getResGameJoin() {
         return resGameJoin;
+    }
+
+    public ConfigTouch getConfigTouch() {
+        return configTouch;
     }
 
     @Override
