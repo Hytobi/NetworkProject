@@ -7,6 +7,8 @@
 #include "bombe.h"
 #include "map.h"
 
+#define isBombe(carac) (carac==CLASSIC_BOMB_CHAR || carac==REMOTE_BOMB_CHAR || carac==MINE_CHAR)
+
 void* bombeThread(void* arg) {
     Game* game = (Game*)arg;
 
@@ -41,19 +43,7 @@ int processExplose(Game *g, int x, int y) {
     if (carac == MUR_CHAR) {
         map->content[numCase] = getRandomChar();
         return 1;
-    } else if (carac == MUR_INCA_CHAR) {
-        return 1;
-    } else if (carac == PLAYER_CHAR) {
-        //TODO : le joueur prend des dégats
-        return 1;
-    } else if (carac == PLAYER_BOMB_CHAR) {
-        //processExploseDist();
-        return 1;
-    } else if (carac == PLAYER_REMOTE_BOMB_CHAR) {
-        //TODO : la bombe explose
-        return 1;
-    } else if (carac == PLAYER_MINE_CHAR) {
-        //TODO : la mine explose
+    } else if (carac == MUR_INCA_CHAR || isBombe(carac)) {
         return 1;
     }
     return 0;
@@ -62,22 +52,28 @@ int processExplose(Game *g, int x, int y) {
 int processExploseDist(Game *g, int x, int y, int dist) {
     Map *map = g->map;
     for (int i = 1; i <= dist; i++) {
-        if (x - i >= 0) {
+        if (x - i > 0) {
             if (processExplose(g, x - i, y)) {
                 break;
             }
         }
-        if (x + i < map->width) {
+    }
+    for (int i = 1; i <= dist; i++) {
+        if (x + i < map->width-1) {
             if (processExplose(g, x + i, y)) {
                 break;
             }
         }
-        if (y - i >= 0) {
+    }
+    for (int i = 1; i <= dist; i++) {
+        if (y - i > 0) {
             if (processExplose(g, x, y - i)) {
                 break;
             }
         }
-        if (y + i < map->height) {
+    }
+    for (int i = 1; i <= dist; i++) {
+        if (y + i < map->height-1) {
             if (processExplose(g, x, y + i)) {
                 break;
             }

@@ -1,5 +1,12 @@
 package dto;
 
+/**
+ * PlayerNew : Objet qui fait spawn un joueur (envoyé par le serveur)
+ * 
+ * @author Hana DELCOURT, Patrice PLOUVIN
+ * 
+ */
+
 public class PlayerNew {
     private String player;
     private String pos;

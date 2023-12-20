@@ -1,14 +1,17 @@
 package modele;
 
 /**
- * Classe modélisant un Mur de la map
- * @author PLOUVIN Patrice
+ * MurInca : Objet representant un mur incassable
+ * 
+ * @author Hana DELCOURT, Patrice PLOUVIN
+ * 
  */
-public class MurInca extends Indeplacable{
+
+public class MurInca extends Indeplacable {
     public static final String carac = "X";
 
     /** Constructeur de la classe Mur */
-    public MurInca(){
+    public MurInca() {
         super(carac);
     }
 

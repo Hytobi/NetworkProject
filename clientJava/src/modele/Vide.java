@@ -1,15 +1,18 @@
 package modele;
 
 /**
- * Classe modélisant un Vide de la map.
- * @author PLOUVIN Patrice
+ * Vide : Objet representant un vide sur la map
+ * 
+ * @author Hana DELCOURT, Patrice PLOUVIN
+ * 
  */
-public class Vide extends Indeplacable{
+
+public class Vide extends Indeplacable {
     public static final String carac = "/";
 
-    /**Constructeur de la classe Vide */
-    public Vide(){
+    /** Constructeur de la classe Vide */
+    public Vide() {
         super(carac);
     }
-    
+
 }

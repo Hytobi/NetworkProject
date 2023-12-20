@@ -8,8 +8,8 @@ X             X
 X             X
 X      ####   X
 X             X
-X    B        X
-X      M      X
-X   R     ### X
+X             X
+X             X
+X         ### X
 X             X
 XXXXXXXXXXXXXXX

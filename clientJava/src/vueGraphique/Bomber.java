@@ -6,10 +6,12 @@ import dto.*;
 import modele.Player;
 
 /**
- * Classe qui modélise la Carte de jeu (la map)
+ * Bomber : Class principale du jeu
  * 
- * @author PLOUVIN Patrice
+ * @author Hana DELCOURT, Patrice PLOUVIN
+ * 
  */
+
 public class Bomber {
 
     public static void main(String[] args) throws Exception {

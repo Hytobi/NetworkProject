@@ -1,24 +1,32 @@
 package modele;
 
+/**
+ * Item : Objet representant un item
+ * 
+ * @author Hana DELCOURT, Patrice PLOUVIN
+ * 
+ */
+
 public class Item {
-    //speedUp, speedDown
-    private static final String[] ITEMS= {"classicBomb", "remoteBomb", "mine", "impactUp", "impactDown", "lifeMax", "invincible"};
+    // speedUp, speedDown
+    private static final String[] ITEMS = { "classicBomb", "remoteBomb", "mine", "impactUp", "impactDown", "lifeMax",
+            "invincible" };
     private String carac;
 
-    public Item(String carac){
+    public Item(String carac) {
         this.carac = carac;
     }
 
-    public String getCarac(){
+    public String getCarac() {
         return carac;
     }
 
-    public void setCarac(String c){
+    public void setCarac(String c) {
         carac = c;
     }
 
-    public String randomItem(){
-        int i = (int)(Math.random() * ITEMS.length);
+    public String randomItem() {
+        int i = (int) (Math.random() * ITEMS.length);
         return ITEMS[i];
     }
 

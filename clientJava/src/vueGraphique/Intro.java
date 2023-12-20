@@ -1,5 +1,12 @@
 package vueGraphique;
 
+/**
+ * Intro : Gère les actions qui ne sont pas relatives au jeu
+ * 
+ * @author Hana DELCOURT, Patrice PLOUVIN
+ * 
+ */
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -28,28 +35,27 @@ public class Intro extends JFrame implements ActionListener {
     private TcpClient tcp;
     private GridBagConstraints c = new GridBagConstraints();
 
-    /**Constructeur de la classe vue*/
-    public Intro(){
-        //Donne le titre via JFrame
+    /** Constructeur de la classe vue */
+    public Intro() {
+        // Donne le titre via JFrame
         super("Bomberstudent");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        //Les inits
+        // Les inits
         initActions();
         initArrierePlan();
 
-        //Les indispensables
+        // Les indispensables
         pack();
         Dimension dimEcran = getToolkit().getScreenSize();
-        setLocation((dimEcran.width - getWidth())/2, (dimEcran.height- getHeight())/2);
+        setLocation((dimEcran.width - getWidth()) / 2, (dimEcran.height - getHeight()) / 2);
         setResizable(false);
         setVisible(true);
     }
 
-
-    /**Méthode qui initialise les actions des boutons */
+    /** Méthode qui initialise les actions des boutons */
     private void initActions() {
         quitterAction = new AbstractAction("Quitter") {
             public void actionPerformed(ActionEvent e) {
@@ -57,13 +63,14 @@ public class Intro extends JFrame implements ActionListener {
             }
         };
         commencerAction = new AbstractAction("Commencer") {
-            public void actionPerformed(ActionEvent e){
+            public void actionPerformed(ActionEvent e) {
                 scan();
             }
         };
     }
 
-    private void initArrierePlan(){
+    /** Méthode qui initialise le JPanel */
+    private void initArrierePlan() {
         infoPanel = new JPanel();
         infoPanel.setLayout(new GridBagLayout());
         infoPanel.setBackground(Color.BLACK);
@@ -96,30 +103,32 @@ public class Intro extends JFrame implements ActionListener {
         getContentPane().add(infoPanel);
     }
 
-    public boolean getCommencer(){
+    public boolean getCommencer() {
         return commencer;
     }
 
-    public TcpClient getTcp(){
+    public TcpClient getTcp() {
         return tcp;
     }
 
-    public String getMyName(){
+    public String getMyName() {
         return myName;
     }
 
-    public ResGameJoin getResGameJoin(){
+    public ResGameJoin getResGameJoin() {
         return resGameJoin;
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {}
+    public void actionPerformed(ActionEvent e) {
+    }
 
-    public void scan(){
+    /** Méthode qui scan les serveurs */
+    public void scan() {
         System.out.println("Scan des serveurs");
         UdpBroadcastClient udp = new UdpBroadcastClient();
         List<String> servers = udp.scanConnection();
-        if (servers.isEmpty()){
+        if (servers.isEmpty()) {
             System.err.println("Aucuns servers trouvé");
             publishMessage("Aucuns servers trouvé", true, Color.RED);
             return;
@@ -129,8 +138,9 @@ public class Intro extends JFrame implements ActionListener {
         infoPanel.remove(bomber);
         clear();
 
-        // On cree un bouton pour chaque serveur lorsqu'on appui dessus on affiche le nom du bouton
-        for (int i=0; i<servers.size(); i++){
+        // On cree un bouton pour chaque serveur lorsqu'on appui dessus on affiche le
+        // nom du bouton
+        for (int i = 0; i < servers.size(); i++) {
             String server = servers.get(i);
             JButton btn = createBtn(server);
             btn.addActionListener(new ActionListener() {
@@ -148,8 +158,8 @@ public class Intro extends JFrame implements ActionListener {
                     addBtnAfterConnect();
                 }
             });
-            setGridBag(1, 60, 0.5, 1, i+2);
-            
+            setGridBag(1, 60, 0.5, 1, i + 2);
+
             infoPanel.add(btn, c);
         }
 
@@ -158,7 +168,8 @@ public class Intro extends JFrame implements ActionListener {
         infoPanel.repaint();
     }
 
-    private void addBtnAfterConnect(){
+    /** Méthode qui ajoute les boutons après la connexion */
+    private void addBtnAfterConnect() {
         // On enleve les boutons
         clear();
         // ToolBar
@@ -173,19 +184,19 @@ public class Intro extends JFrame implements ActionListener {
                 tcp.post(JsonConnection.getMapList());
                 String maps = tcp.get();
                 System.out.println("maps recu : " + maps);
-                if (Maps == null){
+                if (Maps == null) {
                     closeAll();
                     return;
                 }
                 ResMapList res = MapperRes.fromJson(maps, ResMapList.class);
-                if (res != null && res.getStatut().equals("200")){
-                    int gridy=0;
+                if (res != null && res.getStatut().equals("200")) {
+                    int gridy = 0;
                     setGridBag(1, 20, 0.5, 1, gridy);
                     publishMessage(res.getNbMapsList() + " map(s) trouvée(s) :", true, Color.GREEN);
-                    int nbmap = 0,i = 1,x,y;
+                    int nbmap = 0, i = 1, x, y;
                     String map;
                     String[] lignes;
-                    while (nbmap < res.getNbMapsList()){
+                    while (nbmap < res.getNbMapsList()) {
                         map = res.getMaps().get(nbmap).getContent();
                         x = res.getMaps().get(nbmap).getWidth();
                         y = res.getMaps().get(nbmap).getHeight();
@@ -193,7 +204,7 @@ public class Intro extends JFrame implements ActionListener {
                         for (int k = 0; k < y; k++) {
                             lignes[k] = ""; // Initialisation de la chaîne vide
                             for (int l = 0; l < x; l++) {
-                                if (map.charAt(l + k * x) == ' '){
+                                if (map.charAt(l + k * x) == ' ') {
                                     lignes[k] += "_ ";
                                 } else {
                                     lignes[k] += map.charAt(l + k * x);
@@ -201,19 +212,19 @@ public class Intro extends JFrame implements ActionListener {
                             }
                         }
                         setGridBag(1, 20, 0.5, 1, ++gridy);
-                        JLabel label = new JLabel("Map " + (res.getMaps().get(nbmap).getId() +1), JLabel.LEFT);
+                        JLabel label = new JLabel("Map " + (res.getMaps().get(nbmap).getId() + 1), JLabel.LEFT);
                         label.setForeground(Color.BLUE);
                         infoPanel.add(label, c);
-                        for (int j=0; j<lignes.length; j++){
+                        for (int j = 0; j < lignes.length; j++) {
                             setGridBag(x, 5, 1, 1, ++gridy);
                             JLabel label2 = new JLabel(lignes[j]);
                             label2.setForeground(Color.WHITE);
                             infoPanel.add(label2, c);
                         }
                         nbmap++;
-                        i = i+y+1;
+                        i = i + y + 1;
                     }
-                }else{
+                } else {
                     publishMessage("Erreur lors de la récupération des Maps", true, Color.RED);
                 }
                 infoPanel.revalidate();
@@ -230,17 +241,17 @@ public class Intro extends JFrame implements ActionListener {
                 tcp.post(JsonConnection.getGameList());
                 String gameslist = tcp.get();
                 System.out.println("games recu : " + gameslist);
-                if (gameslist == null){
+                if (gameslist == null) {
                     closeAll();
                     return;
                 }
                 ResGameList res = MapperRes.fromJson(gameslist, ResGameList.class);
-                if (res != null && res.getStatut().equals("200")){
+                if (res != null && res.getStatut().equals("200")) {
                     clear();
                     vueGameListGame(res);
                     infoPanel.revalidate();
                     infoPanel.repaint();
-                }else{
+                } else {
                     publishMessage("Erreur lors de la récupération des Games", true, Color.RED);
                 }
                 infoPanel.revalidate();
@@ -276,7 +287,8 @@ public class Intro extends JFrame implements ActionListener {
         infoPanel.repaint();
     }
 
-    private JButton createBtn(String name){
+    /** Méthode qui crée un bouton */
+    private JButton createBtn(String name) {
         JButton btn = new JButton(name);
         btn.setBorderPainted(false);
         btn.setFocusPainted(false);
@@ -285,7 +297,8 @@ public class Intro extends JFrame implements ActionListener {
         return btn;
     }
 
-    private void setGridBag(int gridwidth, int ipady, double weightx, int gridx, int gridy){
+    /** Méthode qui met le grid dans une certainte configuration */
+    private void setGridBag(int gridwidth, int ipady, double weightx, int gridx, int gridy) {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridwidth = gridwidth;
         c.ipady = ipady;
@@ -294,7 +307,8 @@ public class Intro extends JFrame implements ActionListener {
         c.gridy = gridy;
     }
 
-    private void clear(){
+    /** Méthode qui vide le panel */
+    private void clear() {
         Component[] components = infoPanel.getComponents();
         for (Component component : components) {
             if (component instanceof JButton || component instanceof JLabel || component instanceof JTextField) {
@@ -303,6 +317,7 @@ public class Intro extends JFrame implements ActionListener {
         }
     }
 
+    /** Méthode qui affiche un message */
     private void publishMessage(String message, boolean now, Color color) {
         if (infoJeu != null) {
             infoPanel.remove(infoJeu);
@@ -321,7 +336,8 @@ public class Intro extends JFrame implements ActionListener {
         }
     }
 
-    private void vueCreateGame(){
+    /** Méthode qui affiche les champs de création de game */
+    private void vueCreateGame() {
         JTextField nom = new JTextField(10);
         nom.setText("Nom de la game");
         nom.addFocusListener(new FocusAdapter() {
@@ -349,26 +365,27 @@ public class Intro extends JFrame implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Envoie demande creation de game");
-                if (nom.getText().equals("Nom de la game") || id.getText().equals("Id de la map") || nom.getText().equals("") || id.getText().equals("")){
+                if (nom.getText().equals("Nom de la game") || id.getText().equals("Id de la map")
+                        || nom.getText().equals("") || id.getText().equals("")) {
                     publishMessage("Veuillez remplir les champs", true, Color.RED);
                     return;
                 }
-                id.setText(String.valueOf(Integer.parseInt(id.getText())-1));
+                id.setText(String.valueOf(Integer.parseInt(id.getText()) - 1));
                 Game game = new Game(nom.getText(), id.getText());
                 tcp.post(JsonConnection.postGameCreate(game));
                 String create = tcp.get();
                 System.out.println("create recu : " + create);
-                if (create == null){
+                if (create == null) {
                     closeAll();
                     return;
                 }
                 ResGameJoin res = MapperRes.fromJson(create, ResGameJoin.class);
-                if (res != null && res.getStatut().equals("201")){
+                if (res != null && res.getStatut().equals("201")) {
                     publishMessage(" creation reussi", true, Color.GREEN);
                     myName = "player" + res.getNbPlayers();
                     resGameJoin = res;
-                    commencer=true;
-                }else{
+                    commencer = true;
+                } else {
                     publishMessage("Erreur lors de la creation de game", true, Color.RED);
                 }
                 infoPanel.revalidate();
@@ -379,28 +396,29 @@ public class Intro extends JFrame implements ActionListener {
         id.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
-                if (e.getKeyChar() == KeyEvent.VK_ENTER){
+                if (e.getKeyChar() == KeyEvent.VK_ENTER) {
                     System.out.println("Envoie demande creation de game");
-                    if (nom.getText().equals("Nom de la game") || id.getText().equals("Id de la map") || nom.getText().equals("") || id.getText().equals("")){
+                    if (nom.getText().equals("Nom de la game") || id.getText().equals("Id de la map")
+                            || nom.getText().equals("") || id.getText().equals("")) {
                         publishMessage("Veuillez remplir les champs", true, Color.RED);
                         return;
                     }
-                    id.setText(String.valueOf(Integer.parseInt(id.getText())-1));
+                    id.setText(String.valueOf(Integer.parseInt(id.getText()) - 1));
                     Game game = new Game(nom.getText(), id.getText());
                     tcp.post(JsonConnection.postGameCreate(game));
                     String create = tcp.get();
                     System.out.println("create recu : " + create);
-                    if (create == null){
+                    if (create == null) {
                         closeAll();
                         return;
                     }
                     ResGameJoin res = MapperRes.fromJson(create, ResGameJoin.class);
-                    if (res != null && res.getStatut().equals("201")){
+                    if (res != null && res.getStatut().equals("201")) {
                         publishMessage(" creation reussi", true, Color.GREEN);
                         myName = "player" + res.getNbPlayers();
                         resGameJoin = res;
-                        commencer=true;
-                    }else{
+                        commencer = true;
+                    } else {
                         publishMessage("Erreur lors de la creation de game", true, Color.RED);
                     }
                     infoPanel.revalidate();
@@ -409,10 +427,12 @@ public class Intro extends JFrame implements ActionListener {
             }
 
             @Override
-            public void keyPressed(KeyEvent e) {}
+            public void keyPressed(KeyEvent e) {
+            }
 
             @Override
-            public void keyReleased(KeyEvent e) {}
+            public void keyReleased(KeyEvent e) {
+            }
         });
 
         JLabel cg = new JLabel("Zone de création de partie", JLabel.CENTER);
@@ -432,12 +452,14 @@ public class Intro extends JFrame implements ActionListener {
         infoPanel.add(submitButton, c);
     }
 
-    private void vueGameListGame(ResGameList rgl){
+    /** Méthode qui affiche les games */
+    private void vueGameListGame(ResGameList rgl) {
         publishMessage(rgl.getNbGamesList() + " game(s) trouvées", true, Color.GREEN);
 
-        for (int i=0; i<rgl.getNbGamesList(); i++){
+        for (int i = 0; i < rgl.getNbGamesList(); i++) {
             Game game = rgl.getGames().get(i);
-            JButton btn = createBtn(game.getName() +":\nMap:" + game.getMapId() + " - Player:" + game.getNbPlayer() + "/" + MAX_PLAYER);
+            JButton btn = createBtn(game.getName() + ":\nMap:" + game.getMapId() + " - Player:" + game.getNbPlayer()
+                    + "/" + MAX_PLAYER);
             btn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -447,46 +469,48 @@ public class Intro extends JFrame implements ActionListener {
                     tcp.post(JsonConnection.postGameJoin(join));
                     String resJoin = tcp.get();
                     System.out.println("join recu : " + resJoin);
-                    if (join == null){
+                    if (join == null) {
                         closeAll();
                         return;
                     }
                     ResGameJoin res = MapperRes.fromJson(resJoin, ResGameJoin.class);
-                    if (res != null && res.getStatut().equals("201")){
-                        myName = "player" + (res.getNbPlayers()+1);
+                    if (res != null && res.getStatut().equals("201")) {
+                        myName = "player" + (res.getNbPlayers() + 1);
                         resGameJoin = res;
-                        commencer=true;
-                    }else{
+                        commencer = true;
+                    } else {
                         publishMessage("Erreur lors du join de game", true, Color.RED);
                     }
                     infoPanel.revalidate();
                     infoPanel.repaint();
                 }
             });
-            setGridBag(1, 60, 0.5, 1, i+2);
-            
+            setGridBag(1, 60, 0.5, 1, i + 2);
+
             infoPanel.add(btn, c);
         }
     }
 
-    private void closeAll(){
-        JOptionPane.showMessageDialog(this,"La connection au serveur a été intérompu");
+    /** Méthode qui tente une reconection au serveur si celle ci est perdu */
+    private void closeAll() {
+        JOptionPane.showMessageDialog(this, "La connection au serveur a été intérompu");
         try {
             tcp.closeSocket();
         } catch (Exception e) {
             System.out.println("Erreur lors de la fermeture du socket");
         } finally {
-            int i=0;
+            int i = 0;
             while (i < MAX_RETRY) {
                 System.out.println("Tentative de reconnexion au serveur...");
-                if (UdpBroadcastClient.retryconnection(tcp.getServer())){
+                if (UdpBroadcastClient.retryconnection(tcp.getServer())) {
                     try {
                         tcp.tcpConnect();
                         break;
-                    } catch (Exception e) {}
+                    } catch (Exception e) {
+                    }
                 }
                 i++;
-                if (i < MAX_RETRY){
+                if (i < MAX_RETRY) {
                     try {
                         Thread.sleep(10000);
                     } catch (Exception ex) {
@@ -495,10 +519,9 @@ public class Intro extends JFrame implements ActionListener {
                 }
             }
             if (i == MAX_RETRY) {
-                JOptionPane.showMessageDialog(this,"Impossible de se reconnecter au serveur");
+                JOptionPane.showMessageDialog(this, "Impossible de se reconnecter au serveur");
                 System.exit(0);
             }
         }
     }
 }
-
