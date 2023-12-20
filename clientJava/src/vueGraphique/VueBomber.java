@@ -116,8 +116,6 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
         if (jeu.getMesMAJ().isEmpty()) return;
         int index;
         String c;
-        //Le premier point de la liste est l'endroit où était le bot avant le mouvement
-        //Le perso peut être sur un Sol ou une Destination
         for (Point p : jeu.getMesMAJ()) {
             index = (int)p.getX() * jeu.getMaxj() + (int)p.getY();
             c = jeu.getPlateau()[(int)p.getX()][(int)p.getY()].getCarac();
@@ -133,12 +131,15 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
             } else if (c == "R"){
                 cartePanel.remove(index);
                 cartePanel.add(new JLabel(REMOTE), index); //remote
-            } else if (c == "$") { //pas encore fait
+            } else if (c == "$") {
                 cartePanel.remove(index);
                 cartePanel.add(new JLabel(PERSO[2]), index); // todo regardé du bon coté
             } else if (c == "@") {
                 cartePanel.remove(index);
-                cartePanel.add(new JLabel(PERSO[jeu.getMyPlayer().getDirection()]), index); // jeu.getRobot().getDirection()
+                cartePanel.add(new JLabel(PERSO[jeu.getMyPlayer().getDirection()]), index);
+            } else if (c == "I") {
+                cartePanel.remove(index);
+                cartePanel.add(new JLabel(ITEM_CHAR), index);
             }
         }
         //On met à jour la vu et on vide la liste des mises à jour
