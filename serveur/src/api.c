@@ -163,12 +163,11 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         for (int i = 0; i < MAX_PLAYER; i++) {
             Player *p = g->players[i];
             if (p && p != cl->player) {
-                char *newP;
+                char newP[BUFFER_SIZE];
                 sprintf(newP, "%s\n%s", POST_NEW_PLAYER, cJSON_Print(newPlayer(*p)));
                 clientAddrLen = sizeof(p->addr);
                 n = (int) sendto(p->socket, newP, strlen(newP), MSG_CONFIRM, (struct sockaddr *) &p->addr,
                                  clientAddrLen);
-                free(newP);
                 if (n == ERR) {
                     perror("Erreur envoi message");
                     i--;
