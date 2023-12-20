@@ -49,6 +49,9 @@
 
 #define POST_NEW_PLAYER "POST player/new"
 
+#define CLASSIC "classic"
+#define CLASSIC_SIZE strlen(CLASSIC)
+
 void *clientCommunication(void *args);
 
 #endif //PROJECT_API_H
