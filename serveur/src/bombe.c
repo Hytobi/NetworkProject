@@ -96,6 +96,24 @@ int processExplose(Game *g, int x, int y) {
         return (map->content[numCase] == ITEM_CHAR) ? 2 : 1;
     } else if (carac == MUR_INCA_CHAR || isBombe(carac)) {
         return 1;
+    } else if (carac == PLAYER_REMOTE_BOMB_CHAR || carac == PLAYER_BOMB_CHAR ) {
+        for (int i = 0; i < MAX_PLAYER; i++) {
+            Player *p = g->players[i];
+            if (p == NULL) {
+                continue;
+            }
+            if (p->x == x && p->y == y) {
+                p->life -= 30;
+                if (p->life <= 0) {
+                    p->life = 0;
+                    map->content[numCase] = SOL_CHAR;
+                    //TODO : suppression de joueur
+                } else {
+                    map->content[numCase] = PLAYER_CHAR;
+                }
+                return 1;
+            }
+        }
     }
     return 0;
 }
@@ -111,15 +129,20 @@ int processExploseDist(Game *g, int x, int y, int dist, char* type) {
     }
 
     pthread_mutex_lock(&mutex);
-    printf("1\n");
+    printf("dist : %d\n", dist);
     Bombe propagation[5];
-    printf("2\n");
     // La case de la bombe explose et devient un sol
-    //int numCase = y + map->width * x;
-    //map->content[numCase] = SOL_CHAR;
+    int numCase = y + map->width * x;
+    char* carac = map->content[numCase];
+    if (carac == PLAYER_REMOTE_BOMB_CHAR || carac == PLAYER_BOMB_CHAR){
+        //TODO : prendre degat
+        map->content[numCase] = PLAYER_CHAR;
+    } else {
+        map->content[numCase] = SOL_CHAR;
+    }
 
     // Les cases autour de la bombe explosent
-    for (int i = 0; i <= dist; i++) {
+    for (int i = 1; i <= dist; i++) {
         if (x - i > 0) {
             if (explosion = processExplose(g, x - i, y)) {
                 if (explosion == 2) {

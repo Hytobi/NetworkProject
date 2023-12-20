@@ -44,11 +44,11 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         recu += POST_PLAYER_MOVE_SIZE;
         printf("Tentative de déplacement du joueur %s\n", inet_ntoa(cl->addr.sin_addr));
 
-        //afficheMap(*cl->clientGame->map);
-
         pthread_mutex_lock(&cl->clientGame->mutex);
         pthread_mutex_lock(&cl->clientGame->map->mutex);
+        afficheMap(*cl->clientGame->map);
         int caseMove = movePlayer(cl->player, cl->clientGame, cJSON_Parse(recu));
+        afficheMap(*cl->clientGame->map);
         pthread_mutex_unlock(&cl->clientGame->map->mutex);
         pthread_mutex_unlock(&cl->clientGame->mutex);
 
@@ -57,7 +57,6 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
             return;
         }
 
-        //afficheMap(*cl->clientGame->map);
         char postMove[BUFFER_SIZE];
         sprintf(postMove, "%s\n%s", POST_POSITION_PLAYER_UPDATE, cJSON_Print(
                 sendMove(cl->player, cJSON_GetObjectItemCaseSensitive(cJSON_Parse(recu), "move")->valuestring)));

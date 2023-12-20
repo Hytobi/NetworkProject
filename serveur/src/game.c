@@ -169,22 +169,6 @@ void envoieMineExplose(Game *g, int x, int y, Player *p) {
             return;
         }
     }
-
-    /* TODO
-    for (int i=0; i<MAX_PLAYER; i++){
-
-        if (g->players[i]!=NULL){
-
-            printf("Envoie de %s\n", buffer);
-            printf("addr : %s\n", inet_ntoa(g->players[i]->addr.sin_addr));
-            socklen_t clientAddrLen = sizeof(g->players[i]->addr);
-            n = (int) sendto(g->players[i]->socket, buffer, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &g->players[i]->addr, clientAddrLen);
-            if (n == ERR) {
-                perror("Erreur envoie du message");
-                return;
-            }
-        }
-    }*/
     free(buffer);
 }
 
@@ -259,6 +243,7 @@ int attackPlayer(Player *p, Game *g, cJSON *info) {
             p->nbRemoteBomb--;
             p->remoteSet[p->nbRemoteBombSet].x = x;
             p->remoteSet[p->nbRemoteBombSet].y = y;
+            p->remoteSet[p->nbRemoteBombSet].dist = p->impactDist;
             p->nbRemoteBombSet++;
             map->content[numCase] = PLAYER_REMOTE_BOMB_CHAR;
         } else if (!strcmp(type, "mine")) {

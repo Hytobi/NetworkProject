@@ -242,6 +242,8 @@ cJSON *sendModifMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int d
         cJSON_AddItemToArray(casesMofifies, caseJSON);
         i++;
     }
+
+    return json;
 }
 
 cJSON *badRequest() {
