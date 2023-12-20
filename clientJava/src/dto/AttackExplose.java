@@ -7,11 +7,13 @@ package dto;
  * @author Hana DELCOURT, Patrice PLOUVIN
  */
 
+import java.util.List;
+
 public class AttackExplose {
     private String pos;
     private String type;
     private int impactDist;
-    private String map;
+    private List<Case> casesMofifies;
 
     public String getPos() {
         return pos;
@@ -25,8 +27,8 @@ public class AttackExplose {
         return impactDist;
     }
 
-    public String getMap() {
-        return map;
+    public List<Case> getCasesMofifies() {
+        return casesMofifies;
     }
 
     public void setPos(String pos) {
@@ -41,12 +43,12 @@ public class AttackExplose {
         this.impactDist = impactDist;
     }
 
-    public void setMap(String map) {
-        this.map = map;
+    public void setMap(List<Case> casesMofifies) {
+        this.casesMofifies = casesMofifies;
     }
 
     public String toString() {
-        return "AttackExplose : pos = " + pos + " | type = " + type + " | impactDist = " + impactDist + " | map = "
-                + map;
+        return "AttackExplose : pos = " + pos + " | type = " + type + " | impactDist = " + impactDist
+                + " | casesMofifies = " + casesMofifies.toString();
     }
 }

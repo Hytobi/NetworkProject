@@ -13,7 +13,7 @@ char getRandomChar();
 
 int processExplose(Game *g, int x, int y);
 
-int processExploseDist(Game *g, int x, int y, int dist);
+int processExploseDist(Game *g, int x, int y, int dist, char* type);
 
 int exploseBomb(Game *g, Player *p);
 

@@ -184,8 +184,6 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
             ENVOIE_ERR_INCONNUE;
             return;
         }
-        // reponse vers le client
-        //int playerIndex = 0; // TODO: Le recuperer correctement ici
         char postAttack[BUFFER_SIZE];
         sprintf(postAttack, "%sEOJ", cJSON_Print(sendPosBomb(cJSON_Parse(recu), cl->player)));
         ENVOI_MESSAGE(postAttack, strlen(postAttack));
