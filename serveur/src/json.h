@@ -30,6 +30,8 @@ cJSON *sendPosBomb(cJSON *b, Player *p);
 
 cJSON *sendObjNew(Player *p);
 
+cJSON *newPlayer(Player p);
+
 cJSON *badRequest();
 
 cJSON *errInconnue();
