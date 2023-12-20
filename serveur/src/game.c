@@ -88,12 +88,15 @@ int joinGame(Game *g, Client *cl, Map *m) {
         g->players[i]->x=g->defaultPlayer->x;
         g->players[i]->y=g->defaultPlayer->y;
 
+        g->players[i]->addr=cl->addr;
+        g->players[i]->socket=cl->socket;
+
         pthread_mutex_lock(&m->mutex);
         m->content[g->players[i]->y + m->width * g->players[i]->x] = '@'; // place le joueur sur la map
         pthread_mutex_unlock(&m->mutex);
 
-        g->defaultPlayer->x = nextPosX(i, g->mapId);
-        g->defaultPlayer->y = nextPosY(i, g->mapId);
+        g->defaultPlayer->x = nextPosX(i+1, g->mapId);
+        g->defaultPlayer->y = nextPosY(i+1, g->mapId);
         cl->clientGame = g;
         cl->player = g->players[i];
         return i;
