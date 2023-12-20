@@ -169,6 +169,60 @@ void envoieMineExplose(Game *g, int x, int y, Player *p) {
     free(buffer);
 }
 
+int handlePlayerMove(Player *p, Map *map, Game *game, int currentCase, int nextCase) {
+    char carac = map->content[nextCase];
+    if (TEST_MOVES(carac)) {
+        int tmpX = p->x, tmpY = p->y;
+        if (nextCase == currentCase - 1) tmpY--;      // Left
+        else if (nextCase == currentCase + 1) tmpY++; // Right
+        else if (nextCase == currentCase - map->width) tmpX--; // Up
+        else if (nextCase == currentCase + map->width) tmpX++; // Down
+
+        if (carac == MINE_CHAR) {
+            moveOnMine(p, map);
+            envoieMineExplose(game, tmpX, tmpY, p); // Ajustez les coordonnées en fonction du mouvement
+        }
+        map->content[currentCase] = moveAfterAttack(map->content[currentCase]);
+        map->content[nextCase] = PLAYER_CHAR;
+
+        // Ajuster les coordonnées du joueur
+        p->x = tmpX;
+        p->y = tmpY;
+
+        if (p->invincible) {
+            p->nbMoveInvincible--;
+            if (p->nbMoveInvincible == 0) {
+                p->invincible = 0;
+            }
+        }
+        return nextCase;
+    }
+    return ERR;
+}
+
+int movePlayer(Player *p, Game *game, cJSON *info) {
+    Map *map = game->map;
+    char move[5];
+    strcpy(move, cJSON_GetObjectItemCaseSensitive(info, "move")->valuestring);
+    int actual_x = p->x, actual_y = p->y;
+    int numCase = actual_y + map->width * actual_x;
+    // si le joueur n'a pas la bonne place sur la map
+    if (map->content[numCase] != PLAYER_CHAR) {
+        //TODO
+    }
+    char carac;
+    if (!strcmp(move, "up")) {
+        return handlePlayerMove(p, map, game, numCase, numCase - map->width);
+    } else if (!strcmp(move, "down")) {
+        return handlePlayerMove(p, map, game, numCase, numCase + map->width);
+    } else if (!strcmp(move, "left")) {
+        return handlePlayerMove(p, map, game, numCase, numCase - 1);
+    } else { // right
+        return handlePlayerMove(p, map, game, numCase, numCase + 1);
+    }
+}
+
+/*
 int movePlayer(Player *p, Game *game, cJSON *info) {
     Map *map = game->map;
     char move[5];
@@ -267,7 +321,7 @@ int movePlayer(Player *p, Game *game, cJSON *info) {
     }
 
     return ERR;
-}
+}*/
 
 int attackPlayer(Player *p, Game *g, cJSON *info) {
     char move[5];

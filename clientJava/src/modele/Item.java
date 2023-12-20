@@ -1,7 +1,8 @@
 package modele;
 
 public class Item {
-    private static final String[] ITEMS= {"classicBomb", "remoteBomb", "mine", "impactUp", "speedUp", "impactDown", "speedDown", "lifeMax", "invincible"};
+    //speedUp, speedDown
+    private static final String[] ITEMS= {"classicBomb", "remoteBomb", "mine", "impactUp", "impactDown", "lifeMax", "invincible"};
     private String carac;
 
     public Item(String carac){
