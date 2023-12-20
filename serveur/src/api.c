@@ -75,7 +75,11 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         printf("Partie créer !\n");
     } else if (!strncmp(recu, getPartieListe, GET_PARTIE_LISTE_SIZE)) {
         printf("Envoie de la liste des parties...\n");
+
+        pthread_mutex_lock(&clientMap->gameInfo->mutex);
         char* json = cJSON_Print(sendPartieListe(clientMap->gameInfo));
+        pthread_mutex_unlock(&clientMap->gameInfo->mutex);
+
         ENVOI_MESSAGE(json, strlen(json));
         free(json);
         printf("Envoie efectué !\n");
@@ -173,8 +177,6 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         sprintf(postAttack, "%sEOJ", cJSON_Print(sendPosBomb(cJSON_Parse(recu), cl->player)));
         ENVOI_MESSAGE(postAttack, strlen(postAttack));
 
-        //TODO, Envoyer a tout les autres joueurs la position de la bombe
-
         pthread_mutex_lock(&cl->clientGame->mutex);
         for (int i = 0; i < MAX_PLAYER; i++) {
             Player *player = cl->clientGame->players[i];
@@ -235,8 +237,15 @@ void *clientCommunication(void *args) {
             for (int i = 0; i < MAX_PLAYER; i++) {
                 if (cl->clientGame->players[i] != NULL) {
                     if (cl->clientGame->players[i]->socket != cl->socket) {
+
                         pthread_mutex_unlock(&cl->clientGame->mutex);
-                        inGame = 1;
+                        for (int j=0;j<MAX_GAMES;j++){
+
+                            pthread_mutex_lock(&cm->gameInfo->mutex);
+                            if (cm->gameInfo->gameListe[j]==cl->clientGame){
+                                inGame = j;
+                            }
+                        }
                         break;
                     }
                 }
@@ -244,9 +253,13 @@ void *clientCommunication(void *args) {
             if (!inGame) {
                 printf("Destruction de la partie...\n");
                 destroyGame(cl->clientGame);
+                cm->gameInfo->gameListe[inGame] = NULL;
+                cm->gameInfo->nbGames--;
                 printf("Partie détruite avec succès\n");
+                pthread_mutex_unlock(&cl->clientGame->mutex);
+                pthread_mutex_unlock(&cm->gameInfo->mutex);
             }
-            pthread_mutex_unlock(&cl->clientGame->mutex);
+
             break;
         }
         buffer[n] = '\0';

@@ -96,7 +96,6 @@ cJSON *sendPartieListe(Games *gameInfo) {
     cJSON *gamesArray = cJSON_AddArrayToObject(gameListe, "games");
 
     int i = 0;
-    pthread_mutex_lock(&gameInfo->mutex);
     while (i < MAX_GAMES) {
         Game *gameI = gameInfo->gameListe[i];
         if (gameI == NULL) {
@@ -112,7 +111,6 @@ cJSON *sendPartieListe(Games *gameInfo) {
         cJSON_AddItemToArray(gamesArray, game);
         i++;
     }
-    pthread_mutex_unlock(&gameInfo->mutex);
     return gameListe;
 }
 
