@@ -28,11 +28,13 @@ public class Bomber {
         Carte jeu = new Carte(intro.getMyName(), intro.getResGameJoin());
         VueBomber vs = new VueBomber(jeu, intro.getTcp());
         String recu = null;
+        String namePlayerForMoveNotMe;
         while ((!jeu.finDePartie())) {
             recu = intro.getTcp().get();
             // System.out.println("Message reçu : " + recu);
             if (recu != null && !recu.isBlank()) {
                 String[] msgs = recu.split("EOJ");
+                namePlayerForMoveNotMe = null;
                 for (String msg : msgs) {
                     System.out.println("Message : " + msg);
                     // si le message commence par POST, on split le message pour récupérer les infos
@@ -47,6 +49,7 @@ public class Bomber {
                                         System.out.println("Notifie le serveur que le joueur a ramassé un item");
                                         intro.getTcp().post(JsonJouer.postObjectNew(item));
                                     }
+                                    namePlayerForMoveNotMe = update.getPlayer();
                                 } else {
                                     System.out.println("Erreur lors de la récupération du move");
                                 }
@@ -139,7 +142,7 @@ public class Bomber {
                 // Info du joueur mis a jour
                 vs.updateGameInfos();
                 // On met à jour la vue
-                vs.parcourDesMAJ();
+                vs.parcourDesMAJ(namePlayerForMoveNotMe);
             } else {
                 System.out.println("Connection au serveur perdue");
                 vs.serveurRageQuit();

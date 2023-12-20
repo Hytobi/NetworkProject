@@ -1,27 +1,19 @@
 package dto;
 
 public class PlayerNew {
-    private String name;
+    private String player;
     private String pos;
 
-    public PlayerNew() {
-    }
-
-    public PlayerNew(String name, String pos) {
-        this.name = name;
-        this.pos = pos;
-    }
-
-    public String getName() {
-        return name;
+    public String getPlayer() {
+        return player;
     }
 
     public String getPos() {
         return pos;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPlayer(String player) {
+        this.player = player;
     }
 
     public void setPos(String pos) {

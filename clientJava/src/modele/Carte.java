@@ -240,7 +240,7 @@ public class Carte{
 
     public void setNewPlayer(PlayerNew pn){
         Player p = new Player();
-        p.setName(pn.getName());
+        p.setName(pn.getPlayer());
 
         int x = Integer.parseInt(pn.getPos().split(",")[0]);
         int y = Integer.parseInt(pn.getPos().split(",")[1]);
@@ -250,6 +250,7 @@ public class Carte{
         p.setDirection(2);
         robots.add(p);
         plateau[x][y] = new Sol("$");
+        mesMAJ.add(new Point(x,y));
     }
 
     public void updateMyPlayer(Player p){        

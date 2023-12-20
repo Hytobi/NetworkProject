@@ -112,7 +112,7 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
 
     /**Méthode qui parcourt la liste des Mises a Jour pour afficher la bonne image
      */
-    public void parcourDesMAJ(){
+    public void parcourDesMAJ(String playerName){
         if (jeu.getMesMAJ().isEmpty()) return;
         int index;
         String c;
@@ -133,7 +133,12 @@ public class VueBomber extends JFrame implements ActionListener,KeyListener{
                 cartePanel.add(new JLabel(REMOTE), index); //remote
             } else if (c == "$") {
                 cartePanel.remove(index);
-                cartePanel.add(new JLabel(PERSO[2]), index); // todo regardé du bon coté
+                if (playerName != null) {
+                    Player player = jeu.getPlayerByName(playerName);
+                    cartePanel.add(new JLabel(PERSO[player.getDirection()]), index);
+                } else {
+                    cartePanel.add(new JLabel(PERSO[2]), index);
+                }
             } else if (c == "@") {
                 cartePanel.remove(index);
                 cartePanel.add(new JLabel(PERSO[jeu.getMyPlayer().getDirection()]), index);
