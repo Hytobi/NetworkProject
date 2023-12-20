@@ -9,6 +9,14 @@
 
 void* bombeThread(void* arg);
 
+char getRandomChar();
+
+int processExplose(Game *g, int x, int y);
+
+int processExploseDist(Game *g, int x, int y, int dist);
+
+int exploseBomb(Game *g, Player *p);
+
 int createBombe(Bombes * bombesInfo);
 
 void destroyBombe(Bombe * b);
