@@ -207,16 +207,19 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
             free(postAll);
         }
 
-        if (!strncmp(cJSON_GetObjectItemCaseSensitive(cJSON_Parse(recu),"type")->valuestring,CLASSIC,CLASSIC_SIZE)) {
+        if (!strncmp(cJSON_GetObjectItemCaseSensitive(cJSON_Parse(recu), "type")->valuestring, CLASSIC, CLASSIC_SIZE)) {
 
-            if (createBombe(cl->clientGame->bombesListe, cl->player->x, cl->player->y, cl->player->impactDist,
-                            &cl->player->nbClassicBomb) == ERR) {
+            int bombeID = createBombe(cl->clientGame->bombesListe, cl->player);
+            if (bombeID == ERR) {
                 printf("Erreur lors de la pose de la bombe\n");
                 return;
             }
 
             pthread_t bombeThread;
             pthread_create(&bombeThread, NULL, bombeThreadExplose, (void *) cl->clientGame);
+
+            printf("id: %d\n",bombeID);
+            printf("Bombe id AfterCreate: %d\n",cl->clientGame->bombesListe->bombes[bombeID]->id);
 
             //pthread_join(bombeThread, NULL);
         }
@@ -226,7 +229,14 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         pthread_mutex_unlock(&cl->clientGame->mutex);
     } else if (!strncmp(recu, postAttackRemoteGo, POST_ATTACK_REMOTE_GO_SIZE)) {
         printf("Explosion des remotes bomb de %s\n", inet_ntoa(cl->addr.sin_addr));
-        if (exploseBomb(cl->clientGame, cl->player) == ERR) {
+
+        pthread_mutex_lock(&cl->clientGame->mutex);
+        pthread_mutex_lock(&cl->clientGame->map->mutex);
+        int exploseBombeRetour=exploseBomb(cl->clientGame, cl->player);
+        pthread_mutex_unlock(&cl->clientGame->map->mutex);
+        pthread_mutex_unlock(&cl->clientGame->mutex);
+
+        if (exploseBombeRetour == ERR) {
             ENVOIE_ERR_INCONNUE;
             return;
         }

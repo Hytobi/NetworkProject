@@ -11,6 +11,7 @@
 #include "json.h"
 #include "err.h"
 #include "player.h"
+#include "api.h"
 
 #define isBombe(carac) (carac==CLASSIC_BOMB_CHAR || carac==REMOTE_BOMB_CHAR || carac==MINE_CHAR)
 
@@ -22,24 +23,24 @@ void *bombeThreadExplose(void *arg) {
 
     sleep(3);  // Attendre 3 secondes
 
-    Bombe *b = game->bombesListe->bombes[0];
+    Bombe *b;
 
     pthread_mutex_lock(&(game->bombesListe->mutex));
 
-    int i = 1;
-    while (b != NULL && i < MAX_BOMBES) {
-        b = game->bombesListe->bombes[i];
-        i++;
-    }
-
+    int id = 0;
     // Récupérer la prochaine bombe à exploser
-    for (; i < MAX_BOMBES; i++) {
+    for (int i = 0; i < MAX_BOMBES; i++) {
         Bombe *nextBomb = game->bombesListe->bombes[i];
         if (nextBomb == NULL) {
             continue;
         }
+        if (b == NULL) {
+            b = nextBomb;
+            id = i;
+        }
         if (b->id > nextBomb->id) {
             b = nextBomb;
+            id = i;
         }
     }
 
@@ -48,13 +49,24 @@ void *bombeThreadExplose(void *arg) {
         pthread_exit(NULL);
     }
 
-
     //faire exploser la bombe
+    pthread_mutex_lock(&game->mutex);
+    pthread_mutex_lock(&game->map->mutex);
     processExploseDist(game, b->x, b->y, b->dist, "classic");
+    pthread_mutex_unlock(&game->map->mutex);
+    pthread_mutex_unlock(&game->mutex);
 
-    b->nbBombes--;
+    b->nbBombes++;
 
-    destroyBombe(game->bombesListe->bombes[i]);
+    char buffer[BUFFER_SIZE];
+    sprintf(buffer, "%s\n%s", POST_UPDATE_PLAYER_NB_BOMBE, cJSON_Print(sendNbBombs(*b->nbBombes)));
+    socklen_t clientAddrLen = sizeof(b->addr);
+    int n = (int) sendto(b->socket, buffer, strlen(buffer), MSG_CONFIRM, (struct sockaddr *) &b->addr, clientAddrLen);
+    if (n == ERR) {
+        perror("Erreur envoi message");
+    }
+
+    destroyBombe(game->bombesListe->bombes[id]);
 
     pthread_mutex_unlock(&(game->bombesListe->mutex));
 
@@ -106,7 +118,7 @@ int processExplose(Game *g, int x, int y) {
                 continue;
             }
             if (g->players[i]->x == x && g->players[i]->y == y) {
-                damagePlayer(g->players[i],g->map);
+                damagePlayer(g->players[i], g->map);
             }
         }
     }
@@ -127,8 +139,8 @@ int processExploseDist(Game *g, int x, int y, int dist, char *type) {
     Bombe propagation[5];
     // La case de la bombe explose et devient un sol
     int numCase = y + map->width * x;
-    char* carac = map->content[numCase];
-    if (carac == PLAYER_REMOTE_BOMB_CHAR || carac == PLAYER_BOMB_CHAR){
+    char carac = map->content[numCase];
+    if (carac == PLAYER_REMOTE_BOMB_CHAR || carac == PLAYER_BOMB_CHAR) {
         //TODO : prendre degat
         map->content[numCase] = PLAYER_CHAR;
     } else {
@@ -160,6 +172,7 @@ int processExploseDist(Game *g, int x, int y, int dist, char *type) {
             }
         }
     }
+
     for (int i = 1; i <= dist; i++) {
         if (y - i > 0) {
             if (explosion = processExplose(g, x, y - i)) {
@@ -209,27 +222,36 @@ int exploseBomb(Game *g, Player *p) {
     return 1;
 }
 
-int createBombe(Bombes *bombesInfo, int x, int y, int dist, int *nbBombe) {
-    Bombe *b;
-    for (int i = 0; i < MAX_BOMBES; i++) {
-        if ((b = bombesInfo->bombes[i]) == NULL) {
-            continue;
-        }
-
-        b = malloc(sizeof(Bombe));
-        if (b == NULL) {
-            perror("Erreur malloc Bombe");
-            return ERR;
-        }
-        b->x = x;
-        b->y = y;
-        b->dist = dist;
-        b->nbBombes = nbBombe;
-        b->id = bombesInfo->nextId;
-        return b->id;
-
+int createBombe(Bombes *bombesInfo, Player *player) {
+    int i = 0;
+    while (bombesInfo->bombes[i] != NULL && i < MAX_BOMBES) {
+        i++;
     }
-    return ERR;
+    if (i >= MAX_BOMBES) {
+        printf("Impossible de créer de nouvelle bombe");
+        return ERR;
+    }
+
+    Bombe *b;
+    b = malloc(sizeof(Bombe));
+    if (b == NULL) {
+        perror("Erreur malloc Bombe");
+        return ERR;
+    }
+
+    b->x = player->x;
+    b->y = player->y;
+    b->dist = player->impactDist;
+    b->nbBombes = &player->nbClassicBomb;
+    b->playerId = player->id;
+    b->addr = player->addr;
+    b->socket = player->socket;
+
+    b->id = bombesInfo->nextId++;
+
+    bombesInfo->bombes[i] = b;
+    return b->id;
+
 }
 
 void destroyBombe(Bombe *b) {

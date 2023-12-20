@@ -246,6 +246,12 @@ cJSON *sendModifMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int d
     return json;
 }
 
+cJSON *sendNbBombs(int nbBomb){
+    cJSON *json = cJSON_CreateObject();
+    cJSON_AddNumberToObject(json, "nbBombe",nbBomb);
+    return json;
+}
+
 cJSON *badRequest() {
     cJSON *json = cJSON_CreateObject();
     cJSON_AddNumberToObject(json, "statut", 400);

@@ -32,7 +32,9 @@ cJSON *sendObjNew(Player *p);
 
 cJSON *newPlayer(Player p);
 
-cJSON *sendModifMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int dist, char* type);
+cJSON *sendNbBombs(int nbBomb);
+
+cJSON *sendModifMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int dist, char *type);
 
 cJSON *badRequest();
 
