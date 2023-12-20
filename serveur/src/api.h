@@ -47,6 +47,8 @@
 
 #define attackMineExplose "POST attack/mineExplose"
 
+#define POST_NEW_PLAYER "POST player/new"
+
 void *clientCommunication(void *args);
 
 #endif //PROJECT_API_H

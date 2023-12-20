@@ -26,6 +26,15 @@ cJSON *playerToJSON(Player p) {
     return playerJson;
 }
 
+cJSON *mapToJSON(Map map){
+        cJSON *mapJSON = cJSON_CreateObject();
+        cJSON_AddNumberToObject(mapJSON, "id", map.id);
+        cJSON_AddNumberToObject(mapJSON, "width", map.width);
+        cJSON_AddNumberToObject(mapJSON, "height", map.height);
+        cJSON_AddStringToObject(mapJSON, "content", map.content);
+    return mapJSON;
+}
+
 cJSON *sendMapListe(Maps *mapsInfo) {
     int nbMaps = mapsInfo->nbMap;
     cJSON *mapJson = cJSON_CreateObject();
@@ -42,12 +51,7 @@ cJSON *sendMapListe(Maps *mapsInfo) {
     pthread_mutex_lock(&mapsInfo->mutex);
     for (int i = 0; i < nbMaps; i++) {
         Map *mapI = mapsInfo->mapListe[i];
-        cJSON *game = cJSON_CreateObject();
-        cJSON_AddNumberToObject(game, "id", mapI->id);
-        cJSON_AddNumberToObject(game, "width", mapI->width);
-        cJSON_AddNumberToObject(game, "height", mapI->height);
-        cJSON_AddStringToObject(game, "content", mapI->content);
-        cJSON_AddItemToArray(gamesArray, game);
+        cJSON_AddItemToArray(gamesArray, mapToJSON(*mapI));
     }
     pthread_mutex_unlock(&mapsInfo->mutex);
     return mapJson;
@@ -62,12 +66,7 @@ cJSON *sendGameCreation(Game *g, Map *map) {
     cJSON_AddStringToObject(gameCreation, "message", "game created");
     cJSON_AddNumberToObject(gameCreation, "nbPlayers", g->nbPlayers);
 
-    cJSON *game = cJSON_CreateObject();
-    cJSON_AddNumberToObject(game, "id", map->id);
-    cJSON_AddNumberToObject(game, "width", map->width);
-    cJSON_AddNumberToObject(game, "height", map->height);
-    cJSON_AddStringToObject(game, "content", map->content);
-    cJSON_AddItemToObject(gameCreation, "startingMap", game);
+    cJSON_AddItemToObject(gameCreation, "startingMap", mapToJSON(*map));
 
     char startPos[5];
     sprintf(startPos, "%d,%d", g->startPos[0], g->startPos[1]);
@@ -115,7 +114,6 @@ cJSON *sendPartieListe(Games *gameInfo) {
 }
 
 cJSON *sendJoinGame(Game *g, Player *p) {
-    pthread_mutex_lock(&g->mutex);
     cJSON *joinGame = cJSON_CreateObject();
     cJSON_AddStringToObject(joinGame, "action", "game/join");
     cJSON_AddStringToObject(joinGame, "statut", "201");
@@ -153,12 +151,25 @@ cJSON *sendJoinGame(Game *g, Player *p) {
     cJSON_AddItemToObject(joinGame, "player", playerInfo);
 
     pthread_mutex_lock(&g->map->mutex);
-    cJSON_AddStringToObject(joinGame, "startingMap", g->map->content);
+    cJSON_AddItemToObject(joinGame,"startingMap", mapToJSON(*g->map));
     pthread_mutex_unlock(&g->map->mutex);
 
-    pthread_mutex_unlock(&g->mutex);
     return joinGame;
 }
+
+cJSON *newPlayer(Player p){
+    cJSON *pJSON = cJSON_CreateObject();
+
+    char name[STRING_SIZE];
+    sprintf(name,"player%d",p.id);
+    cJSON_AddStringToObject(pJSON, "player", name);
+
+    char pos[8];
+    sprintf(pos,"%d,%d",p.x,p.y);
+    cJSON_AddStringToObject(pJSON, "pos", pos);
+
+    return pJSON;
+};
 
 cJSON *sendMove(Player *p, char move[5]) {
     cJSON *moveJSON = cJSON_CreateObject();

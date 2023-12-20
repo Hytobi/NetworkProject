@@ -12,8 +12,8 @@
 
 #define DIR_PATH "../map"
 
-int nextX[2][MAX_PLAYER]={{1,14,1,14},{1,20,1,20}};
-int nextY[2][MAX_PLAYER]={{1,1,13,13},{1,1,6,6}};
+int nextX[2][MAX_PLAYER]={{1,13,1,13},{1,6,1,6}};
+int nextY[2][MAX_PLAYER]={{1,1,13,13},{1,1,13,13}};
 
 void setMapInfo(Maps *mapInfo) {
     mapInfo->nbMap = 0;
