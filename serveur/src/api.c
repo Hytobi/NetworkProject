@@ -161,10 +161,10 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
 
         pthread_mutex_lock(&g->mutex);
         for (int i = 0; i < MAX_PLAYER; i++) {
+            char newP[BUFFER_SIZE];
+            sprintf(newP, "%s\n%s", POST_NEW_PLAYER, cJSON_Print(newPlayer(*cl->player)));
             Player *p = g->players[i];
             if (p && p != cl->player) {
-                char newP[BUFFER_SIZE];
-                sprintf(newP, "%s\n%s", POST_NEW_PLAYER, cJSON_Print(newPlayer(*p)));
                 clientAddrLen = sizeof(p->addr);
                 n = (int) sendto(p->socket, newP, strlen(newP), MSG_CONFIRM, (struct sockaddr *) &p->addr,
                                  clientAddrLen);

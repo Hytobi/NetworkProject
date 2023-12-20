@@ -146,13 +146,18 @@ void envoieMineExplose(Game *g, int x, int y, Player *p) {
     sprintf(pos, "%d,%d", x, y);
     cJSON_AddStringToObject(json, "pos", pos);
     sprintf(buffer, "%s\n%s", attackMineExplose, cJSON_Print(json));
-    socklen_t clientAddrLen = sizeof(p->addr);
-    n = (int) sendto(p->socket, buffer, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &p->addr, clientAddrLen);
-    if (n == ERR) {
-        perror("Erreur envoie du message");
-        return;
+    for (int i=0;i<MAX_PLAYER;i++){
+        Player *player = g->players[i];
+        if (!player){
+            continue;
+        }
+        socklen_t clientAddrLen = sizeof(player->addr);
+        n = (int) sendto(player->socket, buffer, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &player->addr, clientAddrLen);
+        if (n == ERR) {
+            perror("Erreur envoie du message");
+            return;
+        }
     }
-
 
     /* TODO
     for (int i=0; i<MAX_PLAYER; i++){
