@@ -80,6 +80,9 @@ void *bombeThreadExplose(void *arg)
     pthread_exit(NULL);
 }
 
+/**
+ * Envoie la map apres explosion aux joueurs
+*/
 int sendModifiedMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int dist, char *type)
 {
     char *buffer = malloc(sizeof(char) * BUFFER_SIZE);
@@ -106,6 +109,10 @@ int sendModifiedMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int d
     free(buffer);
 }
 
+/**
+ * Fonction qui gère le drop d'item par un mur
+ * @return char : le caractère à mettre dans la map
+*/
 char getRandomChar()
 {
     srand(time(NULL));
@@ -266,6 +273,9 @@ int exploseBomb(Game *g, Player *p)
     return 1;
 }
 
+/**
+ * Fonction qui gère l'explosion d'une mine
+*/
 int createBombe(Bombes *bombesInfo, Player *player)
 {
     int i = 0;

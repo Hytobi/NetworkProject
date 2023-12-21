@@ -8,6 +8,10 @@
 #include "struct.h"
 #include "cJSON/cJSON.h"
 
+/**
+ * Initialise la structure Games
+ * @param gameInfo
+ */
 void initGames(Games *gameInfo);
 
 /**
@@ -27,7 +31,7 @@ int createGame(Games *gameInfo, Maps *maps, cJSON *info, Client *cl);
 int joinGame(Game *g, Client *cl, Map *m);
 
 /**
- * Move le player donne en parametre dans la game donne en parametre
+ * Gère le déplacement du joueur
  * Return le num de la case si tous se passe bien
  * ERR sinon
  * @param p
@@ -37,10 +41,33 @@ int joinGame(Game *g, Client *cl, Map *m);
  */
 int movePlayer(Player *p, Game *game, cJSON *info);
 
+/**
+ * Fais poser une bombe sur la map
+ * Return 0 si tous se passe bien
+ * ERR sinon
+ * @param p
+ * @param game
+ * @param info
+ * @return
+ */
 int attackPlayer(Player *p, Game *g, cJSON *info);
 
+/**
+ * Met a jour les informations du joueur
+ * Return 0 si tous se passe bien
+ * ERR sinon
+ * @param p
+ * @param game
+ * @param info
+ * @return
+ */
 int updatePlayer(Player *p, cJSON *info);
 
+/**
+ * Supprime la game
+ * return 0 si tous s'est bien passe,
+ * ERR sinon
+ */
 void destroyGame(Game *g);
 
 #endif // PROJECT_GAME_H

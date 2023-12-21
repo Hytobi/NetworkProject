@@ -34,7 +34,8 @@
 
 /**
  * Analyse la chaine reçu et renvoie la réponse approprié
- * @param recu
+ * @param clientMap liaison entre les maps, clients et games
+ * @param recu chaine reçu par le client
  */
 void receiveSend(Client_Map_Games *clientMap, char *recu) {
     int n = 0;

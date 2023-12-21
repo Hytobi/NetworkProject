@@ -55,6 +55,10 @@
 #define POST_UPDATE_PLAYER_NB_BOMBE "POST update/player/nbBombe"
 #define POST_UPDATE_PLAYER_NB_BOMBE_SIZE strlen(POST_UPDATE_PLAYER_NB_BOMBE)
 
+/**
+ * Fonction qui gère la communication avec le client
+ * @param args structure contenant toutes les infos necessaire
+ */
 void *clientCommunication(void *args);
 
 #endif // PROJECT_API_H
