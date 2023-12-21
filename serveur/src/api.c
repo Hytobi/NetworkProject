@@ -361,7 +361,6 @@ void *clientCommunication(void *args) {
             // on ferme le socket
             close(cl->socket);
             if (cm!=NULL) {
-                free(cm->mapInfo);
                 free(cm);
             }
 
