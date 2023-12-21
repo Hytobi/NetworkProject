@@ -127,7 +127,7 @@ typedef struct games {
 typedef struct client {
     int socket; /** sokcet TCP associa a ce client */
     struct sockaddr_in addr; /** addresse du client */
-    int connecter;    /**< 0: pas connecte, 1: connecte, 2: en cours de connection */
+    int connecter;    /**< 0: pas connecte, 1: connecte, 2: en cours de connection (pour la connection UDP puis TCP) */
     Game *clientGame; /**< game dans laquelle se trouve le Client */
     Player *player;   /**< player associe au client */
 } Client;
