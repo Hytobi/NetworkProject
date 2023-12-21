@@ -1,6 +1,6 @@
-//
-// Created by hana on 04/12/23.
-//
+/**
+ * @author : Hana DELCOURT, Patrice PLOUVIN
+ */
 
 #ifndef PROJECT_API_H
 #define PROJECT_API_H
@@ -57,4 +57,4 @@
 
 void *clientCommunication(void *args);
 
-#endif //PROJECT_API_H
+#endif // PROJECT_API_H

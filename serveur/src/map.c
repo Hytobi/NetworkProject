@@ -1,6 +1,6 @@
-//
-// Created by hana on 10/12/23.
-//
+/**
+ * @author : Hana DELCOURT, Patrice PLOUVIN
+ */
 
 #include <dirent.h>
 #include <stdio.h>
@@ -12,61 +12,70 @@
 
 #define DIR_PATH "../map"
 
-int nextX[2][MAX_PLAYER]={{1,13,1,13},{1,6,1,6}};
-int nextY[2][MAX_PLAYER]={{1,1,13,13},{1,1,13,13}};
+int nextX[2][MAX_PLAYER] = {{1, 13, 1, 13}, {1, 6, 1, 6}};
+int nextY[2][MAX_PLAYER] = {{1, 1, 13, 13}, {1, 1, 13, 13}};
 
-void setMapInfo(Maps *mapInfo) {
+void setMapInfo(Maps *mapInfo)
+{
     mapInfo->nbMap = 0;
     int i = 0;
 
-    if (pthread_mutex_init(&(mapInfo->mutex), NULL) != 0) {
+    if (pthread_mutex_init(&(mapInfo->mutex), NULL) != 0)
+    {
         perror("Erreur initialisation du mutex");
         exit(2);
     }
 
     DIR *dir = opendir(DIR_PATH);
-    if (dir == NULL) {
+    if (dir == NULL)
+    {
         perror("Erreur lors de l'ouverture du répertoire");
         exit(EXIT_FAILURE);
     }
 
     struct dirent *entry;
-    while ((entry = readdir(dir)) != NULL) {
-        if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, "..")) {
+    while ((entry = readdir(dir)) != NULL)
+    {
+        if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+        {
             continue;
         }
-        if (i >= MAX_MAP) {
+        if (i >= MAX_MAP)
+        {
             break;
         }
-        mapInfo->mapListe[i]= malloc(sizeof(Map));
-        strcpy(mapInfo->mapListe[i]->content,"");
-        mapInfo->mapListe[i]->id=i;
-        mapInfo->mapListe[i]->height=0;
-        mapInfo->mapListe[i]->width=0;
+        mapInfo->mapListe[i] = malloc(sizeof(Map));
+        strcpy(mapInfo->mapListe[i]->content, "");
+        mapInfo->mapListe[i]->id = i;
+        mapInfo->mapListe[i]->height = 0;
+        mapInfo->mapListe[i]->width = 0;
 
         char filePath[PATH_MAX];
         snprintf(filePath, sizeof(filePath), "%s/%s", DIR_PATH, entry->d_name);
 
         // Lire le contenu du fichier
         FILE *file = fopen(filePath, "r");
-        if (file == NULL) {
+        if (file == NULL)
+        {
             perror("Erreur lors de l'ouverture du fichier");
             exit(EXIT_FAILURE);
         }
 
         char buffer[MAX_MAP_SIZE];
-        while (fgets(buffer, MAX_MAP_SIZE, file) != NULL) {
+        while (fgets(buffer, MAX_MAP_SIZE, file) != NULL)
+        {
             size_t newlinePos = strcspn(buffer, "\n");
 
             // Si un saut de ligne est trouvé, le remplacer par le caractère nul
-            if (buffer[newlinePos] == '\n') {
+            if (buffer[newlinePos] == '\n')
+            {
                 buffer[newlinePos] = '\0';
             }
 
             strcat(mapInfo->mapListe[i]->content, buffer);
             mapInfo->mapListe[i]->height++;
         }
-        mapInfo->mapListe[i]->width= strlen(mapInfo->mapListe[i]->content)/mapInfo->mapListe[i]->height;
+        mapInfo->mapListe[i]->width = strlen(mapInfo->mapListe[i]->content) / mapInfo->mapListe[i]->height;
 
         fclose(file);
         i++;
@@ -75,42 +84,53 @@ void setMapInfo(Maps *mapInfo) {
     closedir(dir);
 }
 
-Map * getMap(Maps * mapListe, int id){
-    Map * m;
-    int i=0;
-    do {
-        if (i>mapListe->nbMap){
+Map *getMap(Maps *mapListe, int id)
+{
+    Map *m;
+    int i = 0;
+    do
+    {
+        if (i > mapListe->nbMap)
+        {
             return NULL;
         }
-        if (!mapListe->mapListe[i]){
+        if (!mapListe->mapListe[i])
+        {
             i++;
             continue;
         }
-        m=mapListe->mapListe[i];
+        m = mapListe->mapListe[i];
         i++;
-    } while (m->id!=id);
+    } while (m->id != id);
     return m;
 }
 
-void afficheMap(Map m){
-    for (int i=0;i<m.height;i++){
-        for (int j=0;j<m.width;j++){
-            printf("%c",m.content[i*m.width+j]);
+void afficheMap(Map m)
+{
+    for (int i = 0; i < m.height; i++)
+    {
+        for (int j = 0; j < m.width; j++)
+        {
+            printf("%c", m.content[i * m.width + j]);
         }
         printf("\n");
     }
 }
 
-int nextPosX(int i, int mapId){
+int nextPosX(int i, int mapId)
+{
     return nextX[mapId][i];
 }
 
-int nextPosY(int i, int mapId){
+int nextPosY(int i, int mapId)
+{
     return nextY[mapId][i];
 }
 
-void destroyMap(Map *map){
-    if (map != NULL){
+void destroyMap(Map *map)
+{
+    if (map != NULL)
+    {
         return;
     }
     pthread_mutex_destroy(&map->mutex);

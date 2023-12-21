@@ -1,6 +1,6 @@
-//
-// Created by hana on 10/12/23.
-//
+/**
+ * @author : Hana DELCOURT, Patrice PLOUVIN
+ */
 
 #ifndef PROJECT_MAP_H
 #define PROJECT_MAP_H
@@ -30,7 +30,7 @@ void setMapInfo(Maps *mapInfo);
  * @param id
  * @return
  */
-Map * getMap(Maps * mapListe, int id);
+Map *getMap(Maps *mapListe, int id);
 
 void afficheMap(Map m);
 
@@ -39,4 +39,4 @@ int nextPosY(int i, int mapId);
 
 void destroyMap(Map *);
 
-#endif //PROJECT_MAP_H
+#endif // PROJECT_MAP_H

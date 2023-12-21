@@ -1,6 +1,6 @@
-//
-// Created by hana on 17/12/23.
-//
+/**
+ * @author : Hana DELCOURT, Patrice PLOUVIN
+ */
 
 #include <stdio.h>
 #include <malloc.h>
@@ -12,7 +12,8 @@
  * @param p
  * @return
  */
-cJSON *playerToJSON(Player p) {
+cJSON *playerToJSON(Player p)
+{
     cJSON *playerJson = cJSON_CreateObject();
 
     cJSON_AddNumberToObject(playerJson, "life", p.life);
@@ -27,16 +28,18 @@ cJSON *playerToJSON(Player p) {
     return playerJson;
 }
 
-cJSON *mapToJSON(Map map){
-        cJSON *mapJSON = cJSON_CreateObject();
-        cJSON_AddNumberToObject(mapJSON, "id", map.id);
-        cJSON_AddNumberToObject(mapJSON, "width", map.width);
-        cJSON_AddNumberToObject(mapJSON, "height", map.height);
-        cJSON_AddStringToObject(mapJSON, "content", map.content);
+cJSON *mapToJSON(Map map)
+{
+    cJSON *mapJSON = cJSON_CreateObject();
+    cJSON_AddNumberToObject(mapJSON, "id", map.id);
+    cJSON_AddNumberToObject(mapJSON, "width", map.width);
+    cJSON_AddNumberToObject(mapJSON, "height", map.height);
+    cJSON_AddStringToObject(mapJSON, "content", map.content);
     return mapJSON;
 }
 
-cJSON *sendMapListe(Maps *mapsInfo) {
+cJSON *sendMapListe(Maps *mapsInfo)
+{
     int nbMaps = mapsInfo->nbMap;
     cJSON *mapJson = cJSON_CreateObject();
 
@@ -50,7 +53,8 @@ cJSON *sendMapListe(Maps *mapsInfo) {
     cJSON *gamesArray = cJSON_AddArrayToObject(mapJson, "maps");
 
     pthread_mutex_lock(&mapsInfo->mutex);
-    for (int i = 0; i < nbMaps; i++) {
+    for (int i = 0; i < nbMaps; i++)
+    {
         Map *mapI = mapsInfo->mapListe[i];
         cJSON_AddItemToArray(gamesArray, mapToJSON(*mapI));
     }
@@ -58,7 +62,8 @@ cJSON *sendMapListe(Maps *mapsInfo) {
     return mapJson;
 }
 
-cJSON *sendGameCreation(Game *g, Map *map) {
+cJSON *sendGameCreation(Game *g, Map *map)
+{
     cJSON *gameCreation = cJSON_CreateObject();
 
     // Ajout des éléments au JSON
@@ -83,7 +88,8 @@ cJSON *sendGameCreation(Game *g, Map *map) {
     return gameCreation;
 }
 
-cJSON *sendPartieListe(Games *gameInfo) {
+cJSON *sendPartieListe(Games *gameInfo)
+{
     cJSON *gameListe = cJSON_CreateObject();
 
     // Ajout des éléments au JSON
@@ -96,16 +102,18 @@ cJSON *sendPartieListe(Games *gameInfo) {
     cJSON *gamesArray = cJSON_AddArrayToObject(gameListe, "games");
 
     int i = 0;
-    while (i < MAX_GAMES) {
+    while (i < MAX_GAMES)
+    {
         Game *gameI = gameInfo->gameListe[i];
-        if (gameI == NULL) {
+        if (gameI == NULL)
+        {
             i++;
             continue;
         }
         cJSON *game = cJSON_CreateObject();
         cJSON_AddStringToObject(game, "name", gameI->name);
         char mapId[3];
-        sprintf(mapId,"%d",gameI->mapId);
+        sprintf(mapId, "%d", gameI->mapId);
         cJSON_AddStringToObject(game, "mapId", mapId);
         cJSON_AddNumberToObject(game, "nbPlayer", gameI->nbPlayers);
         cJSON_AddItemToArray(gamesArray, game);
@@ -114,19 +122,22 @@ cJSON *sendPartieListe(Games *gameInfo) {
     return gameListe;
 }
 
-cJSON *sendJoinGame(Game *g, Player *p) {
+cJSON *sendJoinGame(Game *g, Player *p)
+{
     cJSON *joinGame = cJSON_CreateObject();
     cJSON_AddStringToObject(joinGame, "action", "game/join");
     cJSON_AddStringToObject(joinGame, "statut", "201");
     cJSON_AddStringToObject(joinGame, "message", "game joined");
-    cJSON_AddNumberToObject(joinGame, "nbPlayers", g->nbPlayers-1);
+    cJSON_AddNumberToObject(joinGame, "nbPlayers", g->nbPlayers - 1);
     cJSON_AddNumberToObject(joinGame, "mapId", g->mapId);
 
     cJSON *playerListeJson = cJSON_AddArrayToObject(joinGame, "players");
-    //Liste des players
+    // Liste des players
     int i = 0;
-    while (i < MAX_PLAYER) {
-        if (g->players[i] == NULL || g->players[i]==p) {
+    while (i < MAX_PLAYER)
+    {
+        if (g->players[i] == NULL || g->players[i] == p)
+        {
             i++;
             continue;
         }
@@ -138,7 +149,7 @@ cJSON *sendJoinGame(Game *g, Player *p) {
 
         char pos[8];
         sprintf(pos, "%d,%d", g->players[i]->x, g->players[i]->y);
-        cJSON_AddStringToObject(playerIJSON,"pos",pos);
+        cJSON_AddStringToObject(playerIJSON, "pos", pos);
         cJSON_AddItemToArray(playerListeJson, playerIJSON);
         i++;
     }
@@ -152,27 +163,29 @@ cJSON *sendJoinGame(Game *g, Player *p) {
     cJSON_AddItemToObject(joinGame, "player", playerInfo);
 
     pthread_mutex_lock(&g->map->mutex);
-    cJSON_AddItemToObject(joinGame,"startingMap", mapToJSON(*g->map));
+    cJSON_AddItemToObject(joinGame, "startingMap", mapToJSON(*g->map));
     pthread_mutex_unlock(&g->map->mutex);
 
     return joinGame;
 }
 
-cJSON *newPlayer(Player p){
+cJSON *newPlayer(Player p)
+{
     cJSON *pJSON = cJSON_CreateObject();
 
     char name[STRING_SIZE];
-    sprintf(name,"player%d",p.id);
+    sprintf(name, "player%d", p.id);
     cJSON_AddStringToObject(pJSON, "player", name);
 
     char pos[8];
-    sprintf(pos,"%d,%d",p.x,p.y);
+    sprintf(pos, "%d,%d", p.x, p.y);
     cJSON_AddStringToObject(pJSON, "pos", pos);
 
     return pJSON;
 };
 
-cJSON *sendMove(Player *p, char move[5]) {
+cJSON *sendMove(Player *p, char move[5])
+{
     cJSON *moveJSON = cJSON_CreateObject();
 
     char playerX[8];
@@ -184,15 +197,16 @@ cJSON *sendMove(Player *p, char move[5]) {
     return moveJSON;
 }
 
-cJSON *sendPosBomb(cJSON *b, Player *p) {
+cJSON *sendPosBomb(cJSON *b, Player *p)
+{
     cJSON *posBombJSON = cJSON_CreateObject();
 
     cJSON_AddStringToObject(posBombJSON, "action", "attack/bomb");
     cJSON_AddStringToObject(posBombJSON, "statut", "201");
-    char *message = malloc(sizeof(char)*256);
-    strcpy(message,cJSON_GetObjectItemCaseSensitive(b, "type")->valuestring);
-    strcat(message," bomb is armed at pos ");
-    strcat(message,cJSON_GetObjectItemCaseSensitive(b, "pos")->valuestring);
+    char *message = malloc(sizeof(char) * 256);
+    strcpy(message, cJSON_GetObjectItemCaseSensitive(b, "type")->valuestring);
+    strcat(message, " bomb is armed at pos ");
+    strcat(message, cJSON_GetObjectItemCaseSensitive(b, "pos")->valuestring);
     cJSON_AddStringToObject(posBombJSON, "message", message);
 
     // info du joueur
@@ -202,13 +216,15 @@ cJSON *sendPosBomb(cJSON *b, Player *p) {
     return posBombJSON;
 }
 
-char *sendAttackAffect(Player *p) {
+char *sendAttackAffect(Player *p)
+{
     char *buffer = malloc(sizeof(char) * BUFFER_SIZE);
     sprintf(buffer, "%s\n%s", postAttackAffect, cJSON_Print(playerToJSON(*p)));
     return buffer;
 }
 
-cJSON *sendObjNew(Player *p) {
+cJSON *sendObjNew(Player *p)
+{
     cJSON *objNewJSON = cJSON_CreateObject();
 
     cJSON_AddStringToObject(objNewJSON, "action", "object/new");
@@ -222,7 +238,8 @@ cJSON *sendObjNew(Player *p) {
     return objNewJSON;
 }
 
-cJSON *sendModifMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int dist, char* type){
+cJSON *sendModifMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int dist, char *type)
+{
     cJSON *json = cJSON_CreateObject();
     char pos[8];
     sprintf(pos, "%d,%d", x, y);
@@ -231,10 +248,11 @@ cJSON *sendModifMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int d
     cJSON_AddNumberToObject(json, "impactDist", dist);
 
     cJSON *casesModifies = cJSON_AddArrayToObject(json, "casesModifies");
-    //Liste des players
+    // Liste des players
     int i = 0;
     Map map = *g->map;
-    while (i < nbItem) {
+    while (i < nbItem)
+    {
         cJSON *caseJSON = cJSON_CreateObject();
         cJSON_AddNumberToObject(caseJSON, "x", propagation[i].x);
         cJSON_AddNumberToObject(caseJSON, "y", propagation[i].y);
@@ -248,20 +266,23 @@ cJSON *sendModifMap(Game *g, Bombe *propagation, int nbItem, int x, int y, int d
     return json;
 }
 
-cJSON *sendNbBombs(int nbBomb){
+cJSON *sendNbBombs(int nbBomb)
+{
     cJSON *json = cJSON_CreateObject();
-    cJSON_AddNumberToObject(json, "nbBombe",nbBomb);
+    cJSON_AddNumberToObject(json, "nbBombe", nbBomb);
     return json;
 }
 
-cJSON *badRequest() {
+cJSON *badRequest()
+{
     cJSON *json = cJSON_CreateObject();
     cJSON_AddNumberToObject(json, "statut", 400);
     cJSON_AddStringToObject(json, "message", "Bad Request");
     return json;
 }
 
-cJSON *errInconnue() {
+cJSON *errInconnue()
+{
     cJSON *json = cJSON_CreateObject();
     cJSON_AddNumberToObject(json, "statut", 520);
     cJSON_AddStringToObject(json, "message", "Unknown Error");

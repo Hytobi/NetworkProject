@@ -1,6 +1,6 @@
-//
-// Created by hana on 11/12/23.
-//
+/**
+ * @author : Hana DELCOURT, Patrice PLOUVIN
+ */
 
 #ifndef PROJECT_GAME_H
 #define PROJECT_GAME_H
@@ -37,10 +37,10 @@ int joinGame(Game *g, Client *cl, Map *m);
  */
 int movePlayer(Player *p, Game *game, cJSON *info);
 
-int attackPlayer(Player* p , Game* g, cJSON* info);
+int attackPlayer(Player *p, Game *g, cJSON *info);
 
-int updatePlayer(Player *p, cJSON* info);
+int updatePlayer(Player *p, cJSON *info);
 
 void destroyGame(Game *g);
 
-#endif //PROJECT_GAME_H
+#endif // PROJECT_GAME_H

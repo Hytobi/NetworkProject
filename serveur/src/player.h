@@ -1,3 +1,6 @@
+/**
+ * @author : Hana DELCOURT, Patrice PLOUVIN
+ */
 
 #ifndef PLAYER_H
 #define PLAYER_H

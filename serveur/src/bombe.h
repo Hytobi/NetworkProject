@@ -1,6 +1,6 @@
-//
-// Created by hana on 20/12/23.
-//
+/**
+ * @author : Hana DELCOURT, Patrice PLOUVIN
+ */
 
 #ifndef PROJECT_BOMBE_H
 #define PROJECT_BOMBE_H
@@ -31,4 +31,4 @@ int createBombe(Bombes *bombesInfo, Player *player);
 
 void destroyBombe(Bombe *b);
 
-#endif //PROJECT_BOMBE_H
+#endif // PROJECT_BOMBE_H

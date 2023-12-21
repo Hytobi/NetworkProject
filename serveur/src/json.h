@@ -1,13 +1,9 @@
-//
-// Created by hana on 17/12/23.
-//
+/**
+ * @author : Hana DELCOURT, Patrice PLOUVIN
+ */
 
 #ifndef PROJECT_JSON_H
 #define PROJECT_JSON_H
-
-//
-// Created by hana on 17/12/23.
-//
 
 #include "cJSON/cJSON.h"
 #include "struct.h"

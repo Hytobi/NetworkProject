@@ -31,8 +31,9 @@ void serveurSIGINT(int signal, siginfo_t *info, void *context) {
 }
 */
 
-void *serveurUdp(void *args) {
-    Thread_Info *threadInfo = (Thread_Info *) args;
+void *serveurUdp(void *args)
+{
+    Thread_Info *threadInfo = (Thread_Info *)args;
     printf("\033[H\033[2J");
 
     // Création du socket
@@ -41,16 +42,16 @@ void *serveurUdp(void *args) {
     EXIT_IF_FAIL(sockfd, "Probleme creation socket");
 
     // Configurer le socket pour qu'il puisse être réutilisé
-    EXIT_IF_FAIL(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &(int) {1}, sizeof(int)), "problem setsockopt");
+    EXIT_IF_FAIL(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)), "problem setsockopt");
 
     //  il faut attacher le socket à un port Internet et une adresse IP
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(PORT);
-    //addr.sin_port = htons(12345);
+    // addr.sin_port = htons(12345);
     addr.sin_addr.s_addr = INADDR_ANY;
 
-    EXIT_IF_FAIL(bind(sockfd, (struct sockaddr *) &addr, sizeof(addr)), "Probleme bind");
+    EXIT_IF_FAIL(bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)), "Probleme bind");
     EXIT_IF_FAIL(fcntl(sockfd, F_SETFL, MSG_WAITALL), "Probleme fcntl");
 
     // Création du socket TCP pour écouter les connexions
@@ -64,7 +65,7 @@ void *serveurUdp(void *args) {
     tcpListenAddr.sin_port = htons(PORT);
     tcpListenAddr.sin_addr.s_addr = INADDR_ANY;
 
-    EXIT_IF_FAIL(bind(tcpListenFd, (struct sockaddr *) &tcpListenAddr, sizeof(tcpListenAddr)), "Probleme bind TCP");
+    EXIT_IF_FAIL(bind(tcpListenFd, (struct sockaddr *)&tcpListenAddr, sizeof(tcpListenAddr)), "Probleme bind TCP");
     EXIT_IF_FAIL(listen(tcpListenFd, 5), "Probleme listen");
 
     printf("Serveur up\n");
@@ -72,12 +73,14 @@ void *serveurUdp(void *args) {
     char buffer[BUFFER_SIZE];
     char buffer2[BUFFER_SIZE];
     int n = 0;
-    for (;;) {
+    for (;;)
+    {
         struct sockaddr_in clientAddr;
         socklen_t clientAddrLen = sizeof(clientAddr);
 
-        n = (int) recvfrom(sockfd, buffer, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *) &clientAddr, &clientAddrLen);
-        if (n == ERR) {
+        n = (int)recvfrom(sockfd, buffer, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *)&clientAddr, &clientAddrLen);
+        if (n == ERR)
+        {
             perror("Erreur reception du message");
             continue;
         }
@@ -85,17 +88,20 @@ void *serveurUdp(void *args) {
 
         printf("Tentative de connexion de %s\n", inet_ntoa(clientAddr.sin_addr));
 
-
-        if (strcmp(buffer, messageClientAttendue)) {
-            if (strcmp(buffer, reboot)) {
+        if (strcmp(buffer, messageClientAttendue))
+        {
+            if (strcmp(buffer, reboot))
+            {
                 printf("Refusé !\n");
                 printf("Message non reconnue : %s\n", buffer);
                 sprintf(buffer2, "%s", cJSON_Print(badRequest()));
-                n = (int) sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &clientAddr,
-                                 clientAddrLen);
+                n = (int)sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *)&clientAddr,
+                                clientAddrLen);
                 CONTINUE_IF_FAIL(n, "Erreur envoie du message");
                 continue;
-            } else {
+            }
+            else
+            {
                 printf("J'ai été connecté à toi !\n");
             }
         }
@@ -103,16 +109,18 @@ void *serveurUdp(void *args) {
         printf("Message reçu de %s : %s\nMessage accepté !\n", inet_ntoa(clientAddr.sin_addr), buffer);
 
         sprintf(buffer2, "%s", notifClientServeurUp);
-        //sprintf(buffer2,"yes");
-        n = (int) sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &clientAddr, clientAddrLen);
+        // sprintf(buffer2,"yes");
+        n = (int)sendto(sockfd, buffer2, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *)&clientAddr, clientAddrLen);
         CONTINUE_IF_FAIL(n, "Erreur envoie du message");
 
         // Block le mutex
         pthread_mutex_lock(&(threadInfo->mutex));
 
         // Préparation de la connection tcpConnect
-        for (int i = 0; i < MAX_CLIENTS; i++) {
-            if (threadInfo->clients[i].connecter) {
+        for (int i = 0; i < MAX_CLIENTS; i++)
+        {
+            if (threadInfo->clients[i].connecter)
+            {
                 continue;
             }
             // Ajouter le nouveau Client à la structure
@@ -143,58 +151,64 @@ void *serveurUdp(void *args) {
 
         pthread_mutex_unlock(&threadInfo->mutex);
 
-
-        //n = send(sockfd, buffer2, 1024, MSG_CONFIRM);
+        // n = send(sockfd, buffer2, 1024, MSG_CONFIRM);
         EXIT_IF_FAIL(n, "Probleme send");
     }
 }
 
-void *tcpConnect(void *args) {
-    Thread_Info *threadInfo = (Thread_Info *) args;
+void *tcpConnect(void *args)
+{
+    Thread_Info *threadInfo = (Thread_Info *)args;
 
     Games *gameInfo;
     gameInfo = malloc(sizeof(Games));
-    if (gameInfo == NULL) {
+    if (gameInfo == NULL)
+    {
         perror("Erreur allocation gameInfo");
         exit(2);
     }
 
-    if (pthread_mutex_init(&(gameInfo->mutex), NULL) != 0) {
+    if (pthread_mutex_init(&(gameInfo->mutex), NULL) != 0)
+    {
         perror("Erreur initialisation du mutex");
         exit(2);
     }
 
-    for (int i = 0; i < MAX_GAMES; i++) {
+    for (int i = 0; i < MAX_GAMES; i++)
+    {
         gameInfo->gameListe[i] = NULL;
     }
     gameInfo->nbGames = 0;
 
     pthread_t clientThreads[MAX_CLIENTS];
     int threadCount = 0;
-    for (;;) {
+    for (;;)
+    {
         pthread_mutex_lock(&threadInfo->mutex);
-        for (int i = 0; i < MAX_CLIENTS; i++) {
+        for (int i = 0; i < MAX_CLIENTS; i++)
+        {
             // Premiere connection du Client
-            if (threadInfo->clients[i].connecter == 2) {
+            if (threadInfo->clients[i].connecter == 2)
+            {
                 // adresse TCP du Client
                 socklen_t tcpClientAddrLen = sizeof(threadInfo->clients[i].addr);
 
                 // socket TCP
                 printf("Écoute sur le socket TCP...\n");
                 listen(threadInfo->clients[i].socket, 1);
-                int tcpFd = accept(threadInfo->clients[i].socket, (struct sockaddr *) &threadInfo->clients[i].addr,
+                int tcpFd = accept(threadInfo->clients[i].socket, (struct sockaddr *)&threadInfo->clients[i].addr,
                                    &tcpClientAddrLen);
-                if (tcpFd == ERR) {
+                if (tcpFd == ERR)
+                {
                     perror("Erreur écoute du socket TCP");
                     pthread_mutex_unlock(&threadInfo->mutex);
-                    //TODO le retirer de la liste
+                    // TODO le retirer de la liste
                     continue;
                 }
 
                 printf("Nouveau Client connecté via TCP depuis %s\n", inet_ntoa(threadInfo->clients[i].addr.sin_addr));
                 threadInfo->clients[i].connecter = 1;
                 threadInfo->clients[i].socket = tcpFd;
-
 
                 Client_Map_Games *cm = malloc(sizeof(Client_Map_Games));
                 cm->gameInfo = gameInfo;
@@ -211,13 +225,15 @@ void *tcpConnect(void *args) {
     pthread_exit(NULL);
 }
 
-int main(int arvc, char **argv) {
+int main(int arvc, char **argv)
+{
     Thread_Info *threadInfo = malloc(sizeof(Thread_Info));
 
     threadInfo->mapInfo = malloc(sizeof(Maps));
     setMapInfo(threadInfo->mapInfo);
 
-    if (pthread_mutex_init(&(threadInfo->mutex), NULL) != 0) {
+    if (pthread_mutex_init(&(threadInfo->mutex), NULL) != 0)
+    {
         perror("Erreur initialisation du mutex");
         exit(2);
     }
