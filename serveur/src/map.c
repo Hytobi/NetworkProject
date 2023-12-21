@@ -12,7 +12,13 @@
 
 #define DIR_PATH "../map"
 
+/**
+ * Tableau statique de la position X du spawn en fonction du joueur et de la map (possibilite de mettres des charactere sur la map pour le spawn de maniere dynamique)
+ */
 int nextX[2][MAX_PLAYER] = {{1, 13, 1, 13}, {1, 6, 1, 6}};
+/**
+ * Tableau statique de la position X du spawn en fonction du joueur et de la map
+ */
 int nextY[2][MAX_PLAYER] = {{1, 1, 13, 13}, {1, 1, 13, 13}};
 
 void setMapInfo(Maps *mapInfo)

@@ -21,6 +21,10 @@
 
 #include "struct.h"
 
+/**
+ * Set les infos des maps par défaut du serveur en lisant de manière dynamique les maps présentes dans le répoertoire map
+ * @param mapInfo pointeur vers la lsite des maps pour les rendres accessible a tous les clients qui se connecteront
+ */
 void setMapInfo(Maps *mapInfo);
 
 /**
@@ -32,11 +36,31 @@ void setMapInfo(Maps *mapInfo);
  */
 Map *getMap(Maps *mapListe, int id);
 
+/**
+ * Affiche la map donné en paramètre
+ * @param m
+ */
 void afficheMap(Map m);
 
+/**
+ * Récupère la prochaine position X de spawn du joueur sur la map selectione
+ * @param i le numéro du prochain joueur
+ * @param mapId l'ide de la map
+ * @return
+ */
 int nextPosX(int i, int mapId);
+
+/**
+ * Récupère la prochaine position Y de spawn du joueur sur la map selectione
+ * @param i le numéro du prochain joueur
+ * @param mapId l'ide de la map
+ * @return
+ */
 int nextPosY(int i, int mapId);
 
+/**
+ * Détruit la map donné en paramètre
+ */
 void destroyMap(Map *);
 
 #endif // PROJECT_MAP_H
