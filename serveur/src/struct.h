@@ -42,7 +42,7 @@ typedef struct Bombe {
     int dist;   /**< puissance de la bombe (nombre de case affecte par l'explosion) */
     int *nbBombes; /**< pointeur du nombre de bombes posées par le joueur */
     int playerId;   /**< id du joueur qui a pose la bombe */
-    int socket;     /**< socket TCP du joueur qui a pose la bombe (afin de lui rajouter une bombe lorsqu'elle explose)
+    int socket;     /**< socket TCP du joueur qui a pose la bombe (afin de lui rajouter une bombe lorsqu'elle explose) */
     struct sockaddr_in addr;    /**< addr du joueur pour lui ajouter la bombe apres l'explosion */
 } Bombe;
 
