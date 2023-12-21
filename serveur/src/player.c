@@ -8,8 +8,7 @@
 #include "err.h"
 #include "json.h"
 
-Player *createPlayer(int id, int x, int y, struct sockaddr_in addr, int socket)
-{
+Player *createPlayer(int id, int x, int y, struct sockaddr_in addr, int socket) {
     Player *p = malloc(sizeof(Player));
     p->id = id;
     p->x = x;
@@ -29,29 +28,27 @@ Player *createPlayer(int id, int x, int y, struct sockaddr_in addr, int socket)
     return p;
 }
 
-void damagePlayer(Player *p, Map *map)
-{
+void damagePlayer(Player *p, Map *map) {
     p->life -= 30;
 
     char *buffer = malloc(sizeof(char) * BUFFER_SIZE);
     sprintf(buffer, "%s", sendAttackAffect(p));
     socklen_t clientAddrLen = sizeof(p->addr);
-    int n = (int)sendto(p->socket, buffer, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *)&p->addr, clientAddrLen);
+    int n = (int) sendto(p->socket, buffer, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr *) &p->addr, clientAddrLen);
     free(buffer);
-    if (n == ERR)
-    {
+    if (n == ERR) {
         perror("Erreur envoie message");
     }
 
-    if (p->life <= 0)
-    {
+    if (p->life <= 0) {
         p->life = 0;
         map->content[p->y + p->x * map->width] = SOL_CHAR;
         // TODO : suppression de joueur
     }
 }
 
-void destroyPlayer(Player *p)
-{
-    free(p);
+void destroyPlayer(Player *p) {
+    if (p != NULL) {
+        free(p);
+    }
 }

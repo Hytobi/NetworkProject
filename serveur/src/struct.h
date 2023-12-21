@@ -35,8 +35,7 @@
  * Structure qui definie une bombe
  * (Elle est incassable, meme une explosion la fera pas exploser avant la fin de son timer)
  */
-typedef struct Bombe
-{
+typedef struct Bombe {
     int id;
     int x;
     int y;
@@ -46,8 +45,7 @@ typedef struct Bombe
     int socket;
     struct sockaddr_in addr;
 } Bombe;
-typedef struct player
-{
+typedef struct player {
     int id;                           /**< player id */
     int x;                            /**< pos x du joueur */
     int y;                            /**< pos y du joueur */
@@ -66,15 +64,13 @@ typedef struct player
     Bombe remoteSet[MAX_REMOTE_BOMB]; /**< liste des positions des bombes posées par le joueur */
 } Player;
 
-typedef struct Bombes
-{
+typedef struct Bombes {
     int nextId;
     Bombe *bombes[MAX_BOMBES];
     pthread_mutex_t mutex;
 } Bombes;
 
-typedef struct map
-{
+typedef struct map {
     int id;                     /**< id de la map concernée*/
     int width;                  /**<largeur de la map en nombre de cases*/
     int height;                 /**<hauteur de la map en nombre de cases*/
@@ -82,15 +78,13 @@ typedef struct map
     pthread_mutex_t mutex;
 } Map;
 
-typedef struct maps
-{
+typedef struct maps {
     int nbMap;
     Map *mapListe[MAX_MAP];
     pthread_mutex_t mutex;
 } Maps;
 
-typedef struct game
-{
+typedef struct game {
     char name[STRING_SIZE];
     int nbPlayers;               /**< nombre de joueurs actuel dans la partie */
     int mapId;                   /**< id de la map sur laquelle se joue la partie */
@@ -102,15 +96,13 @@ typedef struct game
     pthread_mutex_t mutex;
 } Game;
 
-typedef struct games
-{
+typedef struct games {
     int nbGames;
     Game *gameListe[MAX_GAMES];
     pthread_mutex_t mutex;
 } Games;
 
-typedef struct client
-{
+typedef struct client {
     int socket;
     struct sockaddr_in addr;
     int connecter;    /**< 0: pas connecte, 1: connecte, 2: en cours de connection */
@@ -118,15 +110,13 @@ typedef struct client
     Player *player;   /**< player associe au client */
 } Client;
 
-typedef struct client_map_games
-{
+typedef struct client_map_games {
     Client *cl;
     Maps *mapInfo;
     Games *gameInfo;
 } Client_Map_Games;
 
-typedef struct thread_Info
-{
+typedef struct thread_Info {
     Client clients[MAX_CLIENTS];
     Maps *mapInfo;
     pthread_mutex_t mutex;
