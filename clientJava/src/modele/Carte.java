@@ -338,7 +338,13 @@ public class Carte {
         int y = Integer.parseInt(ae.getPos().split(",")[1]);
         plateau[x][y].setABombe(false);
         plateau[x][y].setItem(null);
-        plateau[x][y].setCarac(" ");
+        if (plateau[x][y].getCarac().equals("@")) {
+            plateau[x][y].setCarac("@");
+        } else if (plateau[x][y].getCarac().equals("$")) {
+            plateau[x][y].setCarac("$");
+        } else {
+            plateau[x][y].setCarac(" ");
+        }
         mesMAJ.add(new Point(x, y));
         for (int i =0; i<ae.getCasesModifies().size(); i++) {
             x = ae.getCasesModifies().get(i).getX();
