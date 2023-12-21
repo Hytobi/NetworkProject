@@ -1,5 +1,7 @@
 package api;
 
+import java.io.File;
+
 /**
  * MapperRes: classe utilitaire pour convertir des objets en json et inversement
  * 
@@ -8,6 +10,7 @@ package api;
  */
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dto.ConfigTouch;
 
 public class MapperRes {
 
@@ -38,6 +41,35 @@ public class MapperRes {
     public static String toJson(Object obj) {
         try {
             return mapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Ecrit un json dans un fichier local-config.json
+     * 
+     * @param json le json à écrire
+     */
+    public static void writeJson(ConfigTouch ct) {
+        try {
+            mapper.writeValue(new File("local-config.json"), ct);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Lit un json dans un fichier local-config.json
+     * 
+     * @return le json lu
+     */
+    public static <T> T readJson(Class<T> clazz) {
+        if (!new File("local-config.json").exists()) {
+            return null;
+        }
+        try {
+            return mapper.readValue(new File("local-config.json"), clazz);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

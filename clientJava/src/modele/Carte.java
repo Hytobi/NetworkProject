@@ -355,6 +355,15 @@ public class Carte {
     }
 
     /**
+     * Méthode qui gère la mise à jour du nombre de bombes du joueur
+     * 
+     * @param nbBombe : le nombre de bombes
+     */
+    public void updateMyPlayerBomb(int nbBombe) {
+        myPlayer.setNbClassicBomb(nbBombe);
+    }
+
+    /**
      * Méthode qui teste si le joueur est mort
      * 
      * @return : vrai si c'est le cas, faux sinon

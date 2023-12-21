@@ -115,6 +115,18 @@ public class Bomber {
                             } catch (Exception e) {
                                 System.out.println("Erreur lors du mapper de PlayerNew");
                             }
+                        } else if (msg.contains("update/player/nbBombe")){
+                            try {
+                                UpdateBombe res = MapperRes.fromJson(json, UpdateBombe.class);
+                                if (res != null) {
+                                    jeu.updateMyPlayerBomb(res.getNbBombe());
+                                } else {
+                                    System.out.println("Erreur lors de la récupération de AttackBomb");
+                                }
+                            } catch (Exception e) {
+                                System.out.println("Erreur lors du mapper de AttackBomb");
+                                e.printStackTrace();
+                            }
                         }
                     } else {
                         if (msg.contains("attack/bomb")) {

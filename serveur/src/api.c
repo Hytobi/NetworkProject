@@ -58,7 +58,7 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         }
 
         char postMove[BUFFER_SIZE];
-        sprintf(postMove, "%s\n%s", POST_POSITION_PLAYER_UPDATE, cJSON_Print(
+        sprintf(postMove, "%s\n%sEOJ", POST_POSITION_PLAYER_UPDATE, cJSON_Print(
                 sendMove(cl->player, cJSON_GetObjectItemCaseSensitive(cJSON_Parse(recu), "move")->valuestring)));
 
         pthread_mutex_lock(&cl->clientGame->mutex);

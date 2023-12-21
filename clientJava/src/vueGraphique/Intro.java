@@ -13,6 +13,7 @@ import java.awt.event.*;
 import api.*;
 import dto.*;
 import java.io.IOException;
+import java.io.ObjectInputFilter.Config;
 import java.util.List;
 
 public class Intro extends JFrame implements ActionListener {
@@ -24,7 +25,7 @@ public class Intro extends JFrame implements ActionListener {
     private boolean commencer = false;
     private String myName;
     private ResGameJoin resGameJoin;
-    private ConfigTouch configTouch = new ConfigTouch();
+    private ConfigTouch configTouch;
 
     private JPanel infoPanel;
     private JLabel bomber;
@@ -45,6 +46,7 @@ public class Intro extends JFrame implements ActionListener {
         setLayout(new BorderLayout());
 
         // Les inits
+        initTouch();
         initActions();
         initArrierePlan();
 
@@ -54,6 +56,14 @@ public class Intro extends JFrame implements ActionListener {
         setLocation((dimEcran.width - getWidth()) / 2, (dimEcran.height - getHeight()) / 2);
         setResizable(false);
         setVisible(true);
+    }
+
+    /** Méthode qui initialise les touches */
+    private void initTouch() {
+        configTouch = MapperRes.readJson(ConfigTouch.class);
+        if (configTouch == null) {
+            configTouch = new ConfigTouch();
+        }
     }
 
     /** Méthode qui initialise les actions des boutons */
@@ -275,11 +285,24 @@ public class Intro extends JFrame implements ActionListener {
             }
         });
 
+        JButton setTouch = createBtn("Options");
+        setTouch.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                clear();
+                askForConfigTouchWithTextFields();
+                infoPanel.revalidate();
+                infoPanel.repaint();
+            }
+        });
+
         toolBar.add(Maps);
         toolBar.addSeparator();
         toolBar.add(Games);
         toolBar.addSeparator();
         toolBar.add(create);
+        toolBar.addSeparator();
+        toolBar.add(setTouch);
         toolBar.setBackground(new Color(28, 25, 71));
         toolBar.setFloatable(false);
         toolBar.setRollover(true);
@@ -494,6 +517,113 @@ public class Intro extends JFrame implements ActionListener {
 
             infoPanel.add(btn, c);
         }
+    }
+
+    /** Méthode qui affiche les champs de configuration des touches */
+    public void askForConfigTouchWithTextFields() {
+        JTextField fieldDirRight = new JTextField(1);
+        fieldDirRight.setHorizontalAlignment(JTextField.CENTER);
+        JTextField fieldDirLeft = new JTextField(1);
+        fieldDirLeft.setHorizontalAlignment(JTextField.CENTER);
+        JTextField fieldDirUp = new JTextField(1);
+        fieldDirUp.setHorizontalAlignment(JTextField.CENTER);
+        JTextField fieldDirDown = new JTextField(1);
+        fieldDirDown.setHorizontalAlignment(JTextField.CENTER);
+        JTextField fieldPutRemoteBomb = new JTextField(1);
+        fieldPutRemoteBomb.setHorizontalAlignment(JTextField.CENTER);
+        JTextField fieldPutMine = new JTextField(1);
+        fieldPutMine.setHorizontalAlignment(JTextField.CENTER);
+        JTextField fieldPutClassicBomb = new JTextField(1);
+        fieldPutClassicBomb.setHorizontalAlignment(JTextField.CENTER);
+        JTextField fieldExplodeRemoteBomb = new JTextField(1);
+        fieldExplodeRemoteBomb.setHorizontalAlignment(JTextField.CENTER);
+
+        fieldDirRight.setForeground(Color.BLACK);
+        setGridBag(1, 20, 0.5, 1, 2);
+        infoPanel.add(getJLabelWhite("Déplacer à droite:"), c);
+        setGridBag(1, 20, 0.5, 2, 2);
+        infoPanel.add(getJLabelWhite(configTouch.getDirRight()), c);
+        setGridBag(1, 20, 0.5, 3, 2);
+        infoPanel.add(fieldDirRight, c);
+        setGridBag(1, 20, 0.5, 1, 3);
+        infoPanel.add(getJLabelWhite("Déplacer à gauche:"), c);
+        setGridBag(1, 20, 0.5, 2, 3);
+        infoPanel.add(getJLabelWhite(configTouch.getDirLeft()), c);
+        setGridBag(1, 20, 0.5, 3, 3);
+        infoPanel.add(fieldDirLeft, c);
+        setGridBag(1, 20, 0.5, 1, 4);
+        infoPanel.add(getJLabelWhite("Déplacer en haut:"), c);
+        setGridBag(1, 20, 0.5, 2, 4);
+        infoPanel.add(getJLabelWhite(configTouch.getDirUp()), c);
+        setGridBag(1, 20, 0.5, 3, 4);
+        infoPanel.add(fieldDirUp, c);
+        setGridBag(1, 20, 0.5, 1, 5);
+        infoPanel.add(getJLabelWhite("Déplacer en bas:"), c);
+        setGridBag(1, 20, 0.5, 2, 5);
+        infoPanel.add(getJLabelWhite(configTouch.getDirDown()), c);
+        setGridBag(1, 20, 0.5, 3, 5);
+        infoPanel.add(fieldDirDown, c);
+        setGridBag(1, 20, 0.5, 1, 6);
+        infoPanel.add(getJLabelWhite("Poser bombe à distance:"), c);
+        setGridBag(1, 20, 0.5, 2, 6);
+        infoPanel.add(getJLabelWhite(configTouch.getPutRemoteBomb()), c);
+        setGridBag(1, 20, 0.5, 3, 6);
+        infoPanel.add(fieldPutRemoteBomb, c);
+        setGridBag(1, 20, 0.5, 1, 7);
+        infoPanel.add(getJLabelWhite("Poser mine:"), c);
+        setGridBag(1, 20, 0.5, 2, 7);
+        infoPanel.add(getJLabelWhite(configTouch.getPutMine()), c);
+        setGridBag(1, 20, 0.5, 3, 7);
+        infoPanel.add(fieldPutMine, c);
+        setGridBag(1, 20, 0.5, 1, 8);
+        infoPanel.add(getJLabelWhite("Poser bombe classique:"), c);
+        setGridBag(1, 20, 0.5, 2, 8);
+        infoPanel.add(getJLabelWhite(configTouch.getPutClassicBomb()), c);
+        setGridBag(1, 20, 0.5, 3, 8);
+        infoPanel.add(fieldPutClassicBomb, c);
+        setGridBag(1, 20, 0.5, 1, 9);
+        infoPanel.add(getJLabelWhite("Faire exploser bombe à distance:"), c);
+        setGridBag(1, 20, 0.5, 2, 9);
+        infoPanel.add(getJLabelWhite(configTouch.getExplodeRemoteBomb()), c);
+        setGridBag(1, 20, 0.5, 3, 9);
+        infoPanel.add(fieldExplodeRemoteBomb, c);
+
+        JButton submitButton = createBtn("Confirmer");
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                configTouch.setDirRight(getCharFromField(fieldDirRight, configTouch.getDirRight()));
+                configTouch.setDirLeft(getCharFromField(fieldDirLeft, configTouch.getDirLeft()));
+                configTouch.setDirUp(getCharFromField(fieldDirUp, configTouch.getDirUp()));
+                configTouch.setDirDown(getCharFromField(fieldDirDown, configTouch.getDirDown()));
+                configTouch.setPutRemoteBomb(getCharFromField(fieldPutRemoteBomb, configTouch.getPutRemoteBomb()));
+                configTouch.setPutMine(getCharFromField(fieldPutMine, configTouch.getPutMine()));
+                configTouch.setPutClassicBomb(getCharFromField(fieldPutClassicBomb, configTouch.getPutClassicBomb()));
+                configTouch.setExplodeRemoteBomb(getCharFromField(fieldExplodeRemoteBomb, configTouch.getExplodeRemoteBomb()));
+
+                MapperRes.writeJson(configTouch);
+                publishMessage("Les informations ont bien été enregistrées", true, Color.GREEN);
+            }
+        });
+
+        setGridBag(1, 20, 0.5, 2, 12);
+        infoPanel.add(submitButton, c);
+
+        infoPanel.revalidate();
+        infoPanel.repaint();
+    }
+
+    /** Méthode qui récupère le charactère d'un JTextField */
+    private String getCharFromField(JTextField field, String defaultValue) {
+        String text = field.getText();
+        return (text != null && !text.isEmpty()) ? text : defaultValue;
+    }
+
+    /** Méthode qui retourne un JLabel blanc */
+    private JLabel getJLabelWhite(String text) {
+        JLabel label = new JLabel(text, JLabel.CENTER);
+        label.setForeground(Color.WHITE);
+        return label;
     }
 
     /** Méthode qui tente une reconection au serveur si celle ci est perdu */
