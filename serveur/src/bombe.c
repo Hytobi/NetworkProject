@@ -110,7 +110,7 @@ char getRandomChar()
 {
     srand(time(NULL));
     int randomNumber = (rand() % 100) + 1;
-    return (randomNumber < 30) ? ITEM_CHAR : SOL_CHAR;
+    return (randomNumber < 80) ? ITEM_CHAR : SOL_CHAR;
 }
 
 int processExplose(Game *g, int x, int y)

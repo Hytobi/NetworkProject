@@ -51,7 +51,7 @@ void receiveSend(Client_Map_Games *clientMap, char *recu) {
         pthread_mutex_lock(&cl->clientGame->map->mutex);
         //afficheMap(*cl->clientGame->map);
         int caseMove = movePlayer(cl->player, cl->clientGame, cJSON_Parse(recu));
-        //afficheMap(*cl->clientGame->map);
+        afficheMap(*cl->clientGame->map);
         pthread_mutex_unlock(&cl->clientGame->map->mutex);
         pthread_mutex_unlock(&cl->clientGame->mutex);
 

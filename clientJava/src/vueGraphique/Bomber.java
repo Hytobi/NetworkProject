@@ -40,7 +40,7 @@ public class Bomber {
                 for (String msg : msgs) {
                     System.out.println("Message : " + msg);
                     // si le message commence par POST, on split le message pour récupérer les infos
-                    if (msg.startsWith("POST")) {
+                    if (msg.contains("POST")) {
                         String json = "{" + msg.split("\\{")[1];
                         if (msg.contains("player/position/update")) {
                             try {

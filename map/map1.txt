@@ -1,15 +1,15 @@
 XXXXXXXXXXXXXXX
 X             X
-X             X
-X  ####  I    X
-X             X
-X         ##  X
-X             X
+X     #       X
+X  ####  #### X
+X   #         X
+X   #     ##  X
+X#####    ##  X
 X             X
 X      ####   X
-X             X
-X             X
-X             X
+X       #     X
+X    ####     X
+X     ###     X
 X         ### X
-X             X
+X ###         X
 XXXXXXXXXXXXXXX
