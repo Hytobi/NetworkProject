@@ -304,7 +304,6 @@ void *clientCommunication(void *args) {
             }
             close(cl->socket);
             if (cm!=NULL) {
-                free(cm->mapInfo);
                 free(cm);
             }
 
